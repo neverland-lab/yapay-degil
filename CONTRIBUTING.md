@@ -1,6 +1,6 @@
 # Katkıda Bulunma Rehberi (CONTRIBUTING.md)
 
-> **Bu depo dışarıdan pull request kabul etmiyor.** Hata bildirmek ya da öneride bulunmak için [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden "Hata bildirimi" ya da "İstek ya da öneri" şablonunu kullan. Değişiklikleri biz yapıyoruz. Aşağıdaki şablon, öneri açarken hangi bilgilerin işe yaradığını gösteriyor.
+> İki yolla katkı verebilirsin. Hata ya da öneriyi [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden "Hata bildirimi" ya da "İstek ya da öneri" şablonuyla yazabilirsin. Değişikliği kendin yapmak istersen pull request açabilirsin (bkz. 4. bölüm). Aşağıdaki şablon ikisi için de hangi bilgilerin işe yaradığını gösteriyor.
 
 `yapay-degil` projesine katkıda bulunmak istediğin için teşekkürler! Bu projenin temel ilkesi, "bence bu kelime güzel değil" gibi öznel yargılar yerine, **Büyük Dil Modellerinin (LLM) Türkçe çıktılarında istatistiksel olarak aşırı temsil edilen kalıpları, İngilizce sözdizimsel kopyaları (calque/translationese) ve TDK Yazım Kılavuzu kurallarını** kanıta dayalı olarak belgelemektir.
 
@@ -34,3 +34,21 @@ python3 scripts/detect_tr_ai.py README.md
 ## 3. Olgusal Sadakat İlkemiz
 
 Test ve örnek (`evals/evals.json` ve `references/register-ve-ornekler.md`) eklerken "Sonra (After)" metinlerinde kaynak metinde bulunmayan hiçbir yeni sayı, tarih, özel isim veya kişisel anekdot eklenmediğinden emin ol. Miktar ve kesinlik de bilgidir: Kaynak "birçok" diyorsa "yüzlerce", "artırabilir" diyorsa "artırır" yazma. Klişeyi silince somut bilgi gerekiyorsa ve kaynakta yoksa `[somut veri: ...]` yer tutucusunu kullan.
+
+## 4. Pull Request Açma
+
+Depoyu fork'la, değişikliğin için ayrı bir dal aç. Büyük bir değişiklikse önce bir issue açıp konuşalım, emeğin boşa gitmesin.
+
+Bir PR'da tek bir konu olsun. Bir kural, bir kalıp ya da bir düzeltme. Birbirinden bağımsız değişiklikleri ayrı PR'lara böl.
+
+Kuralı değiştiren ya da yeni bir sayı ekleyen PR'da dayanağını göster. Bu skill'deki eşikler gerçek metinlerden ölçüldü (`references/derlem-olcumleri.md`). Yeni bir eşik öneriyorsan hangi metinlerde, nasıl ölçtüğünü yaz. Telifli metinlerden uzun alıntı koyma, sayılar ve kendi kurduğun örnekler yeter.
+
+Göndermeden önce şunları çalıştır:
+
+```bash
+python3 scripts/build_dist.py
+python3 scripts/run_tests.py
+```
+
+Testlerin hepsi geçmeli. `build_dist.py` `dist/` ve `skills/yapay-degil/` kopyalarını günceller, bu dosyaları da PR'a ekle. Örnek ve test eklerken 3. bölümdeki sadakat ilkesine uy.
+

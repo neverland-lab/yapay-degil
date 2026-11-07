@@ -130,7 +130,7 @@ Betikler hakkında: `detect_tr_ai.py` ve `run_tests.py` dosya yazmaz. `build_dis
 
 ## Öneri ve hata bildirimi
 
-Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördüysen [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden yaz. Hata ve öneri için iki kısa şablon var. Depo dışarıdan pull request kabul etmiyor, değişiklikleri biz yapıyoruz.
+Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördüysen [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden yaz. Hata ve öneri için iki kısa şablon var. Değişikliği kendin yapmak istersen pull request de açabilirsin. Nasıl yapılacağı [CONTRIBUTING.md](CONTRIBUTING.md) dosyasında.
 
 ## Sürümler
 
