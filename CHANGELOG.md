@@ -2,6 +2,16 @@
 
 Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar: kuralları ya da kurulum adını değiştiren büyük adımda ilk sayı, yeni kural ya da ölçümde ortadaki sayı, düzeltmede sondaki sayı.
 
+## 1.2.0 (8 Kasım 2026)
+
+Ölçümler:
+- Çağdaş roman derlemi: 17 kitap, 13'ü 2000 sonrası. Cümleler kısalmış (ortanca 8 kelime), ritim değişkenliği aynı. Devrik oranını dönem değil yazar belirliyor (%4-37), devrik varsayılanı korundu.
+- Açıklayıcı metin derlemi: Türkçe yazılmış beş psikoloji kitabı. Ritim değişkenliği edebî metinden düşük (0,38-0,48), noktalı virgül 1000 kelimede 3-7.
+
+Kurallar:
+- Ritim: Akademik ve açıklayıcı metinde edebî değişkenlik hedefi zorlanmaz.
+- Noktalı virgül: Açıklayıcı metinde 1000 kelimede 3-7 olağan, onarımda insanın koyduğu noktalı virgül sınır yüzünden silinmez.
+
 ## 1.1.0 (7 Kasım 2026)
 
 Ölçümler:

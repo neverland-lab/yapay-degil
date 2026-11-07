@@ -84,6 +84,16 @@ Skill sıfırdan yazımda ritmi ve noktalama çeşitliliğini insan düzeyine ya
 
 **Kalite ve sadakat:** Yazma modunda aynı isteğe skill'siz ve skill'le yazılmış Gemini metinleri bağımsız bir model okura (Gemini) körlemesine verildi. Okur 8 isteğin 8'inde skill'le yazılmış metni daha doğal buldu. Onarım modunda aynı okur kaynak ve onarılmış sürümleri körlemesine sıraladı. Onarılmış sürümler 8 metnin 7'sinde kaynağın önüne geçti. Onarımda ritim kontrolünün de geçerli olduğu talimatı eklendikten sonra aynı 8 metin yeniden onarıldı (Gemini onarıcı) ve eski onarımla birlikte körlemesine sıralandı. İki sürüm 4-4 berabere kaldı, kaynak metin hiçbir sıralamada birinci olmadı. Ritim aynı düzeyde kaldı (pencere CoV'si 0,44 ve 0,43). Yeni sürümde noktalı virgül yarıya indi (1000 kelimede 5,3'ten 2,8'e), devrik oranı %12'den %7'ye döndü. Ritmi zorlayan sürüm her zaman daha doğal bulunmadı: Ritim için yeniden kurulan cümlelerde yeni hatalar görüldü. Skill'deki "ritim için yeni ifade icat etme" uyarısı bu yüzden eklendi. Sadakat denetiminde 8 onarımdan 5'i temiz, 3'ünde küçük kayıp vardı. Kayıpların ikisi kuralların yan etkisiydi (negatif paralellik ve kapanış kuralları), iki kurala da sınır eklendi.
 
+## Çağdaş Roman Ölçümü
+
+Derlemin çoğu 20. yüzyıl yazarlarından oluştuğu için 17 roman ve öykü kitabı ayrıca ölçüldü (EPUB, yaklaşık bir milyon kelime). 13'ü 2000 sonrası: Hakan Günday, Sema Kaygusuz, Ayfer Tunç, Barış Bıçakçı, Emrah Serbes, Ahmet Ümit, Zülfü Livaneli, İhsan Oktay Anar, Burhan Sönmez, Ayşe Kulin, Elif Şafak (*Mahrem*), Murathan Mungan (*Çador*), Hasan Ali Toptaş (*Heba*). Karşılaştırma için aynı yazarların eski kitapları da ölçüldü (Orhan Pamuk, Mungan, Toptaş).
+
+2000 sonrası kitaplarda ortanca cümle 8 kelime (eski derlemde 10,5), 1-6 kelimelik cümle oranı %40 (eskide %25). Pencere değişkenliği 0,45, eskiyle aynı. Devrik oranının ortancası %13 (eskide %8), ama kitaptan kitaba %4 (Sönmez) ile %37 (Toptaş, *Heba*) arasında değişiyor. Aynı yazarın eski ve yeni kitabında yön tutarsız: Pamuk %4'ten %9'a, Toptaş %17'den %37'ye çıkıyor, Mungan %26'dan %13'e iniyor. Yani devrik oranını dönem değil yazar ve kitap belirliyor. Skill'deki "kullanıcının örneği yoksa on cümlede birden fazla devrik kurma" varsayılanı bu yüzden korundu.
+
+## Açıklayıcı Metin Ölçümü (Psikoloji)
+
+Ders kitabı ile popüler bilim arasındaki register için Türkçe yazılmış beş psikoloji kitabı ölçüldü (yaklaşık 415.000 kelime): Doğan Cüceloğlu, Üstün Dökmen, Engin Geçtan, Çiğdem Kağıtçıbaşı ve Zeynep Cemalcılar, Serol Teber. Ortanca cümle 12 kelime, 15-22 bandı %25 (öbür register'lardan yüksek), 28 kelimeden uzun cümle %6,5. Pencere değişkenliği 0,435 (0,38-0,48), yani edebî metinden daha tekdüze. `-mAktAdIr` 100 kelimede 0,39, edebî metin (~0) ile akademik makale (~1,0) arasında. Cümlelerin %16'sı `-DIr`, %7'si `-mIştIr` ile bitiyor. Devrik %4. Noktalı virgül 1000 kelimede 3,9 (2,9-10,7), iki nokta 7,6. Skill'in ritim ve noktalı virgül kurallarına açıklayıcı metin için bu aralıklar eklendi.
+
 ## Sınırlamalar
 
 - İnsan derleminin çoğu 20. yüzyıl yazarlarıdır. Ayrı bir denetim için iki çağdaş romandan (Alev Alatlı, Ayla Kutlu) örnek ölçüldü: Pencere CoV'si ikisinde de 0,50, soru işareti 1000 kelimede 8-15. Ritim bulgusu çağdaş romanda da geçerli görünüyor.
