@@ -1,48 +1,64 @@
 # yapay-degil
 
-Yapay zekâya Türkçe yazdırınca bir şey hep tuhaf durur. Kelimeler Türkçedir ama cümleler sanki İngilizceden çevrilmiş gibidir. Her paragraf "Günümüzde" diye açılır, "Sonuç olarak" diye kapanır, aradaki cümlelerin hepsi aynı boydadır. Bu depo o tuhaflığı gideren bir skill. Claude, Cursor, Gemini CLI gibi yapay zekâ araçlarında çalışır. Metni sıfırdan doğal Türkçeyle yazdırır ya da elindeki metni onarır.
+Yapay zekâya Türkçe yazdırınca bir şey hep tuhaf durur. Kelimeler Türkçedir ama cümleler İngilizceden çevrilmiş gibidir. Her paragraf "Günümüzde" diye açılır, "Sonuç olarak" diye kapanır, aradaki cümlelerin hepsi aynı boydadır. Bu depo o tuhaflığı gideren bir skill. Claude, Cursor, Gemini CLI gibi yapay zekâ araçlarında çalışır, metni sıfırdan doğal Türkçeyle yazdırır ya da elindeki metni onarır.
 
 [![License: MIT](https://img.shields.io/badge/lisans-MIT-blue.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-v1.0-blue)](https://agentskills.io/specification)
 [![Öneri ve hata bildirimi](https://img.shields.io/badge/%C3%B6neri%20ve%20hata-issues-blue.svg)](https://github.com/neverland-lab/yapay-degil/issues/new/choose)
 
-*Turkish AI-text humanizer for Claude and other agents. Rules are calibrated on a corpus of Turkish books and academic papers.*
+*Turkish AI-text humanizer for Claude and other agents. Its rules are calibrated on 2.7 million words of Turkish writing: novels, essays, columns, letters, papers, technical and official documents.*
 
 ## Önce bir örnek
 
-Gemini'den uzaktan çalışma üzerine kısa bir blog yazısı istedik. İlk paragrafı şöyleydi:
+Gemini Flash'tan gelenek ve modern hayat üzerine bir deneme istedik. İlk paragrafı şuydu:
 
-> Geleneksel ofis düzeninin yerini alan uzaktan çalışma modeli, modern iş dünyasının en köklü dönüşümlerinden biri haline geldi. İlk başlarda küresel şartların getirdiği bir zorunlulukla hayatımıza giren bu düzen, bugün pek çok profesyonel için vazgeçilmez bir çalışma biçimine dönüştü. Fiziksel ofis duvarlarının kalkması; günlük rutinlerden iş yapış şekillerine kadar her şeyi yeniden tanımlarken, çalışanların psikolojisi, üretkenliği ve sosyal yaşamı üzerinde de derin izler bırakıyor.
+> Modern insanın zamanla kurduğu ilişki, tarihte hiç olmadığı kadar hız ve yenilik ekseninde şekilleniyor. Her sabah yeni bir teknolojik sıçrayışa, değişen normlara ve eskimeye mahkûm tüketim nesnelerine uyanıyoruz. Bu baş döndürücü devinim içinde gelenek kavramı, çoğu zaman ilerlemenin önündeki köhne bir engel, geçmişin tozlu sayfalarına hapsolmuş bir pranga gibi algılanabiliyor. Oysa insanı bütünüyle bugünden ibaret saymak, nehrin yalnızca gözümüzün önünden geçen damlasını su zannedip kaynağını ve yatağını inkâr etmeye benzer. Geleneğin modern hayattaki yeri, geçmişe duyulan romantik bir özlemden ya da katı bir muhafazakârlıktan çok daha derin; varoluşsal bir çıpa ve anlam arayışıdır.
 
 Skill'le onarılmış hâli:
 
-> Önce küresel şartların dayattığı bir zorunluluk olarak hayatımıza giren uzaktan çalışma, ofisin yerini alarak iş dünyasının en köklü dönüşümlerinden biri oldu. Bugün pek çok çalışan için vazgeçilmez. Ofis duvarları kalkınca her şey yeniden tanımlandı: günlük rutin de, iş yapma biçimi de. Bu değişim çalışanların psikolojisinde, üretkenliğinde ve sosyal hayatında da derin izler bırakıyor.
+> Modern insanın zamanla ilişkisini hız ve yenilik belirliyor. Tarihte hiç bu kadar olmamıştı. Her sabah yeni bir teknolojik sıçrayışa, değişen normlara, eskimeye mahkûm eşyalara uyanıyoruz. Bu hızın içinde gelenek çoğu zaman ilerlemenin önünde duran eski bir engel gibi görülebiliyor, geçmişten kalma bir pranga gibi. Ama insanı yalnızca bugünden ibaret saymak, nehrin önümüzden akıp giden damlasını su sanıp kaynağını da yatağını da inkâr etmeye benzer. Geleneğin bugünkü hayattaki yeri daha derin. Geçmişe duyulan romantik bir özlem değil o, katı bir muhafazakârlık da değil: varoluşsal bir çıpa, bir anlam arayışı.
 
-Bilgi aynı, hiçbir şey eklenmedi. Değişen şey cümlelerin kuruluşu. Gemini'nin cümleleri 15-22 kelimede toplanıyordu ve birbirine benziyordu. Onarımda 21 kelimelik bir cümlenin ardından 6 kelimelik biri geliyor. Yazının tamamında "Dönüm Noktası" başlığı, "bununla birlikte", "madalyonun diğer yüzü", noktalı virgül ve sondaki öğüt cümlesi de gitti. Dedektörle ölçtüğümüzde 15-22 kelimelik cümlelerin oranı %67'den %35'e indi, cümle boyu değişkenliği iki katına çıktı.
+İki paragrafta da aynı şey söyleniyor. Hiçbir bilgi eklenmedi, "görülebiliyor"daki ihtimal bile yerinde duruyor. Gidenler süslerdi: "baş döndürücü devinim", "tozlu sayfalarına hapsolmuş", "ekseninde şekilleniyor", bir de iki ayrı cümleyi birbirine yapıştıran noktalı virgül.
+
+Asıl fark, cümlelerin boyuna bakınca görünüyor:
+
+| | Cümle başına kelime | Ritim değişkenliği |
+| :--- | :--- | :--- |
+| Gemini Flash | 14 · 14 · 22 · 20 · 23 | 0,21 |
+| Skill'le onarım | 8 · 5 · 12 · 19 · 20 · 6 · 18 | 0,46 |
+| Türk yazarlar (derlem) | | 0,46-0,49 |
+
+Model her cümleyi aynı kalıba döküyor. Yazarlar kısa cümleyle uzun cümleyi yan yana kullanır. Okur cümleleri saymaz ama bu tekdüzeliği hisseder.
+
+Bir itirafımız var: Bu örneği hazırlarken ilk onarımımız ritmi düzeltmedi, daha da düzleştirdi. Cümleler 15, 12, 18, 17, 15 kelimeye dizilmişti. Bunu depodaki küçük dedektör betiği yakaladı, biz değil. Cümleleri yeniden kurduk, sonuç yukarıda.
 
 ## Kuralları nereden bulduk?
 
 Skill'in ilk hâlinde "insanlar 18-22 kelimelik cümlelere sıkışmaz", "on cümlede bir kısa cümle kur" gibi kurallar vardı. Kulağa doğru geliyordu ama hiçbirinin dayanağı yoktu. Biz de saydık.
 
-Türkçe yazmış 22 yazarın 24 kitabından (Sait Faik'ten Oğuz Atay'a, Çetin Altan'dan Pamuk'a), 8 akademik kitaptan, 2 çağdaş romandan, DergiPark'tan 44 makaleden ve 7 kamu belgesinden örnek aldık. Toplam yarım milyonu aşkın kelime. Çeviri kitapları bilerek dışarıda bıraktık, çünkü çeviri Türkçesi tam da temizlemeye çalıştığımız izleri taşıyor. Aynı yazma isteklerini beş dil modeline de verdik (Gemini 4, Gemini Flash, GPT-OSS, Claude Sonnet, Claude Opus) ve iki tarafı aynı ölçümlerden geçirdik.
+Doğrudan Türkçe yazılmış 145 metin topladık, toplam 2,7 milyon kelime. Sait Faik'ten Oğuz Atay'a eski romanlar ve öyküler, Hakan Günday'dan Ayfer Tunç'a, Burhan Sönmez'e 2000 sonrası romanlar ilk sırada. Yanlarında denemeler, köşe yazıları, Sabahattin Ali'nin mektupları, Atay'ın günlüğü, Cüceloğlu'ndan Geçtan'a psikoloji kitapları duruyor. Bilim ve devlet dili için de DergiPark'tan 44 makale, 19 teknik belge, Sayıştay raporları ve belediye faaliyet raporları aldık. Çeviri kitapları bilerek dışarıda bıraktık, çünkü çeviri Türkçesi tam da temizlemeye çalıştığımız izleri taşıyor. Aynı yazma isteklerini beş dil modeline de verdik (Gemini 4, Gemini Flash, GPT-OSS, Claude Sonnet, Claude Opus) ve modellerin yazdıklarını insan metinleriyle aynı ölçümlerden geçirdik.
 
-Kitaplardan içerik öğrenmedik, cümle öğrendik. Bir yazarın ne anlattığı bizi ilgilendirmedi. Cümlelerini kaç kelimeyle kurduğu, ne sıklıkla soru sorduğu, yüklemi ne zaman sona bıraktığı, ne zaman öne aldığı ilgilendirdi. Kitaplarda ölçümü metnin tamamında değil, başından, ortasından ve sonundan alınan sekizer sayfada yaptık. Makalelerde giriş ile kaynakça arasındaki gövdenin tamamını saydık. Skill'in içinde hiçbir kitaptan tek bir cümle yok. Depoda yalnızca sayılar var, örnek cümleleri biz kurduk. Hepsi [`references/derlem-olcumleri.md`](references/derlem-olcumleri.md) dosyasında.
+Kitaplardan içerik öğrenmedik, cümle öğrendik. Bir yazarın ne anlattığı bizi ilgilendirmedi, cümlesini kaç kelimeyle kurduğu, ne sıklıkla soru sorduğu, yüklemi ne zaman sona bıraktığı ilgilendirdi. Skill'in içinde hiçbir kitaptan tek bir cümle yok. Depoda yalnızca sayılar var, örnek cümleleri biz kurduk. Hepsi [`references/derlem-olcumleri.md`](references/derlem-olcumleri.md) dosyasında.
 
-Çıkanlardan bazıları beklediğimiz gibi değildi:
+Çıkanların bir kısmı beklediğimiz gibi değildi.
 
-- **İnsanı modelden ayıran şey kelimeler değil, ritim.** Yazarlar kısa ve uzun cümleyi art arda kullanıyor. Beş cümlelik pencerelerde cümle boyu değişkenliği yazarlarda 0,46-0,49, modellerde 0,28-0,41.
-- **Modeller tek tip de değil.** Gemini ve GPT cümleleri orta boyda topluyor. Claude ise yazarlardan bile kısa yazıyor ama onun cümleleri de hep aynı boyda. Yani "kısa cümle ekle" önerisi Claude için yanlış bir öneriydi.
-- **Modeller anlatıda neredeyse hiç soru, ünlem, üç nokta kullanmıyor.** Yazarların romanlarında 1000 kelimede 13 civarında soru var.
-- **"ki" suçsuz çıktı.** Skill bu bağlacı şüpheli sayıyordu. Oysa yazarlar "ki"yi modellerden daha sık kullanıyor: demek ki, öyle ki, kaldı ki.
-- **Akademik yazıda üç cümlenin art arda "-mektedir" ile bitmesi normal.** ChatGPT öncesi makalelerin çoğunda böyle seriler var. Bu kuralı kaldırdık.
+İnsanı modelden ayıran şey kelimeler değil, ritim. Metni art arda beşer cümlelik parçalara bölüp her parçada cümle boylarının ne kadar değiştiğine baktık. Bu değişkenlik yazarlarda 0,46-0,49, modellerde 0,28-0,41. Üstelik modeller tek tip de değil. Gemini ve GPT cümleleri orta boyda topluyor. Claude ise yazarlardan bile kısa yazıyor ama onun cümleleri de hep aynı boyda. Sorun cümlelerin kısalığı ya da uzunluğu değil, hepsinin aynı boyda olması. "Kısa cümle ekle" önerisi bu yüzden Claude'a hiç yaramıyordu.
 
-Bir yan bulgu daha var. 2026'da yayımlanan makaleler 2016-2019'dakilerden farklı yazılıyor: cümle sonunda "-dır" kullanımı yarıya inmiş, aynı ekle biten seriler uzamış. Yapay zekânın izi olabilir ama örneklem küçük, şimdilik bir gözlem olarak duruyor.
+Yazdıklarımızın bir kısmı da insan yazısını bozuyormuş. Skill "ama"dan önceki virgülü İngilizce alışkanlığı sayıp siliyordu. Saydık: Türk yazarlar "ama"ların dörtte birinin önüne virgül koyuyor, modeller daha az. "Ki" bağlacını da şüpheli sayıyorduk, oysa yazarlar onu modellerden sık kullanıyor: demek ki, öyle ki, kaldı ki. İki kuralı da kaldırdık.
+
+Devrik cümleyi dönem değil yazar belirliyor. 2000 sonrası romanlarda oran %4 ile %37 arasında değişiyor. Aynı yazarın eski ve yeni kitabını karşılaştırınca da yön tutarsız çıkıyor: Pamuk'ta ve Toptaş'ta artıyor, Mungan'da azalıyor.
+
+Kurum dilinin uzun cümleleri ve art arda "-mıştır"la biten paragrafları yapay zekâdan önce de vardı. İBB'nin 2018-2020 faaliyet raporlarıyla 2023-2024 raporları aynı aralıkta çıktı. Skill bu yüzden kamu yazışmasında o dile dokunmuyor.
+
+Ders kitabı ve popüler bilim yazısının ritmi romandan daha düzenli. Bu yazarlarda da cümle boyu değişkenliği 0,38-0,48 arasında. Skill orada edebî ritmi zorlamıyor.
+
+Bir de yan bulgumuz var. 2026'da yayımlanan makaleler 2016-2019'dakilerden farklı yazılıyor: cümle sonunda "-dır" kullanımı yarıya inmiş, aynı ekle biten seriler uzamış. Yapay zekânın izi olabilir ama örneklem küçük, şimdilik gözlem olarak duruyor.
 
 ## Model mi eğittiniz?
 
-Hayır. Bu bilinçli bir tercih. Skill bir talimat dosyası. Model, metni yazarken ya da onarırken bu talimatlara bakıyor. Biz talimatlardaki her sayıyı ölçülmüş bir değere bağladık ve her değişikliği denedik.
+Hayır, bilerek eğitmedik. Skill bir talimat dosyası. Model, metni yazarken ya da onarırken bu talimatlara bakıyor. Biz talimatlardaki her sayıyı ölçülmüş bir değere bağladık ve her değişikliği denedik.
 
-Deneme düzeni şöyle: Aynı istekleri skill'li ve skill'siz yazdırıyoruz, çıkan metinleri ölçüyoruz, sonra etiketlerini silip karışık sırayla başka bir modele (Gemini) okutuyoruz. Okur hangisinin skill'li olduğunu bilmiyor. Sıfırdan yazımda skill'le yazılan metin 8 isteğin 8'inde daha doğal bulundu. Onarımda 8 metnin 7'sinde onarılmış sürüm kaynağın önüne geçti. Deneyler küçük, okur da bir model. Sayılar yön gösteriyor, kesin hüküm vermiyor.
+Deneme düzenimiz şöyle: Aynı istekleri skill'li ve skill'siz yazdırıyoruz, çıkan metinleri ölçüyoruz, sonra etiketlerini silip karışık sırayla başka bir modele (Gemini) okutuyoruz. Okur hangisinin skill'li olduğunu bilmiyor. Sıfırdan yazımda skill'le yazılan metin 8 isteğin 8'inde daha doğal bulundu. Onarımda 8 metnin 7'sinde onarılmış sürüm, modelin ilk yazdığı metnin önüne geçti. Deneyler küçük, okur da bir model. Sayılar yön gösteriyor, kesin hüküm vermiyor. Sırada insan okurlarla yapacağımız bir deney var.
 
 Her deney işe yaramadı. Akademik metinde ritmi artıran bir kural denedik. Sayılar iyileşti ama okur metni daha yapay buldu, kuralı geri aldık. Gemini'nin fazla devrik cümle kurmasını iki farklı talimatla düzeltmeye çalıştık, ikisi de tutmadı. Bunların hepsi ölçüm dosyasında "denendi, eklenmedi" diye duruyor.
 
@@ -110,28 +126,28 @@ python3 scripts/detect_tr_ai.py yazi.md --register kamu-kurum
 python3 scripts/detect_tr_ai.py metin.md --json
 ```
 
-Dedektör yalnızca yüzeye bakar. Cümle kuruluşunu düzeltmek modelin işi, dedektör sonuca bakıp "burada ritim düz" ya da "burada beş cümle aynı ekle bitiyor" der. Eşiklerin kaynağı yine ölçüm dosyasında.
+Dedektör yalnızca yüzeye bakar. Cümle kuruluşunu düzeltmek modelin işi, dedektör sonuca bakıp "burada ritim düz" ya da "burada beş cümle aynı ekle bitiyor" der. Uyarılarını insan metinleri üzerinde sınadık: Derlemin tamamını dedektörden geçirdik ve insan yazısına sık sık yanlış alarm veren kuralları gevşettik. Eşiklerin kaynağı yine ölçüm dosyasında.
 
 ## İçinde ne var?
 
 ```text
 SKILL.md                      Ana talimat: çalışma adımları, metin türleri, öz denetim
 references/
-  derlem-olcumleri.md         Kitap, makale ve model ölçümleri, deney sonuçları
+  derlem-olcumleri.md         Derlem ölçümleri, deney sonuçları
   sentaks-ve-morfoloji.md     Türkçe cümle kuruluşu: öge dizilimi, ulaçlar, koşutluk
   ai-turkcesi-sozlugu.md      Yapay zekâ Türkçesi kalıpları
   tdk-ve-noktalama.md         Noktalama ve yazım kuralları, kaynaklarıyla
   register-ve-ornekler.md     Metin türleri ve önce/sonra örnekleri
 scripts/                      Dedektör, testler, paketleme
 dist/                         Web arayüzleri için tek dosya
-skills/yapay-degil/ Kurulumda inen paket (betik içermez)
+skills/yapay-degil/           Kurulumda inen paket (betik içermez)
 ```
 
 Betikler hakkında: `detect_tr_ai.py` ve `run_tests.py` dosya yazmaz. `build_dist.py` yalnızca depo içinde çalışır: `dist/` dosyasını yeniden yazar, `skills/yapay-degil/references/` klasörünü silip yeniden kopyalar. Silme bu tek klasörle sınırlı, başka bir yol ya da sembolik bağlantı görürse durur. `npx skills` ya da `gh skill` ile kurulumda yalnızca `skills/yapay-degil/` iner, orada betik yoktur.
 
 ## Öneri ve hata bildirimi
 
-Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördüysen [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden yaz. Hata ve öneri için iki kısa şablon var. Değişikliği kendin yapmak istersen pull request de açabilirsin. Nasıl yapılacağı [CONTRIBUTING.md](CONTRIBUTING.md) dosyasında.
+Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördüysen [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden yaz. Hata ve öneri için iki kısa şablon var. Değişikliği kendin yapmak istersen pull request de açabilirsin, nasıl yapılacağı [CONTRIBUTING.md](CONTRIBUTING.md) dosyasında.
 
 ## Sürümler
 
