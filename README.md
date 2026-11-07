@@ -60,7 +60,7 @@ GitHub CLI kullanıyorsan:
 gh skill install neverland-lab/yapay-degil
 ```
 
-Claude Code'da eklenti olarak:
+Claude Code'da eklenti olarak. Bu iki satır terminale değil, Claude Code'un sohbet kutusuna yazılır:
 
 ```text
 /plugin marketplace add neverland-lab/yapay-degil

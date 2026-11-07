@@ -3,6 +3,9 @@
   "owner": {
     "name": "neverland-lab"
   },
+  "metadata": {
+    "description": "Yapay zekâ Türkçesini insan Türkçesine çeviren skill."
+  },
   "plugins": [
     {
       "name": "turkish-anti-ai-skill",
