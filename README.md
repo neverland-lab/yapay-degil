@@ -134,7 +134,7 @@ Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördü
 
 ## Sürümler
 
-Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 1.0.0.
+Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 1.1.0.
 
 ## Teşekkür ve lisans
 
