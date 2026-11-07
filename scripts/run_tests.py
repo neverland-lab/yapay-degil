@@ -119,6 +119,7 @@ def test_eval_scenarios() -> list:
             "before_cov": before_stats["sentence_length_cov"],
             "before_run": before_stats["repeated_ending_max_run"],
             "after_run": after_stats["repeated_ending_max_run"],
+            "run_limit": after_stats["repeated_ending_limit"],
             "target_range": after_stats["mektedir_target_range"],
             "after_cov": after_stats["sentence_length_cov"],
             "fidelity_preserved": len(missing_tokens) == 0,
@@ -154,7 +155,7 @@ def main():
         print(f"           -> AI Bayrakları (Önce -> Sonra): {res['before_flags']} -> {res['after_flags']}")
         lo, hi = res["target_range"]
         print(f"           -> '-mAktAdIr' Yoğunluğu (Önce -> Sonra): {res['before_mektedir']} -> {res['after_mektedir']} / 100 kelime (register hedefi: {lo}-{hi})")
-        print(f"           -> Art Arda Aynı Cümle Sonu (Önce -> Sonra): {res['before_run']} -> {res['after_run']} (sınır: 3 altı)")
+        print(f"           -> Art Arda Aynı Cümle Sonu (Önce -> Sonra): {res['before_run']} -> {res['after_run']} (sınır: {res['run_limit']} altı)")
         print(f"           -> Cümle Ritmi / Burstiness CoV (Önce -> Sonra): {res['before_cov']} -> {res['after_cov']}")
         print(f"           -> Olgusal Sadakat (Sayı/Terim Korunumu): {'%100 Korundu' if res['fidelity_preserved'] else res['missing_tokens']}")
         if res["caught_examples"]:

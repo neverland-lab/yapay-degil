@@ -4,7 +4,7 @@ description: Türkçe metni insan eliyle yazılmış gibi doğal yazar veya onar
 license: MIT
 metadata:
   author: yucezerey, neverland-lab
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # yapay-degil (Doğal Türkçe ve Anti-Slop Mimari Kılavuzu)

@@ -2,6 +2,16 @@
 
 Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar: kuralları ya da kurulum adını değiştiren büyük adımda ilk sayı, yeni kural ya da ölçümde ortadaki sayı, düzeltmede sondaki sayı.
 
+## 1.2.1 (8 Kasım 2026)
+
+Dedektör (`scripts/detect_tr_ai.py`) sadeleştirildi. Her kuralın insan metinlerinde (yaklaşık 865.000 kelime: roman, deneme, psikoloji, akademik, teknik, kurum) ve model metinlerinde ne sıklıkla uyarı verdiği 400 kelimelik parçalarda ölçüldü, insan metnine sık yanlış alarm verenler gevşetildi:
+- Eski tüm-metin ritim uyarısı kaldırıldı, yerine geçen beş cümlelik pencere ölçüsü kaldı. Eşik 0,38, yalnızca edebî, deneme ve kurumsal metinde uyarı verir.
+- Art arda aynı ekle biten cümle sınırı 3'ten 5'e çıktı. Akademik metinde `-mAktAdIr` alt sınırı kalktı.
+- Yeni register: `kamu-kurum` (Kamu / Kurum İçi Yazışma).
+- Satır başındaki diyalog tiresi uyarı vermez. "Söz konusu / bu bağlamda" akademik, teknik ve kamu metninde, "bununla birlikte / öte yandan" akademik ve kamu metninde işaretlenmez.
+
+Sonuç: Örneğin denemede ritim uyarısı alan insan parçası %35'ten %27'ye, psikolojide aynı ek uyarısı %39'dan %8'e, akademik kitapta `-mAktAdIr` uyarısı %71'den %0'a indi. Model denemelerinin %90'ı ritim uyarısını almaya devam ediyor.
+
 ## 1.2.0 (8 Kasım 2026)
 
 Ölçümler:

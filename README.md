@@ -106,6 +106,7 @@ Skill'in yanında küçük bir Python betiği var. Metni okuyup kalıpları, TDK
 ```bash
 python3 scripts/detect_tr_ai.py metin.md
 python3 scripts/detect_tr_ai.py makale.md --register akademik-resmi
+python3 scripts/detect_tr_ai.py yazi.md --register kamu-kurum
 python3 scripts/detect_tr_ai.py metin.md --json
 ```
 
@@ -134,7 +135,7 @@ Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördü
 
 ## Sürümler
 
-Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 1.2.0.
+Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 1.2.1.
 
 ## Teşekkür ve lisans
 

@@ -104,24 +104,35 @@ def time_suffix_findings(text: str) -> list:
 
 # Register'a göre '-mAktAdIr' hedef aralıkları (100 kelimede). Değerler SKILL.md register
 # tablosundaki dozajın sayısal karşılığıdır. Akademik aralık 2016-2019 ve 2026 DergiPark makaleleriyle
-# sınandı (ortanca 1,0, çeyrekler 0,5-1,6), diğerleri başlangıç değeridir.
+# sınandı (ortanca 1,0, çeyrekler 0,5-1,6), teknik aralık 19 teknik belgeyle doğrulandı. Alt sınır yok: 400 kelimelik
+# insan yazısı akademik parçaların %71'i eski 0,5 alt sınırının altında kalıyordu (araclar/dedektor_alarm.py ölçümü).
 REGISTER_PROFILES = {
     "blog-deneme": {"label": "Blog / Deneme / Sosyal Medya", "mektedir_min": 0.0, "mektedir_max": 0.5},
     "teknik": {"label": "Teknik / Mühendislik", "mektedir_min": 0.0, "mektedir_max": 1.0},
     "kurumsal": {"label": "Kurumsal / SaaS / İş İletişimi", "mektedir_min": 0.0, "mektedir_max": 1.0},
-    "akademik-resmi": {"label": "Akademik / Resmî / Hukuki", "mektedir_min": 0.5, "mektedir_max": 2.5},
+    "akademik-resmi": {"label": "Akademik / Resmî / Hukuki", "mektedir_min": 0.0, "mektedir_max": 2.5},
     "edebi-anlati": {"label": "Edebî / Anlatı", "mektedir_min": 0.0, "mektedir_max": 0.5},
+    "kamu-kurum": {"label": "Kamu / Kurum İçi Yazışma", "mektedir_min": 0.0, "mektedir_max": 2.5},
 }
 DEFAULT_PROFILE = {"label": "Register belirtilmedi (genel eşik)", "mektedir_min": 0.0, "mektedir_max": 2.5}
 REGISTER_ALIASES = {"blog": "blog-deneme", "deneme": "blog-deneme", "akademik": "akademik-resmi",
                     "resmi": "akademik-resmi", "hukuki": "akademik-resmi", "edebi": "edebi-anlati",
-                    "anlati": "edebi-anlati", "saas": "kurumsal"}
+                    "anlati": "edebi-anlati", "saas": "kurumsal",
+                    "kamu": "kamu-kurum", "kurum": "kamu-kurum"}
 
 # Art arda aynı cümle sonu: bu sayıda ve üstünde ardışık cümle aynı ek ailesiyle biterse uyarı ver.
 # Akademik register'da sınır derlemden: ChatGPT öncesi (2016-2019) 19 DergiPark makalesinde en uzun seri
 # ortanca 5, üst çeyrek 6, 19 makalenin 14'ünde art arda üç -mAktAdIr var. Üçlü seri orada olağandır.
-REPEATED_ENDING_LIMIT = 3
-REPEATED_ENDING_LIMITS = {"akademik-resmi": 7}
+# Genel sınır 3'teyken insan metinlerinde (psikoloji, teknik, deneme) parçaların %16-39'u uyarı alıyordu, model
+# metinleri %0-25. Ayırt edici olmadığı için sınır 5'e çekildi. Kamu yazışmasında 8-15 cümlelik seri olağandır.
+REPEATED_ENDING_LIMIT = 5
+REPEATED_ENDING_LIMITS = {"akademik-resmi": 7, "kamu-kurum": 99}
+
+# Register'a göre atlanan desenler: bu register'larda insan metninde de sık ve doğaldır (10.000 kelimede 6-9).
+REGISTER_SKIP = {
+    "Tier-2 Bürokratik": {"akademik-resmi", "teknik", "kamu-kurum"},
+    "Tier-2 Geçiş": {"akademik-resmi", "kamu-kurum"},
+}
 
 
 def resolve_register(register):
@@ -175,11 +186,14 @@ def split_turkish_sentences(text: str) -> list:
 # Derlem ölçümleri (references/derlem-olcumleri.md): art arda 5 cümlelik pencerelerde cümle uzunluğu CoV ortancası
 # insan metinlerinde 0,46-0,49, model metinlerinde 0,28-0,41. 15-22 kelime bandındaki cümle oranı insanda %14-25
 # (akademik metinde en çok %30), uzun cümleli modellerde %29-49. Bant uyarısı bu yüzden 0,30'un üstünde verilir.
-WINDOW_COV_TARGET = 0.40
+# Eşik 400 kelimelik parçalarda seçildi: 0,38'in altında kalan parça oranı insan romanında %12, denemede %27,
+# model metinlerinde %35-90. Akademik, teknik ve kamu metninde insan değeri zaten düşük (0,38-0,48), orada uyarı yok.
+WINDOW_COV_TARGET = 0.38
+RHYTHM_WARN_REGISTERS = {None, "edebi-anlati", "blog-deneme", "kurumsal"}
 BAND_15_22_WARN = 0.30
 
 
-def rhythm_profile(text: str, window: int = 5) -> dict:
+def rhythm_profile(text: str, window: int = 5, warn: bool = True) -> dict:
     """Paragraf sınırından bağımsız ritim ölçümü: art arda gelen her 5 cümlelik pencerenin değişim katsayısı."""
     lengths = []
     for par in text.split("\n"):
@@ -200,8 +214,8 @@ def rhythm_profile(text: str, window: int = 5) -> dict:
         "window_cov_median": median,
         "window_cov_below_target_ratio": round(sum(c < WINDOW_COV_TARGET for c in covs) / len(covs), 2) if covs else None,
         "band_15_22_ratio": band,
-        "flat_rhythm_warning": bool(covs) and median < WINDOW_COV_TARGET,
-        "band_15_22_warning": band is not None and len(lengths) >= 8 and band > BAND_15_22_WARN,
+        "flat_rhythm_warning": warn and bool(covs) and median < WINDOW_COV_TARGET,
+        "band_15_22_warning": warn and band is not None and len(lengths) >= 8 and band > BAND_15_22_WARN,
     }
 
 def analyze_text(text: str, register: str = None) -> dict:
@@ -209,7 +223,11 @@ def analyze_text(text: str, register: str = None) -> dict:
     profile = REGISTER_PROFILES[register_key] if register_key else DEFAULT_PROFILE
     findings = []
     for pattern, label in TIER1_PATTERNS + TIER2_AND_SYNTAX_PATTERNS + PUNCTUATION_AND_TDK_PATTERNS:
+        if any(label.startswith(k) and register_key in regs for k, regs in REGISTER_SKIP.items()):
+            continue
         for match in re.finditer(pattern, text, flags=re.IGNORECASE):
+            if match.group(0) == "—" and not text[text.rfind("\n", 0, match.start()) + 1:match.start()].strip():
+                continue                                # satır başındaki diyalog tiresi
             findings.append({
                 "rule": label,
                 "match": match.group(0),
@@ -257,8 +275,7 @@ def analyze_text(text: str, register: str = None) -> dict:
         "sentence_count": len(sentences),
         "sentence_lengths": sent_lengths,
         "sentence_length_cov": cov,
-        "low_burstiness_warning": cov < 0.35 and len(sentences) >= 3,
-        "rhythm": rhythm_profile(text),
+        "rhythm": rhythm_profile(text, warn=register_key in RHYTHM_WARN_REGISTERS),
         "mektedir_per_100_words": mektedir_per_100,
         "high_mektedir_warning": mektedir_per_100 > profile["mektedir_max"],
         "total_flags": len(findings),
@@ -288,7 +305,6 @@ def main():
     else:
         print(f"=== yapay-degil Denetim Raporu: {path.name} ===")
         print(f"Kelime Sayısı: {report['word_count']} | Cümle Sayısı: {report['sentence_count']}")
-        print(f"Cümle Uzunluğu Değişim Katsayısı (Burstiness CoV): {report['sentence_length_cov']} (İnsan hedefi: >= 0.40)")
         rh = report["rhythm"]
         if rh["window_cov_median"] is not None:
             print(f"Ritim (5 cümlelik pencerede CoV ortancası, {rh['window_count']} pencere): {rh['window_cov_median']} | "
