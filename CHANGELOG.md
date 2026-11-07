@@ -2,6 +2,16 @@
 
 Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar: kuralları ya da kurulum adını değiştiren büyük adımda ilk sayı, yeni kural ya da ölçümde ortadaki sayı, düzeltmede sondaki sayı.
 
+## 1.3.0 (8 Kasım 2026)
+
+Ölçümler:
+- Köşe yazısı derlemi (5 yazar) ve mektup, günlük, anı derlemi (5 kitap). Köşe yazısında 1000 kelimede yaklaşık 11 soru ve 9 üç nokta var, denemenin üç dört katı.
+- İBB'nin 2023 ve 2024 faaliyet raporları 2018-2020 raporlarıyla aynı aralıkta çıktı. Pamuk'un 2014 romanı eklendi.
+
+Kurallar:
+- `ama`dan önce virgül artık yapay zekâ izi sayılmıyor. Türk yazarlar `ama`ların %19-32'sinde virgül koyuyor, modeller %18. Skill bu virgülü ne siler ne ekler. Dedektörden de çıkarıldı (`ya da` öncesi virgül uyarısı kaldı).
+- Noktalama çeşitliliği kuralına köşe yazısı, blog ve sosyal medya için ölçülmüş oranlar eklendi.
+
 ## 1.2.1 (8 Kasım 2026)
 
 Dedektör (`scripts/detect_tr_ai.py`) sadeleştirildi. Her kuralın insan metinlerinde (yaklaşık 865.000 kelime: roman, deneme, psikoloji, akademik, teknik, kurum) ve model metinlerinde ne sıklıkla uyarı verdiği 400 kelimelik parçalarda ölçüldü, insan metnine sık yanlış alarm verenler gevşetildi:

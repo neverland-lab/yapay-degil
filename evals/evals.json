@@ -22,7 +22,7 @@
       "mode": "rewrite",
       "register": "teknik",
       "input_ai": "Bir önbellek (cache'ı) anahtarının süresi saat 14:30'da dolduğunda, aynı anda gelen bir çok istek veritabanına yönlendirilir ve bu durum sistemde adeta bir darboğaz yaratmaktadır. Bu sorun özellikle yüksek bir trafiğe sahip olan uç noktalarda (endpoints) ve SQL'da kritik bir öneme sahiptir, ama Redis dağıtık kilidi ile kusursuz bir şekilde çözülebilir. Öte yandan, JSON'de veri boyutu 64 KB sınırını aşmamalıdır.",
-      "output_human": "Çok okunan bir cache'in süresi saat 14.30'da dolunca yüzlerce istek aynı anda veritabanına yüklenip yüksek trafikli endpoint'lerde ve SQL'de kesintiye yol açar. Çözüm aslında basit. Redis dağıtık kilidiyle veritabanına tek bir isteğin gitmesini sağlayabilirsiniz ama JSON'da veri boyutu 64 KB sınırını aşmamalı.",
+      "output_human": "Çok okunan bir cache'in süresi saat 14.30'da dolunca yüzlerce istek aynı anda veritabanına yüklenip yüksek trafikli endpoint'lerde ve SQL'de kesintiye yol açar. Çözüm aslında basit. Redis dağıtık kilidiyle veritabanına tek bir isteğin gitmesini sağlayabilirsiniz, ama JSON'da veri boyutu 64 KB sınırını aşmamalı.",
       "must_preserve_tokens": [
         "14.30'da",
         "endpoint",
@@ -109,7 +109,7 @@
       "mode": "rewrite",
       "register": "teknik",
       "input_ai": "Dağıtık sistemlerde idempotency kavramı kritik bir rol oynamaktadır — çünkü ağ hataları nedeniyle bir istek birden fazla kez gönderilebilir ve bu durum veritabanında mükerrer kayıtlara yol açmaktadır. Bununla birlikte, her isteğe tekil bir anahtar (idempotency key) atamak bu sorunu kusursuz bir şekilde çözer, ama anahtarların süresi doğru yönetilmelidir.",
-      "output_human": "Ağ kopukluklarında istemci aynı isteği arka arkaya gönderebildiği için dağıtık sistemlerde idempotent tasarım şarttır. Yoksa veritabanında mükerrer kayıt oluşur. Her isteğe tekil bir idempotency key vererek bu riski kapatabilirsiniz ama anahtarların saklanma süresini doğru ayarlamak gerekir.",
+      "output_human": "Ağ kopukluklarında istemci aynı isteği arka arkaya gönderebildiği için dağıtık sistemlerde idempotent tasarım şarttır. Yoksa veritabanında mükerrer kayıt oluşur. Her isteğe tekil bir idempotency key vererek bu riski kapatabilirsiniz, ama anahtarların saklanma süresini doğru ayarlamak gerekir.",
       "must_preserve_tokens": [
         "idempotent",
         "veritabanında"

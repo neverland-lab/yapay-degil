@@ -50,7 +50,8 @@ PUNCTUATION_AND_TDK_PATTERNS = [
     (r"—", "P2 Noktalama: Uzun çizgi (em-dash '—') kullanımı (TDK diyalog dışında yasaklar)"),
     (r"\w+[–]\w+", "P2 Noktalama: Aralıkta orta çizgi (en-dash '–') kullanımı (TDK kısa çizgi '-' şart koşar)"),
     (r",\s*(?:ve|veya|yahut)\b|\b(?:ve|veya|yahut),", "P2 TDK Noktalama: 've / veya / yahut' bağlacından önce veya sonra virgül (TDK: konmaz)"),
-    (r",\s*(?:ama|fakat|lakin|ya da)\b", "P2 Üslup: 'ama / fakat / lakin / ya da' öncesi refleks virgül (TDK kuralı değil, İngilizce ', but' alışkanlığı)"),
+    # 'ama' öncesi virgül kaldırıldı: Türk yazarlar 'ama'ların %19-32'sinde koyuyor, modeller %18 (derlem ölçümü).
+    (r",\s*ya\s+da\b", "P2 Üslup: 'ya da' öncesi virgül ('veya' gibi virgülsüz yazılır)"),
     (r"\b(?:[01]?\d|2[0-3]):[0-5]\d\b", "P2 TDK Saat Hatası: Saat arasında iki nokta (':') kullanımı (TDK tek nokta '.' şart koşar, örn: 14.30)"),
     (r"%\d+\.\d+", "P2 TDK Sayı Hatası: Yüzde ondalık ayracı olarak nokta kullanımı (TDK virgül şart koşar, örn: %112,5)"),
     (r"\b(?:birşey|herşey|hiçbirşey|yada|bir çok|bir kaç|pekçok|ard arda|yanısıra|önsöz|önyargı|işbirliği|farketmek|terketmek|halbu ki|oysa ki)\b", "P2 TDK İmla Hatası: Birleşik/ayrı yazılan kelime hatası"),

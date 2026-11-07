@@ -80,11 +80,10 @@ Kamu kurumunun iç notları, resmî yazıları, faaliyet raporları ve sunum aç
 1. Başlıkta `Ve` bağlacının büyük yazılması ve klasik *"X Nedir ve Çözüm Yöntemleri"* şablonu (P2)
 2. *"yönlendirilir ve bu durum ... yaratmaktadır"* (Ulaç yerine `ve bu durum` + `-mAktAdIr` - P1)
 3. *"adeta bir darboğaz"*, *"yüksek bir trafiğe sahip olan"*, *"uç noktalarda"*, *"kritik bir öneme sahiptir"* (Tier-1 klişeler + gereksiz `"bir"` + zorlama teknik çeviri `"uç nokta"` - P0/P1)
-4. `..., ama` (Karşıtlık bağlacı öncesi virgül - P2)
 
 **Sonra (Doğal İnsan Türkçesi - Teknik Register):**
 > ## Cache stampede sorunu ve çözümü
-> Bir `cache` anahtarının süresi dolduğu anda gelen istekler hep birlikte veritabanına yönelip darboğaz oluşturur. Bu sorun özellikle yüksek trafikli `endpoint`'lerde önem kazanır. Dağıtık kilit (`distributed lock`) kullanabilirsiniz ama bu yöntem gecikmeyi artırabilir.
+> Bir `cache` anahtarının süresi dolduğu anda gelen istekler hep birlikte veritabanına yönelip darboğaz oluşturur. Bu sorun özellikle yüksek trafikli `endpoint`'lerde önem kazanır. Dağıtık kilit (`distributed lock`) kullanabilirsiniz, ama bu yöntem gecikmeyi artırabilir.
 
 **Sadakat notu:** Kaynak "birçok istek" diyor, çıktı "yüzlerce" demez. Kaynak "artırabilir" diyor, çıktı ihtiyatı silip "artırır" demez. Kaynakta "kesinti" veya "kilitlenme" yok, çıktı bunları eklemez. Terim tutarlılığı için başlıkta ve gövdede aynı terim (`cache`) kullanılır.
 
