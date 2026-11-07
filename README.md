@@ -22,13 +22,12 @@ Skill'le onarılmış hâli:
 
 Asıl fark, cümlelerin boyuna bakınca görünüyor:
 
-| | Cümle başına kelime | Ritim değişkenliği |
-| :--- | :--- | :--- |
-| Gemini Flash | 14 · 14 · 22 · 20 · 23 | 0,21 |
-| Skill'le onarım | 8 · 5 · 12 · 19 · 20 · 6 · 18 | 0,46 |
-| Türk yazarlar (derlem) | | 0,46-0,49 |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/cumle-boylari-dark.svg">
+  <img src="docs/img/cumle-boylari-light.svg" width="720" alt="Cümle başına kelime sayısı. Gemini Flash: 14, 14, 22, 20, 23 (ritim değişkenliği 0,21). Skill'le onarım: 8, 5, 12, 19, 20, 6, 18 (ritim değişkenliği 0,46).">
+</picture>
 
-Model her cümleyi aynı kalıba döküyor. Yazarlar kısa cümleyle uzun cümleyi yan yana kullanır. Okur cümleleri saymaz ama bu tekdüzeliği hisseder.
+Model her cümleyi aynı kalıba döküyor. Yazarlar kısa cümleyle uzun cümleyi yan yana kullanır, ölçtüğümüz Türk yazarlarda bu değişkenlik 0,46-0,49. Okur cümleleri saymaz ama bu tekdüzeliği hisseder.
 
 Bir itirafımız var: Bu örneği hazırlarken ilk onarımımız ritmi düzeltmedi, daha da düzleştirdi. Cümleler 15, 12, 18, 17, 15 kelimeye dizilmişti. Bunu depodaki küçük dedektör betiği yakaladı, biz değil. Cümleleri yeniden kurduk, sonuç yukarıda.
 
@@ -43,6 +42,11 @@ Kitaplardan içerik öğrenmedik, cümle öğrendik. Bir yazarın ne anlattığ�
 Çıkanların bir kısmı beklediğimiz gibi değildi.
 
 İnsanı modelden ayıran şey kelimeler değil, ritim. Metni art arda beşer cümlelik parçalara bölüp her parçada cümle boylarının ne kadar değiştiğine baktık. Bu değişkenlik yazarlarda 0,46-0,49, modellerde 0,28-0,41. Üstelik modeller tek tip de değil. Gemini ve GPT cümleleri orta boyda topluyor. Claude ise yazarlardan bile kısa yazıyor ama onun cümleleri de hep aynı boyda. Sorun cümlelerin kısalığı ya da uzunluğu değil, hepsinin aynı boyda olması. "Kısa cümle ekle" önerisi bu yüzden Claude'a hiç yaramıyordu.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/ritim-dark.svg">
+  <img src="docs/img/ritim-light.svg" width="720" alt="Ritim değişkenliği ortancaları. Türk yazarlar: roman ve öykü 0,47 (35 kitap), deneme, köşe yazısı ve mektup 0,46 (17 kitap). Modeller (8'er metin): Gemini 4 0,33, Gemini Flash 0,31, GPT-OSS 0,31, Claude Sonnet 0,36, Claude Opus 0,38.">
+</picture>
 
 Yazdıklarımızın bir kısmı da insan yazısını bozuyormuş. Skill "ama"dan önceki virgülü İngilizce alışkanlığı sayıp siliyordu. Saydık: Türk yazarlar "ama"ların dörtte birinin önüne virgül koyuyor, modeller daha az. "Ki" bağlacını da şüpheli sayıyorduk, oysa yazarlar onu modellerden sık kullanıyor: demek ki, öyle ki, kaldı ki. İki kuralı da kaldırdık.
 
