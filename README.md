@@ -1,4 +1,6 @@
-# turkish-anti-ai-skill
+# yapay-degil
+
+> Bu depo [yucezerey/turkish-anti-ai-skill](https://github.com/yucezerey/turkish-anti-ai-skill) projesinden doğdu ve bağımsız olarak geliştiriliyor. Kural ve eşiklerin çoğu Türkçe kitap ve makale derlemiyle yeniden ölçüldü (`references/derlem-olcumleri.md`). Skill'in kurulum adı `turkish-anti-ai-skill` olarak kaldı.
 
 **Türkçeyi çevrilmiş İngilizce gibi değil, insan eliyle yazılmış doğal Türkçe gibi yaz ve onar.**  
 *An open-source Agent Skill & Turkish Humanizer that removes AI writing patterns ("Yapay Zekâ Türkçesi" / Translationese) and rebuilds authentic Turkish sentence architecture.*
@@ -52,25 +54,25 @@ Tek satırlık *"Bunu insani ve doğal bir Türkçeyle yaz"* komutu yalnızca en
 Claude Code, Cursor, OpenAI Codex, Gemini CLI, Windsurf ve OpenCode için tek komutla kurulum:
 
 ```bash
-npx skills add yucezerey/turkish-anti-ai-skill
+npx skills add neverland-lab/yapay-degil
 ```
 
 GitHub CLI (v2.90+) kullanıyorsan:
 
 ```bash
-gh skill install yucezerey/turkish-anti-ai-skill
+gh skill install neverland-lab/yapay-degil
 ```
 
 ### 2. Claude Code & Claude Cowork
 **Seçenek A: Plugin Marketplace olarak kurulum (Önerilen):**
 ```text
-/plugin marketplace add yucezerey/turkish-anti-ai-skill
-/plugin install turkish-anti-ai-skill@yucezerey
+/plugin marketplace add neverland-lab/yapay-degil
+/plugin install turkish-anti-ai-skill@yapay-degil
 ```
 
 **Seçenek B: Doğrudan `~/.claude/skills/` dizinine klonlama:**
 ```bash
-git clone https://github.com/yucezerey/turkish-anti-ai-skill.git ~/.claude/skills/turkish-anti-ai-skill
+git clone https://github.com/neverland-lab/yapay-degil.git ~/.claude/skills/turkish-anti-ai-skill
 ```
 
 ### 3. Cursor (`.cursor/rules/*.mdc` veya Agent Skills)
@@ -78,17 +80,17 @@ Projenin kök dizininde Cursor kuralını aktif etmek için:
 
 ```bash
 mkdir -p .cursor/rules
-curl -sL https://raw.githubusercontent.com/yucezerey/turkish-anti-ai-skill/main/.cursor/rules/turkish-anti-ai-skill.mdc \
+curl -sL https://raw.githubusercontent.com/neverland-lab/yapay-degil/main/.cursor/rules/turkish-anti-ai-skill.mdc \
   -o .cursor/rules/turkish-anti-ai-skill.mdc
 ```
 
 ### 4. OpenAI Codex, Gemini CLI ve Windsurf
 ```bash
 # Evrensel .agents/skills/ dizini (Codex, Gemini CLI, Cursor, Windsurf destekler)
-git clone https://github.com/yucezerey/turkish-anti-ai-skill.git ~/.agents/skills/turkish-anti-ai-skill
+git clone https://github.com/neverland-lab/yapay-degil.git ~/.agents/skills/turkish-anti-ai-skill
 
 # Veya doğrudan Gemini CLI dizinine:
-git clone https://github.com/yucezerey/turkish-anti-ai-skill.git ~/.gemini/skills/turkish-anti-ai-skill
+git clone https://github.com/neverland-lab/yapay-degil.git ~/.gemini/skills/turkish-anti-ai-skill
 ```
 
 ### 5. ChatGPT (Custom GPT), Claude Projects ve Google AI Studio (Web)

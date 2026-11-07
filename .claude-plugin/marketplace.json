@@ -1,0 +1,13 @@
+{
+  "name": "yapay-degil",
+  "owner": {
+    "name": "neverland-lab"
+  },
+  "plugins": [
+    {
+      "name": "turkish-anti-ai-skill",
+      "source": "./",
+      "description": "Yapay zekâ Türkçesini derlemle ölçülmüş insan Türkçesine çeviren skill."
+    }
+  ]
+}
