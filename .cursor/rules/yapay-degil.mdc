@@ -4,7 +4,7 @@ globs: ["**/*.md", "**/*.mdx", "**/*.txt"]
 alwaysApply: false
 ---
 
-# Turkish Anti-AI Skill (Cursor Kural Adaptörü)
+# yapay-degil (Cursor Kural Adaptörü)
 
 Türkçe metin yazarken veya düzenlerken Büyük Dil Modellerinin (LLM) İngilizce eğitim verisinden kopyaladığı "Yapay Zekâ Türkçesi" (Translationese) kalıplarını kullanma. Aşağıdaki kuralları ve depodaki `SKILL.md` ile `references/` dosyalarını uygula:
 

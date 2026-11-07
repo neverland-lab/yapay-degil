@@ -1,5 +1,5 @@
 ==============================================================================
-TURKISH-ANTI-AI-SKILL KAPSAMLI TEST VE DOĞRULAMA PAKETİ
+YAPAY-DEGIL KAPSAMLI TEST VE DOĞRULAMA PAKETİ
 ==============================================================================
 
 [BÖLÜM 1] PAKET VE MİMARİ BÜTÜNLÜK TESTLERİ

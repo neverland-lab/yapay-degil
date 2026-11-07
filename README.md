@@ -64,30 +64,28 @@ Claude Code'da eklenti olarak. Bu iki satır terminale değil, Claude Code'un so
 
 ```text
 /plugin marketplace add neverland-lab/yapay-degil
-/plugin install turkish-anti-ai-skill@yapay-degil
+/plugin install yapay-degil@yapay-degil
 ```
 
 Ya da elle:
 
 ```bash
 # Claude Code
-git clone https://github.com/neverland-lab/yapay-degil.git ~/.claude/skills/turkish-anti-ai-skill
+git clone https://github.com/neverland-lab/yapay-degil.git ~/.claude/skills/yapay-degil
 
 # Codex, Gemini CLI, Cursor, Windsurf
-git clone https://github.com/neverland-lab/yapay-degil.git ~/.agents/skills/turkish-anti-ai-skill
+git clone https://github.com/neverland-lab/yapay-degil.git ~/.agents/skills/yapay-degil
 ```
 
 Cursor kuralı olarak:
 
 ```bash
 mkdir -p .cursor/rules
-curl -sL https://raw.githubusercontent.com/neverland-lab/yapay-degil/main/.cursor/rules/turkish-anti-ai-skill.mdc \
-  -o .cursor/rules/turkish-anti-ai-skill.mdc
+curl -sL https://raw.githubusercontent.com/neverland-lab/yapay-degil/main/.cursor/rules/yapay-degil.mdc \
+  -o .cursor/rules/yapay-degil.mdc
 ```
 
-Klasör yükleyemediğin web arayüzlerinde (claude.ai projeleri, ChatGPT, Google AI Studio) her şeyin tek dosyada toplandığı [`dist/turkish-anti-ai-skill.full.md`](dist/turkish-anti-ai-skill.full.md) dosyasını talimat ya da bilgi alanına yapıştırabilirsin.
-
-Skill'in kurulum adı `turkish-anti-ai-skill`. Depo adı değişti, skill adı aynı kaldı.
+Klasör yükleyemediğin web arayüzlerinde (claude.ai projeleri, ChatGPT, Google AI Studio) her şeyin tek dosyada toplandığı [`dist/yapay-degil.full.md`](dist/yapay-degil.full.md) dosyasını talimat ya da bilgi alanına yapıştırabilirsin.
 
 ## Kullanım
 
@@ -125,10 +123,10 @@ references/
   register-ve-ornekler.md     Metin türleri ve önce/sonra örnekleri
 scripts/                      Dedektör, testler, paketleme
 dist/                         Web arayüzleri için tek dosya
-skills/turkish-anti-ai-skill/ Kurulumda inen paket (betik içermez)
+skills/yapay-degil/ Kurulumda inen paket (betik içermez)
 ```
 
-Betikler hakkında: `detect_tr_ai.py` ve `run_tests.py` dosya yazmaz. `build_dist.py` yalnızca depo içinde çalışır: `dist/` dosyasını yeniden yazar, `skills/turkish-anti-ai-skill/references/` klasörünü silip yeniden kopyalar. Silme bu tek klasörle sınırlı, başka bir yol ya da sembolik bağlantı görürse durur. `npx skills` ya da `gh skill` ile kurulumda yalnızca `skills/turkish-anti-ai-skill/` iner, orada betik yoktur.
+Betikler hakkında: `detect_tr_ai.py` ve `run_tests.py` dosya yazmaz. `build_dist.py` yalnızca depo içinde çalışır: `dist/` dosyasını yeniden yazar, `skills/yapay-degil/references/` klasörünü silip yeniden kopyalar. Silme bu tek klasörle sınırlı, başka bir yol ya da sembolik bağlantı görürse durur. `npx skills` ya da `gh skill` ile kurulumda yalnızca `skills/yapay-degil/` iner, orada betik yoktur.
 
 ## Öneri ve hata bildirimi
 

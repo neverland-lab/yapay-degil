@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-run_tests.py - turkish-anti-ai-skill Kapsamlı Doğrulama ve Regresyon Test Koşucusu
+run_tests.py - yapay-degil Kapsamlı Doğrulama ve Regresyon Test Koşucusu
 Çalıştırma: python3 scripts/run_tests.py
 """
 
@@ -22,7 +22,7 @@ def test_package_integrity() -> list:
     skill_text = skill_path.read_text(encoding="utf-8")
     lines = skill_text.splitlines()
     has_frontmatter = skill_text.startswith("---\n") and "\n---\n" in skill_text[4:]
-    has_name = "name: turkish-anti-ai-skill" in skill_text
+    has_name = "name: yapay-degil" in skill_text
     has_desc = "description:" in skill_text
     under_500_lines = len(lines) < 500
     no_em_dash_in_skill = "—" not in skill_text and "–" not in skill_text
@@ -47,11 +47,11 @@ def test_package_integrity() -> list:
         "detail": f"4/4 referans dosyası mevcut ve SKILL.md içinden bağlı" if not missing_refs else f"Eksik: {missing_refs}",
     })
 
-    # 3. dist/ ve skills/turkish-anti-ai-skill/ senkronizasyon (Zero Drift) kontrolü
-    dist_file = ROOT / "dist" / "turkish-anti-ai-skill.full.md"
-    pkg_skill = ROOT / "skills" / "turkish-anti-ai-skill" / "SKILL.md"
+    # 3. dist/ ve skills/yapay-degil/ senkronizasyon (Zero Drift) kontrolü
+    dist_file = ROOT / "dist" / "yapay-degil.full.md"
+    pkg_skill = ROOT / "skills" / "yapay-degil" / "SKILL.md"
     src_refs = {p.name: p.read_bytes() for p in (ROOT / "references").glob("*.md")}
-    pkg_refs_dir = ROOT / "skills" / "turkish-anti-ai-skill" / "references"
+    pkg_refs_dir = ROOT / "skills" / "yapay-degil" / "references"
     pkg_refs = {p.name: p.read_bytes() for p in pkg_refs_dir.glob("*")} if pkg_refs_dir.exists() else {}
     refs_synced = src_refs == pkg_refs
     drift_ok = (dist_file.exists() and pkg_skill.exists()
@@ -63,13 +63,13 @@ def test_package_integrity() -> list:
     })
 
     # 4. Çoklu ajan adaptörleri (.cursor/rules/*.mdc, plugin.json, AGENTS.md, CLAUDE.md)
-    mdc_file = ROOT / ".cursor" / "rules" / "turkish-anti-ai-skill.mdc"
+    mdc_file = ROOT / ".cursor" / "rules" / "yapay-degil.mdc"
     plugin_file = ROOT / ".claude-plugin" / "plugin.json"
     plugin_valid = False
     if plugin_file.exists():
         try:
             data = json.loads(plugin_file.read_text(encoding="utf-8"))
-            plugin_valid = data.get("name") == "turkish-anti-ai-skill"
+            plugin_valid = data.get("name") == "yapay-degil"
         except Exception:
             plugin_valid = False
 
@@ -132,7 +132,7 @@ def test_eval_scenarios() -> list:
 
 def main():
     print("=" * 78)
-    print("TURKISH-ANTI-AI-SKILL KAPSAMLI TEST VE DOĞRULAMA PAKETİ")
+    print("YAPAY-DEGIL KAPSAMLI TEST VE DOĞRULAMA PAKETİ")
     print("=" * 78)
 
     pkg_results = test_package_integrity()

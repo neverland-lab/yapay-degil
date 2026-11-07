@@ -1,6 +1,6 @@
 # Türkçe Dilbilimi, TDK Yazım Kılavuzu ve Anti-AI Mimarisi Araştırma Raporu
 
-Bu rapor, `turkish-anti-ai-skill` açık kaynak projesinin kuramsal ve pratik temelini oluşturmak üzere yürütülen üç sütunlu araştırmanın (Türkçe Dilbilimi & TDK, Küresel Humanizer Mimarileri ve GitHub Agent Skills Standartları) bulgularını içerir.
+Bu rapor, `yapay-degil` açık kaynak projesinin kuramsal ve pratik temelini oluşturmak üzere yürütülen üç sütunlu araştırmanın (Türkçe Dilbilimi & TDK, Küresel Humanizer Mimarileri ve GitHub Agent Skills Standartları) bulgularını içerir.
 
 ## 1. İngilizce Eğitimli Modellerin Türkçedeki Yapısal Kusurları (Translationese)
 
@@ -16,7 +16,7 @@ Büyük dil modelleri (LLM), İngilizce ağırlıklı eğitim verisi ve RLHF sü
 
 ## 2. Küresel ve Yerel Anti-AI / Humanizer Mimarilerinin Karşılaştırması
 
-| Proje / Kaynak | Temel Yaklaşım | `turkish-anti-ai-skill` İçine Alınan Mimari Prensip |
+| Proje / Kaynak | Temel Yaklaşım | `yapay-degil` İçine Alınan Mimari Prensip |
 | :--- | :--- | :--- |
 | [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) | İçerik şişirme, negatif paralellikler ve yüzeysel `-ing` analizlerinin taksonomisi | Katman 1 (P0) kompozisyon ve retorik kalıp yasakları |
 | [blader/humanizer](https://github.com/blader/humanizer) | 25 kural, şiddet ağırlıklandırması ve `Mark -> Draft -> Audit` döngüsü | 4 adımlı iş akışı ve tek görülmede vs. yoğunlukta tetiklenen kural hiyerarşisi |
@@ -28,4 +28,4 @@ Büyük dil modelleri (LLM), İngilizce ağırlıklı eğitim verisi ve RLHF sü
 ## 3. Agent Skills (`SKILL.md`) ve Çoklu Ajan Uyumluluk Standartları
 
 - **Progressive Disclosure (Aşamalı Yükleme):** [Agent Skills Spesifikasyonu](https://agentskills.io/specification) uyarınca `SKILL.md` dosyası 500 satırın altında tutularak yalnızca iş akışını yönetir; detaylı dilbilimi ve TDK tabloları `references/` altından ihtiyaç anında okunur.
-- **Evrensel Kurulum (`npx skills` & `gh skill`):** Hem kök dizinde `SKILL.md` hem de `skills/turkish-anti-ai-skill/` paket dizini bulundurularak [Vercel Labs `npx skills` CLI](https://github.com/vercel-labs/skills), GitHub CLI (`gh skill`) ve Claude Cowork plugin sistemleriyle %100 uyumluluk sağlanır.
+- **Evrensel Kurulum (`npx skills` & `gh skill`):** Hem kök dizinde `SKILL.md` hem de `skills/yapay-degil/` paket dizini bulundurularak [Vercel Labs `npx skills` CLI](https://github.com/vercel-labs/skills), GitHub CLI (`gh skill`) ve Claude Cowork plugin sistemleriyle %100 uyumluluk sağlanır.

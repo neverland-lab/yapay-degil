@@ -1,6 +1,6 @@
 # AGENTS.md: Çoklu Ajan (Codex, Cursor, Claude Code, Gemini CLI, Windsurf) Yönlendiricisi
 
-Bu repo, Türkçe metinlerdeki yapay zekâ izlerini (*AI slop / Translationese*) temizlemek ve TDK uyumlu, doğal insan Türkçesi üretmek için tasarlanmış `turkish-anti-ai-skill` paketini barındırır.
+Bu repo, Türkçe metinlerdeki yapay zekâ izlerini (*AI slop / Translationese*) temizlemek ve TDK uyumlu, doğal insan Türkçesi üretmek için tasarlanmış `yapay-degil` paketini barındırır.
 
 ## Ajan Talimatları
 
@@ -11,4 +11,4 @@ Bu repo, Türkçe metinlerdeki yapay zekâ izlerini (*AI slop / Translationese*)
    - `references/tdk-ve-noktalama.md`: `[TDK]` ve `[Üslup]` diye etiketlenmiş noktalama kuralları (uzun çizgi, orta çizgi, `ve/veya` çevresinde virgül, noktalı virgül köprüsü, başlıklarda bağlaç), saat ve sayı yazımı, TDK birleşik/ayrı kelimeler ve teknik terimlerin Türkçe okunuşa göre ek alması (`cache'i, queue'yu, SQL'i, JSON'ı`).
    - `references/register-ve-ornekler.md`: 5 register profili (*Blog/Deneme, Teknik, Kurumsal, Akademik, Edebî*) ve Before/After dönüşüm örnekleri.
 3. Deterministik metin taraması için `python3 scripts/detect_tr_ai.py <dosya>` komutunu çalıştırabilirsin.
-4. `SKILL.md` veya `references/` altında bir değişiklik yaptığında `python3 scripts/build_dist.py` komutunu çalıştırarak `dist/turkish-anti-ai-skill.full.md` ve `skills/turkish-anti-ai-skill/` dosyalarını senkronize et.
+4. `SKILL.md` veya `references/` altında bir değişiklik yaptığında `python3 scripts/build_dist.py` komutunu çalıştırarak `dist/yapay-degil.full.md` ve `skills/yapay-degil/` dosyalarını senkronize et.

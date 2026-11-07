@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "turkish-anti-ai-skill",
+      "name": "yapay-degil",
       "source": "./",
       "description": "Yapay zekâ Türkçesini derlemle ölçülmüş insan Türkçesine çeviren skill."
     }

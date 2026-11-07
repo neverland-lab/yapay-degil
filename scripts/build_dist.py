@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-build_dist.py - SKILL.md ve references/*.md dosyalarını tek parça dist/turkish-anti-ai-skill.full.md
-dosyasında birleştirir ve skills/turkish-anti-ai-skill/ alt dizini ile senkronize eder.
+build_dist.py - SKILL.md ve references/*.md dosyalarını tek parça dist/yapay-degil.full.md
+dosyasında birleştirir ve skills/yapay-degil/ alt dizini ile senkronize eder.
 """
 
 import shutil
@@ -29,15 +29,15 @@ def main():
         if ref_path.exists():
             sections.append(f"\n\n<!-- KAYNAK: references/{ref_name} -->\n\n" + ref_path.read_text(encoding="utf-8").strip())
 
-    full_path = dist_dir / "turkish-anti-ai-skill.full.md"
+    full_path = dist_dir / "yapay-degil.full.md"
     full_path.write_text("\n".join(sections) + "\n", encoding="utf-8")
 
-    # npx skills CLI uyumluluğu için skills/turkish-anti-ai-skill/ dizinini senkronize et
-    pkg_dir = ROOT / "skills" / "turkish-anti-ai-skill"
+    # npx skills CLI uyumluluğu için skills/yapay-degil/ dizinini senkronize et
+    pkg_dir = ROOT / "skills" / "yapay-degil"
     pkg_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "SKILL.md", pkg_dir / "SKILL.md")
     target = (pkg_dir / "references").resolve()
-    allowed = (ROOT / "skills" / "turkish-anti-ai-skill" / "references").resolve()
+    allowed = (ROOT / "skills" / "yapay-degil" / "references").resolve()
     # Güvenlik kilidi: silme yalnızca repo içindeki bu tek klasörde çalışır.
     # Yol başka bir yere çözümlenirse (symlink, yanlış ROOT) derleme durur, hiçbir şey silinmez.
     if target != allowed or ROOT.resolve() not in target.parents:

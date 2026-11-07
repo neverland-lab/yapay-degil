@@ -1,5 +1,5 @@
 {
-  "name": "turkish-anti-ai-skill",
+  "name": "yapay-degil",
   "version": "1.0.0",
   "description": "Türkçe metni insan eliyle yazılmış gibi doğal yazan veya onaran, çeviri kokusu ve TDK hatalarını denetleyen Agent Skill paketi.",
   "author": {
@@ -20,6 +20,6 @@
     "cursor"
   ],
   "skills": [
-    "./skills/turkish-anti-ai-skill"
+    "./skills/yapay-degil"
   ]
 }

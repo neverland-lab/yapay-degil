@@ -286,7 +286,7 @@ def main():
     if args.json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:
-        print(f"=== Turkish Anti-AI Denetim Raporu: {path.name} ===")
+        print(f"=== yapay-degil Denetim Raporu: {path.name} ===")
         print(f"Kelime Sayısı: {report['word_count']} | Cümle Sayısı: {report['sentence_count']}")
         print(f"Cümle Uzunluğu Değişim Katsayısı (Burstiness CoV): {report['sentence_length_cov']} (İnsan hedefi: >= 0.40)")
         rh = report["rhythm"]
