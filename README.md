@@ -1,82 +1,83 @@
 # yapay-degil
 
-> Bu depo [yucezerey/turkish-anti-ai-skill](https://github.com/yucezerey/turkish-anti-ai-skill) projesinden doğdu ve bağımsız olarak geliştiriliyor. Kural ve eşiklerin çoğu Türkçe kitap ve makale derlemiyle yeniden ölçüldü (`references/derlem-olcumleri.md`). Skill'in kurulum adı `turkish-anti-ai-skill` olarak kaldı.
+Yapay zekâya Türkçe yazdırınca bir şey hep tuhaf durur. Kelimeler Türkçedir ama cümleler sanki İngilizceden çevrilmiş gibidir. Her paragraf "Günümüzde" diye açılır, "Sonuç olarak" diye kapanır, aradaki cümlelerin hepsi aynı boydadır. Bu depo o tuhaflığı gideren bir skill. Claude, Cursor, Gemini CLI gibi yapay zekâ araçlarında çalışır. Metni sıfırdan doğal Türkçeyle yazdırır ya da elindeki metni onarır.
 
-**Türkçeyi çevrilmiş İngilizce gibi değil, insan eliyle yazılmış doğal Türkçe gibi yaz ve onar.**  
-*An open-source Agent Skill & Turkish Humanizer that removes AI writing patterns ("Yapay Zekâ Türkçesi" / Translationese) and rebuilds authentic Turkish sentence architecture.*
-
-[![Agent Skills Specification](https://img.shields.io/badge/Agent_Skills-v1.0-blue)](https://agentskills.io/specification)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![TDK Uyumlu](https://img.shields.io/badge/TDK-Yaz%C4%B1m_K%C4%B1lavuzu-red)](https://sozluk.gov.tr/)
+[![License: MIT](https://img.shields.io/badge/lisans-MIT-blue.svg)](LICENSE)
+[![Agent Skills](https://img.shields.io/badge/Agent_Skills-v1.0-blue)](https://agentskills.io/specification)
 [![Öneri ve hata bildirimi](https://img.shields.io/badge/%C3%B6neri%20ve%20hata-issues-blue.svg)](https://github.com/neverland-lab/yapay-degil/issues/new/choose)
 
-**Kurulum** · **Öncesi / Sonrası Demo** · **Neden Sadece Bir Prompt Değil?** · **3 Katmanlı Mimari** · **Register Matrisi** · **CLI Dedektörü**
+*Turkish AI-text humanizer for Claude and other agents. Rules are calibrated on a corpus of Turkish books and academic papers.*
 
-## Sorun Nedir?
+## Önce bir örnek
 
-Büyük Dil Modelleri (LLM) ağırlıklı olarak İngilizce veriyle eğitildiği ve RLHF aşamasında İngilizce retorik kalıplarıyla ödüllendirildiği için, Türkçe metin üretirken **"kelimeleri Türkçe ama cümle iskeleti İngilizce"** olan mekanik bir dil (*Translationese / Yapay Zekâ Türkçesi*) üretir.
+Gemini'den uzaktan çalışma üzerine kısa bir blog yazısı istedik. İlk paragrafı şöyleydi:
 
-Piyasadaki İngilizce *humanizer* araçları yalnızca yüzeydeki kelimeleri değiştirir. Oysa Türkçede sorun sadece *"yadsınamaz"*, *"âdeta"* veya *"kritik bir rol oynamaktadır"* kelimeleri değildir. Asıl sorun **niteleyicilerin baş ismin arkasına takılması (sağa dallanma), ulaç (`-Ip, -IncA, -dIkçA`) gereken yere mekanik `ve` bağlacının girmesi, her cümlenin `-DIr / -mAktAdIr` ile bitmesi ve tüm cümlelerin 18-22 kelimelik tekdüze bir banda sıkışmasıdır.**
+> Geleneksel ofis düzeninin yerini alan uzaktan çalışma modeli, modern iş dünyasının en köklü dönüşümlerinden biri haline geldi. İlk başlarda küresel şartların getirdiği bir zorunlulukla hayatımıza giren bu düzen, bugün pek çok profesyonel için vazgeçilmez bir çalışma biçimine dönüştü. Fiziksel ofis duvarlarının kalkması; günlük rutinlerden iş yapış şekillerine kadar her şeyi yeniden tanımlarken, çalışanların psikolojisi, üretkenliği ve sosyal yaşamı üzerinde de derin izler bırakıyor.
 
-`turkish-anti-ai-skill`, kelimelerin altındaki **Türkçe cümle mimarisini**, **TDK Yazım Kılavuzu kurallarını** ve **insan nefes ritmini (burstiness)** yeniden kurar.
+Skill'le onarılmış hâli:
 
-## Hızlı Demo (Öncesi / Sonrası)
+> Önce küresel şartların dayattığı bir zorunluluk olarak hayatımıza giren uzaktan çalışma, ofisin yerini alarak iş dünyasının en köklü dönüşümlerinden biri oldu. Bugün pek çok çalışan için vazgeçilmez. Ofis duvarları kalkınca her şey yeniden tanımlandı: günlük rutin de, iş yapma biçimi de. Bu değişim çalışanların psikolojisinde, üretkenliğinde ve sosyal hayatında da derin izler bırakıyor.
 
-### Girdi (Tipik Yapay Zekâ Türkçesi)
-> Günümüzün hızla değişen iş dünyasında, uzaktan çalışma modeli sadece geçici bir trend değil, aynı zamanda kurumsal kültürün temel bir yapı taşı haline gelmiştir — ve bu durumun önemi yadsınamaz. Şirketler tarafından gerçekleştirilen araştırmalar göstermektedir ki, çalışanlara esneklik sağlamak verimlilik üzerinde kritik bir rol oynamaktadır. Bununla birlikte, iletişim kopukluklarını önlemek adına bütüncül bir yaklaşım benimsenmelidir. Sonuç olarak, geleceğin çalışma dünyasında başarılı olmak isteyen kurumlar bu dönüşüme ayak uydurmak zorundadır.
+Bilgi aynı, hiçbir şey eklenmedi. Değişen şey cümlelerin kuruluşu. Gemini'nin cümleleri 15-22 kelimede toplanıyordu ve birbirine benziyordu. Onarımda 21 kelimelik bir cümlenin ardından 6 kelimelik biri geliyor. Yazının tamamında "Dönüm Noktası" başlığı, "bununla birlikte", "madalyonun diğer yüzü", noktalı virgül ve sondaki öğüt cümlesi de gitti. Dedektörle ölçtüğümüzde 15-22 kelimelik cümlelerin oranı %67'den %35'e indi, cümle boyu değişkenliği iki katına çıktı.
 
-### Çıktı (`turkish-anti-ai-skill` Onarım Modu · *Blog/Deneme Register*)
-> Uzaktan çalışma artık şirket kültürünün kalıcı bir parçası. Araştırmalar da aynı şeyi söylüyor: Çalışanlara esneklik tanıdığınızda verimlilik artıyor. İşin zor kısmı, ekip aynı ofisi paylaşmazken iletişimi koparmamak. Kalıcı çözüm ise çalışma düzenini baştan sona bu yeni ritme göre kurmak.
+## Kuralları nereden bulduk?
 
-**Neleri Yakaladı ve Onardı?**
-1. **Sahneleme Girişi (P0):** *"Günümüzün hızla değişen iş dünyasında"* boş girişi silindi, doğrudan konuya girildi.
-2. **Negatif Paralellik (P0):** *"sadece X değil, aynı zamanda Y"* kalıbı tamamen silindi, yerine tek bir olumlu yargı geldi (*"şirket kültürünün kalıcı bir parçası"*).
-3. **Noktalama & Tier-1 Klişe (P0/P2):** TDK'da diyalog dışında bulunmayan uzun çizgi (`—`) ve *"önemi yadsınamaz"* klişesi kaldırıldı.
-4. **Edilgen Çatı & Hint-Avrupa `ki` Bağlacı (P1):** *"Şirketler tarafından gerçekleştirilen araştırmalar göstermektedir ki"* yapısı etken ve doğrudan cümleye çevrildi.
-5. **Kof Yardımcı Fiil & `-mAktAdIr` Salgını (P1):** *"esneklik sağlamak ... kritik bir rol oynamaktadır"* yerine *"esneklik tanıdığınızda verimlilik artıyor"* kuruldu.
-6. **Vaaz Veren Kapanış (P0):** *"Sonuç olarak ... ayak uydurmak zorundadır"* ders verme cümlesi tamamen kesildi.
-7. **Olgusal Sadakat Kilidi:** Kaynak metinde olmayan hiçbir istatistik, tarih veya uydurma kişisel anekdot eklenmedi.
+Skill'in ilk hâlinde "insanlar 18-22 kelimelik cümlelere sıkışmaz", "on cümlede bir kısa cümle kur" gibi kurallar vardı. Kulağa doğru geliyordu ama hiçbirinin dayanağı yoktu. Biz de saydık.
 
-## Neden Sadece Bir Prompt Değil de Bir Skill?
+Türkçe yazmış 22 yazarın 24 kitabından (Sait Faik'ten Oğuz Atay'a, Çetin Altan'dan Pamuk'a), 8 akademik kitaptan, 2 çağdaş romandan, DergiPark'tan 44 makaleden ve 7 kamu belgesinden örnek aldık. Toplam yarım milyonu aşkın kelime. Çeviri kitapları bilerek dışarıda bıraktık, çünkü çeviri Türkçesi tam da temizlemeye çalıştığımız izleri taşıyor. Aynı yazma isteklerini beş dil modeline de verdik (Gemini 4, Gemini Flash, GPT-OSS, Claude Sonnet, Claude Opus) ve iki tarafı aynı ölçümlerden geçirdik.
 
-Tek satırlık *"Bunu insani ve doğal bir Türkçeyle yaz"* komutu yalnızca en bariz birkaç kelimeyi değiştirir ve çoğu zaman modelin "insan gibi görünmek" adına **kaynakta olmayan veriler/anekdotlar uydurmasına** yol açar. `turkish-anti-ai-skill` ise modele kurallı bir çalışma düzeni verir. Yeniden yazımı model `SKILL.md` ve referans dosyalarındaki kurallara göre yapar. Deterministik olan tek parça ise bu çıktıyı denetleyen CLI dedektörüdür:
+Kitaplardan içerik öğrenmedik, cümle öğrendik. Bir yazarın ne anlattığı bizi ilgilendirmedi. Cümlelerini kaç kelimeyle kurduğu, ne sıklıkla soru sorduğu, yüklemi ne zaman sona bıraktığı, ne zaman öne aldığı ilgilendirdi. Kitaplarda ölçümü metnin tamamında değil, başından, ortasından ve sonundan alınan sekizer sayfada yaptık. Makalelerde giriş ile kaynakça arasındaki gövdenin tamamını saydık. Skill'in içinde hiçbir kitaptan tek bir cümle yok. Depoda yalnızca sayılar var, örnek cümleleri biz kurduk. Hepsi [`references/derlem-olcumleri.md`](references/derlem-olcumleri.md) dosyasında.
 
-- **3 Çalışma Modu (`rewrite`, `write`, `audit`):** Mevcut metni olgusal sadakatle onarır (`rewrite`), sıfırdan Türkçe düşünerek metin kurar (`write`) veya metne dokunmadan AI/TDK kusurlarını raporlar (`audit`).
-- **Olgusal Sadakat Kilidi (Anti-Fabrication Lock):** Onarım modunda kaynakta bulunmayan hiçbir sayı, tarih, isim, iddia veya nedensellik bağı eklenemez.
-- **6 Register × 9 Üslup Boyutu Kalibrasyonu:** KVKK metnine devrik cümle sokmaz, blog yazısına `-mAktAdIr` eki dayatmaz (*Blog/Deneme, Teknik/Mühendislik, Kurumsal/SaaS, Akademik/Resmî, Edebî/Anlatı, Kamu/Kurum İçi Yazışma*).
-- **60+ Kalıplık 3 Katmanlı "Yapay Zekâ Türkçesi" Sözlüğü:** Tier-1 (kesin ifşalar), Tier-2 (bürokratik bağlaçlar) ve Tier-3 (SaaS/pazarlama çeviri kokuları) tabloları.
-- **TDK Yazım Kılavuzu ve Fonetik Ek Denetimi:** Yabancı teknik terimleri (`endpoint`, `deploy`, `middleware`, `queue`) *"uç nokta, ara katman"* diye zorla çevirmez. Ekleri kelimenin yazılışına göre değil **Türkçe okunuşuna (fonetiğine)** göre getirir (`cache'i`, `queue'yu`, `SQL'i`, `JSON'ı`).
-- **Deterministik Python CLI Dedektörü (`scripts/detect_tr_ai.py`):** Harici kütüphane gerektirmeden Türkçe metinlerdeki AI klişelerini, TDK hatalarını, `-mAktAdIr` yoğunluğunu ve cümle uzunluğu varyasyonunu (**Burstiness CoV**) ölçer. Regex ve basit istatistikle çalışır, yalnızca yüzeydeki izleri yakalar. Sola dallanma, ulaç kullanımı veya register uyumu gibi cümle mimarisi kararlarını ölçmez, bunlar modelin işidir.
+Çıkanlardan bazıları beklediğimiz gibi değildi:
 
-## Kurulum (Installation)
+- **İnsanı modelden ayıran şey kelimeler değil, ritim.** Yazarlar kısa ve uzun cümleyi art arda kullanıyor. Beş cümlelik pencerelerde cümle boyu değişkenliği yazarlarda 0,46-0,49, modellerde 0,28-0,41.
+- **Modeller tek tip de değil.** Gemini ve GPT cümleleri orta boyda topluyor. Claude ise yazarlardan bile kısa yazıyor ama onun cümleleri de hep aynı boyda. Yani "kısa cümle ekle" önerisi Claude için yanlış bir öneriydi.
+- **Modeller anlatıda neredeyse hiç soru, ünlem, üç nokta kullanmıyor.** Yazarların romanlarında 1000 kelimede 13 civarında soru var.
+- **"ki" suçsuz çıktı.** Skill bu bağlacı şüpheli sayıyordu. Oysa yazarlar "ki"yi modellerden daha sık kullanıyor: demek ki, öyle ki, kaldı ki.
+- **Akademik yazıda üç cümlenin art arda "-mektedir" ile bitmesi normal.** ChatGPT öncesi makalelerin çoğunda böyle seriler var. Bu kuralı kaldırdık.
 
-### 1. Evrensel Agent Skills CLI (`npx skills` & `gh skill`)
-Claude Code, Cursor, OpenAI Codex, Gemini CLI, Windsurf ve OpenCode için tek komutla kurulum:
+Bir yan bulgu daha var. 2026'da yayımlanan makaleler 2016-2019'dakilerden farklı yazılıyor: cümle sonunda "-dır" kullanımı yarıya inmiş, aynı ekle biten seriler uzamış. Yapay zekânın izi olabilir ama örneklem küçük, şimdilik bir gözlem olarak duruyor.
+
+## Model mi eğittiniz?
+
+Hayır. Bu bilinçli bir tercih. Skill bir talimat dosyası. Model, metni yazarken ya da onarırken bu talimatlara bakıyor. Biz talimatlardaki her sayıyı ölçülmüş bir değere bağladık ve her değişikliği denedik.
+
+Deneme düzeni şöyle: Aynı istekleri skill'li ve skill'siz yazdırıyoruz, çıkan metinleri ölçüyoruz, sonra etiketlerini silip karışık sırayla başka bir modele (Gemini) okutuyoruz. Okur hangisinin skill'li olduğunu bilmiyor. Sıfırdan yazımda skill'le yazılan metin 8 isteğin 8'inde daha doğal bulundu. Onarımda 8 metnin 7'sinde onarılmış sürüm kaynağın önüne geçti. Deneyler küçük, okur da bir model. Sayılar yön gösteriyor, kesin hüküm vermiyor.
+
+Her deney işe yaramadı. Akademik metinde ritmi artıran bir kural denedik. Sayılar iyileşti ama okur metni daha yapay buldu, kuralı geri aldık. Gemini'nin fazla devrik cümle kurmasını iki farklı talimatla düzeltmeye çalıştık, ikisi de tutmadı. Bunların hepsi ölçüm dosyasında "denendi, eklenmedi" diye duruyor.
+
+## Kurulum
+
+En kısası:
 
 ```bash
 npx skills add neverland-lab/yapay-degil
 ```
 
-GitHub CLI (v2.90+) kullanıyorsan:
+GitHub CLI kullanıyorsan:
 
 ```bash
 gh skill install neverland-lab/yapay-degil
 ```
 
-### 2. Claude Code & Claude Cowork
-**Seçenek A: Plugin Marketplace olarak kurulum (Önerilen):**
+Claude Code'da eklenti olarak:
+
 ```text
 /plugin marketplace add neverland-lab/yapay-degil
 /plugin install turkish-anti-ai-skill@yapay-degil
 ```
 
-**Seçenek B: Doğrudan `~/.claude/skills/` dizinine klonlama:**
+Ya da elle:
+
 ```bash
+# Claude Code
 git clone https://github.com/neverland-lab/yapay-degil.git ~/.claude/skills/turkish-anti-ai-skill
+
+# Codex, Gemini CLI, Cursor, Windsurf
+git clone https://github.com/neverland-lab/yapay-degil.git ~/.agents/skills/turkish-anti-ai-skill
 ```
 
-### 3. Cursor (`.cursor/rules/*.mdc` veya Agent Skills)
-Projenin kök dizininde Cursor kuralını aktif etmek için:
+Cursor kuralı olarak:
 
 ```bash
 mkdir -p .cursor/rules
@@ -84,104 +85,57 @@ curl -sL https://raw.githubusercontent.com/neverland-lab/yapay-degil/main/.curso
   -o .cursor/rules/turkish-anti-ai-skill.mdc
 ```
 
-### 4. OpenAI Codex, Gemini CLI ve Windsurf
-```bash
-# Evrensel .agents/skills/ dizini (Codex, Gemini CLI, Cursor, Windsurf destekler)
-git clone https://github.com/neverland-lab/yapay-degil.git ~/.agents/skills/turkish-anti-ai-skill
+Klasör yükleyemediğin web arayüzlerinde (claude.ai projeleri, ChatGPT, Google AI Studio) her şeyin tek dosyada toplandığı [`dist/turkish-anti-ai-skill.full.md`](dist/turkish-anti-ai-skill.full.md) dosyasını talimat ya da bilgi alanına yapıştırabilirsin.
 
-# Veya doğrudan Gemini CLI dizinine:
-git clone https://github.com/neverland-lab/yapay-degil.git ~/.gemini/skills/turkish-anti-ai-skill
-```
-
-### 5. ChatGPT (Custom GPT), Claude Projects ve Google AI Studio (Web)
-Klasör yüklenemeyen web arayüzleri için tüm referans tablolarının tek dosyada birleştirildiği `dist/turkish-anti-ai-skill.full.md` dosyasını kopyalayıp **Project Instructions / System Prompt** veya **Knowledge** alanına yapıştırabilirsin.
+Skill'in kurulum adı `turkish-anti-ai-skill`. Depo adı değişti, skill adı aynı kaldı.
 
 ## Kullanım
 
-Kurulumdan sonra ajanına doğal dilde seslenmen yeterlidir. Yetenek kendi açıklamasıyla (`description`) otomatik tetiklenir:
+Kurduktan sonra ne istediğini söylemen yeterli:
 
-- **Onarım (`rewrite`):** *"Şu blog yazısını insanlaştır ve AI kokusunu sil: `<metin>`"*
-- **Üretim (`write`):** *"Dağıtık sistemlerde cache invalidation konusunu teknik register'da, doğal Türkçeyle yaz."*
-- **Denetim (`audit`):** *"Bu kurumsal metni değiştirme, sadece içindeki AI-Türkçesi ve TDK hatalarını raporla (audit modu)."*
+- "Şu blog yazısını insanlaştır: ..."
+- "Önbellek geçersizleştirme konusunu teknik bir dille, doğal Türkçeyle yaz."
+- "Bu metne dokunma, yalnızca yapay duran yerleri ve TDK hatalarını göster."
 
-## Üç Katmanlı Mimari Özeti
+Skill metnin türüne göre davranır. Akademik makaledeki "-mektedir"e dokunmaz, blog yazısında onu ayıklar. Kurum içi yazışmanın resmî dilini gündelik dile çekmez. Romanda devrik cümleye izin verir, teknik belgede vermez. Altı metin türü tanımlı: blog ve deneme, teknik, kurumsal, akademik, edebî, kamu ve kurum içi yazışma.
 
-| Katman | Odak Noktası | Yakalanan Yapay Zekâ İzi (Makine Türkçesi) | Uygulanan Doğal Türkçe Dönüşümü |
-| :--- | :--- | :--- | :--- |
-| **Katman 1: Kompozisyon (P0)** | Giriş, kapanış, retorik şablonlar | *"Günümüzün hızla değişen..."*, *"Sadece X değil, aynı zamanda Y"*, *"Sonuç olarak..."*, üçlü sıfat listeleri | Sahne veya doğrudan tez ile açılış, negatif paralelliklerin kaldırılması, vaaz veren kapanışların kesilmesi |
-| **Katman 2: Cümle Mimarisi (P1)** | Sentaks ve morfoloji (`references/sentaks-ve-morfoloji.md`) | Sağa dallanan yan cümleler, Hint-Avrupa `ki` bağlacı, refleks `ve`, `-DIr / -mAktAdIr` şişmesi, gereksiz `"bir"` ve `"tarafından"` | Sıfat-fiille sola dallanma, ulaç sistemi (`-Ip, -IncA, -dIkçA`), yüklem önü vurgu yuvası, zamir düşürme (pro-drop), delil kipi (`-mIş`) |
-| **Katman 3: TDK ve Yüzey (P2)** | Noktalama, imla ve terimler (`references/tdk-ve-noktalama.md`) | Uzun çizgi (`—`), orta çizgi (`–`), `ve/veya` çevresinde virgül, noktalı virgül köprüsü, `"uç nokta"` gibi zorlama çeviriler, `"cache'ı, SQL'ı"` ek hataları | Kaynağı gösterilmiş `[TDK]` kuralları ile `[Üslup]` tercihlerinin ayrımı, TDK birleşik/ayrı kelime kuralları, terimlerin Türkçe okunuşa göre çekimlenmesi (`cache'i, SQL'i`) |
+Bir kuralı hiç esnetmez: Onarırken kaynakta olmayan sayı, isim, anekdot eklemez. "İnsan gibi görünmek" için uydurmaz.
 
-## Deterministik CLI Dedektörü (`detect_tr_ai.py`)
+## Dedektör
 
-Repodaki Python betiği ile herhangi bir Markdown veya metin dosyasını terminalden ya da CI/CD (GitHub Actions) üzerinden tarayabilirsin:
+Skill'in yanında küçük bir Python betiği var. Metni okuyup kalıpları, TDK hatalarını, cümle ritmini ve "-mektedir" yoğunluğunu raporlar. Ek kütüphane istemez, internete bağlanmaz.
 
 ```bash
-python3 scripts/detect_tr_ai.py ornek-metin.md
-# JSON çıktısı için:
-python3 scripts/detect_tr_ai.py ornek-metin.md --json
-# Register'a göre '-mAktAdIr' hedefiyle denetim için:
+python3 scripts/detect_tr_ai.py metin.md
 python3 scripts/detect_tr_ai.py makale.md --register akademik-resmi
+python3 scripts/detect_tr_ai.py metin.md --json
 ```
 
-`--register` değerleri: `blog-deneme`, `teknik`, `kurumsal`, `akademik-resmi`, `edebi-anlati`. Register verildiğinde dedektör `-mAktAdIr` yoğunluğunu o metin türünün hedef aralığıyla karşılaştırır. Akademik register'da ek korunur, hedef 100 kelimede yaklaşık 0,5-2,5'tir. Blog ve edebî metinde hedef sıfıra yakındır. Ayrıca art arda kaç cümlenin aynı ekle (`-mektedir`, `-mıştır`, `-dır`) bittiğini ölçer. Sınır genelde üç, akademik register'da yedidir, çünkü ChatGPT öncesi DergiPark makalelerinde üçlü seri olağandır. Akademik aralık ve seri sınırı makale ölçümüne dayanır (`references/derlem-olcumleri.md`). Diğer register'ların aralıkları `scripts/detect_tr_ai.py` içinden değiştirilebilen başlangıç değerleridir.
+Dedektör yalnızca yüzeye bakar. Cümle kuruluşunu düzeltmek modelin işi, dedektör sonuca bakıp "burada ritim düz" ya da "burada beş cümle aynı ekle bitiyor" der. Eşiklerin kaynağı yine ölçüm dosyasında.
 
-Tek parça `dist/turkish-anti-ai-skill.full.md` dosyasını yeniden derlemek için:
-
-```bash
-python3 scripts/build_dist.py
-```
-
-## Güvenlik
-
-Skill, modele verilen Markdown talimatlarından ve üç yerel Python betiğinden oluşur. Betikler ağa çıkmaz, komut çalıştırmaz, harici kütüphane kullanmaz.
-
-| Betik | Ne yapar | Dosya yazar mı |
-| :--- | :--- | :--- |
-| `scripts/detect_tr_ai.py` | Verilen metin dosyasını okur, raporu ekrana basar | Hayır |
-| `scripts/run_tests.py` | Repo dosyalarını ve `evals/evals.json` senaryolarını dedektörden geçirir | Hayır |
-| `scripts/build_dist.py` | `dist/` dosyasını üretir, `skills/turkish-anti-ai-skill/` klasörünü kaynakla eşler | Evet, yalnızca repo içinde |
-
-`build_dist.py`, eşleme sırasında `skills/turkish-anti-ai-skill/references/` klasörünü silip yeniden kopyalar. Güvenlik tarayıcıları (Socket, Snyk) bu satırı dosya silme işlemi olarak işaretleyebilir. Silme bir kilitle korunur: hedef bu tek klasör değilse veya symlink ise betik durur, hiçbir şey silinmez.
-
-`npx skills` veya `gh skill` ile kurulumda yalnızca `skills/turkish-anti-ai-skill/` klasörü iner. Bu klasörde betik yoktur, yalnızca `SKILL.md` ve `references/` vardır.
-
-## Repo Klasör Yapısı
+## İçinde ne var?
 
 ```text
-turkish-anti-ai-skill/
-├── SKILL.md                           # Ana orkestratör (<500 satır, YAML frontmatter + 4 adımlı iş akışı)
-├── skills/turkish-anti-ai-skill/      # npx skills CLI ve plugin paketleyici uyumluluk dizini
-├── AGENTS.md                          # Codex, Cursor, Windsurf, Copilot ortak adaptörü
-├── CLAUDE.md                          # Claude Code proje rehberi
-├── GEMINI.md                          # Gemini CLI adaptörü
-├── references/                        # Aşamalı yüklenen (Progressive Disclosure) Türkçe dilbilimi veritabanı
-│   ├── tdk-ve-noktalama.md            # [TDK]/[Üslup] etiketli noktalama kuralları, TDK imla ve fonetik ek tablosu
-│   ├── sentaks-ve-morfoloji.md        # Sola dallanma, ulaçlar, vurgu yuvası, -DIr/-mAktAdIr, pro-drop
-│   ├── ai-turkcesi-sozlugu.md         # Tier-1, Tier-2 ve Tier-3 Yapay Zekâ Türkçesi sözlüğü (60+ kalıp)
-│   ├── register-ve-ornekler.md        # 6 register x 9 boyut matrisi ve uçtan uca Before/After örnekleri
-│   └── derlem-olcumleri.md            # 22 Türk yazarı, 8 akademik kitap ve 5 dil modelinden ölçülmüş ritim, noktalama ve devrik oranları
-├── scripts/
-│   ├── detect_tr_ai.py                # Deterministik Türkçe AI-slop, TDK ve Burstiness (CoV) tarayıcı CLI
-│   └── build_dist.py                  # SKILL.md + references/* dosyalarını dist/ içine derler
-├── .cursor/rules/
-│   └── turkish-anti-ai-skill.mdc      # Cursor yerel kural adaptörü (.mdc)
-├── .claude-plugin/
-│   └── plugin.json                    # Claude Code / Cowork plugin manifestosu
-├── dist/
-│   └── turkish-anti-ai-skill.full.md  # Web arayüzleri (Custom GPT / Claude Projects) için tekil dosya
-├── evals/
-│   └── evals.json                     # Olgusal sadakat ve anti-slop regresyon test senaryoları
-├── docs/
-│   └── ARASTIRMA_VE_MIMARI_RAPORU.md  # Kapsamlı Türkçe dilbilimi ve anti-AI mimari araştırma raporu
-├── CONTRIBUTING.md                    # Kanıta dayalı yeni kalıp ekleme kuralları
-└── LICENSE                            # MIT Lisansı
+SKILL.md                      Ana talimat: çalışma adımları, metin türleri, öz denetim
+references/
+  derlem-olcumleri.md         Kitap, makale ve model ölçümleri, deney sonuçları
+  sentaks-ve-morfoloji.md     Türkçe cümle kuruluşu: öge dizilimi, ulaçlar, koşutluk
+  ai-turkcesi-sozlugu.md      Yapay zekâ Türkçesi kalıpları
+  tdk-ve-noktalama.md         Noktalama ve yazım kuralları, kaynaklarıyla
+  register-ve-ornekler.md     Metin türleri ve önce/sonra örnekleri
+scripts/                      Dedektör, testler, paketleme
+dist/                         Web arayüzleri için tek dosya
+skills/turkish-anti-ai-skill/ Kurulumda inen paket (betik içermez)
 ```
 
-## Katkıda Bulunma (Contributing)
+Betikler hakkında: `detect_tr_ai.py` ve `run_tests.py` dosya yazmaz. `build_dist.py` yalnızca depo içinde çalışır: `dist/` dosyasını yeniden yazar, `skills/turkish-anti-ai-skill/references/` klasörünü silip yeniden kopyalar. Silme bu tek klasörle sınırlı, başka bir yol ya da sembolik bağlantı görürse durur. `npx skills` ya da `gh skill` ile kurulumda yalnızca `skills/turkish-anti-ai-skill/` iner, orada betik yoktur.
 
-Yeni bir "Yapay Zekâ Türkçesi" kalıbı, çeviri kokan SaaS ifadesi veya TDK sınır durumu fark ettiysen [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden bildirebilirsin. Depo dışarıdan pull request kabul etmiyor. Kurallar ve şablon için [CONTRIBUTING.md](CONTRIBUTING.md) dosyasına göz at.
+## Öneri ve hata bildirimi
 
-## Lisans
+Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördüysen [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden yaz. Hata ve öneri için iki kısa şablon var. Depo dışarıdan pull request kabul etmiyor, değişiklikleri biz yapıyoruz.
 
-Bu proje [MIT Lisansı](LICENSE) altında açık kaynak olarak sunulmaktadır.
+## Teşekkür ve lisans
+
+Bu proje [Yüce Zerey'in turkish-anti-ai-skill](https://github.com/yucezerey/turkish-anti-ai-skill) deposundan doğdu. Üç katmanlı yapı, metin türü tablosu ve dedektörün ilk hâli oradan geliyor. Derlem ölçümleri, ölçülmüş eşikler, koşutluk kuralları, kamu yazışması türü ve deneyler bu depoya eklendi. TDK kuralıyla üslup tercihini ayıran düzeltmelerimiz Kasım 2026'da ana depoya da birleştirildi.
+
+[MIT lisansı](LICENSE) ile dağıtılıyor.
