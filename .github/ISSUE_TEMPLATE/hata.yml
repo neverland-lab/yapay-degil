@@ -1,0 +1,30 @@
+name: Hata bildirimi
+description: Skill yanlış bir düzeltme yaptı, bir kuralı kaçırdı ya da dedektör hatalı ölçtü.
+labels: ["hata"]
+body:
+  - type: textarea
+    id: girdi
+    attributes:
+      label: Girdi metni
+      description: Skill'e verdiğin metin (kısa bir parça yeterli).
+    validations:
+      required: true
+  - type: textarea
+    id: cikti
+    attributes:
+      label: Çıkan sonuç
+      description: Skill ya da dedektör ne üretti?
+    validations:
+      required: true
+  - type: textarea
+    id: beklenen
+    attributes:
+      label: Ne bekliyordun?
+      description: Doğrusu neydi, neden? TDK kuralıysa bağlantısını ekleyebilirsin.
+    validations:
+      required: true
+  - type: input
+    id: ortam
+    attributes:
+      label: Model ve ortam
+      description: "Örnek: Claude Code + Opus, claude.ai, Cursor"

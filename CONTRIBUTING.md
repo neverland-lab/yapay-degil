@@ -1,10 +1,12 @@
 # Katkıda Bulunma Rehberi (CONTRIBUTING.md)
 
-`turkish-anti-ai-skill` projesine katkıda bulunmak istediğin için teşekkürler! Bu projenin temel ilkesi, "bence bu kelime güzel değil" gibi öznel yargılar yerine, **Büyük Dil Modellerinin (LLM) Türkçe çıktılarında istatistiksel olarak aşırı temsil edilen kalıpları, İngilizce sözdizimsel kopyaları (calque/translationese) ve TDK Yazım Kılavuzu kurallarını** kanıta dayalı olarak belgelemektir.
+> **Bu depo dışarıdan pull request kabul etmiyor.** Hata bildirmek ya da öneride bulunmak için [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden "Hata bildirimi" ya da "İstek ya da öneri" şablonunu kullan. Değişiklikleri biz yapıyoruz. Aşağıdaki şablon, öneri açarken hangi bilgilerin işe yaradığını gösteriyor.
+
+`yapay-degil` projesine katkıda bulunmak istediğin için teşekkürler! Bu projenin temel ilkesi, "bence bu kelime güzel değil" gibi öznel yargılar yerine, **Büyük Dil Modellerinin (LLM) Türkçe çıktılarında istatistiksel olarak aşırı temsil edilen kalıpları, İngilizce sözdizimsel kopyaları (calque/translationese) ve TDK Yazım Kılavuzu kurallarını** kanıta dayalı olarak belgelemektir.
 
 ## 1. Yeni Bir "Yapay Zekâ Türkçesi" Kalıbı Ekleme Kuralları
 
-Yeni bir kelime, bağlaç veya cümle yapısı için Pull Request (PR) veya Issue açarken lütfen aşağıdaki şablonu doldur:
+Yeni bir kelime, bağlaç veya cümle yapısı için Issue açarken lütfen aşağıdaki şablonu doldur:
 
 - **Kalıp / Kelime Adı:** (Örn: *"potansiyelini ortaya çıkarmak"*)
 - **İngilizce Kaynak Kalıp (Calque):** (Örn: *"unlock the potential"*)
@@ -19,7 +21,7 @@ Yeni bir kelime, bağlaç veya cümle yapısı için Pull Request (PR) veya Issu
 
 ## 2. Paket Senkronizasyonu ve Doğrulama
 
-`SKILL.md` veya `references/*.md` dosyalarında değişiklik yaptıktan sonra PR açmadan önce şu iki komutu çalıştır:
+`SKILL.md` veya `references/*.md` dosyalarında değişiklik yaptıktan sonra (depo bakımcıları için) commit atmadan önce şu iki komutu çalıştır:
 
 ```bash
 # 1. Tek parça dist/ dosyasını ve skills/ alt paketini güncelle

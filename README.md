@@ -8,7 +8,7 @@
 [![Agent Skills Specification](https://img.shields.io/badge/Agent_Skills-v1.0-blue)](https://agentskills.io/specification)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![TDK Uyumlu](https://img.shields.io/badge/TDK-Yaz%C4%B1m_K%C4%B1lavuzu-red)](https://sozluk.gov.tr/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Öneri ve hata bildirimi](https://img.shields.io/badge/%C3%B6neri%20ve%20hata-issues-blue.svg)](https://github.com/neverland-lab/yapay-degil/issues/new/choose)
 
 **Kurulum** · **Öncesi / Sonrası Demo** · **Neden Sadece Bir Prompt Değil?** · **3 Katmanlı Mimari** · **Register Matrisi** · **CLI Dedektörü**
 
@@ -180,7 +180,7 @@ turkish-anti-ai-skill/
 
 ## Katkıda Bulunma (Contributing)
 
-Yeni bir "Yapay Zekâ Türkçesi" kalıbı, çeviri kokan SaaS ifadesi veya TDK sınır durumu fark ettiysen Issue veya Pull Request açabilirsin. Kurallar ve şablon için [CONTRIBUTING.md](CONTRIBUTING.md) dosyasına göz at.
+Yeni bir "Yapay Zekâ Türkçesi" kalıbı, çeviri kokan SaaS ifadesi veya TDK sınır durumu fark ettiysen [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden bildirebilirsin. Depo dışarıdan pull request kabul etmiyor. Kurallar ve şablon için [CONTRIBUTING.md](CONTRIBUTING.md) dosyasına göz at.
 
 ## Lisans
 

@@ -1,0 +1,21 @@
+name: İstek ya da öneri
+description: Yeni bir yapay zekâ Türkçesi kalıbı, yeni bir kural ya da özellik öner.
+labels: ["istek"]
+body:
+  - type: textarea
+    id: oneri
+    attributes:
+      label: Önerin
+      description: Ne eklensin ya da değişsin?
+    validations:
+      required: true
+  - type: textarea
+    id: ornek
+    attributes:
+      label: Örnek
+      description: Yapay duran bir örnek ve doğal hâli. Gerçek bir model çıktısından alırsan daha iyi olur.
+  - type: textarea
+    id: sinir
+    attributes:
+      label: Uygulanmaması gereken yerler
+      description: Bu kural hangi metin türünde ya da bağlamda geçerli olmamalı?
