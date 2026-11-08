@@ -2,6 +2,11 @@
 
 Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar: kuralları ya da kurulum adını değiştiren büyük adımda ilk sayı, yeni kural ya da ölçümde ortadaki sayı, düzeltmede sondaki sayı.
 
+## 1.3.2 (8 Kasım 2026)
+
+Kural değişmedi.
+- Devrik cümle sayacı 40 yerine 400 cümleyle denetlendi, bir insan okur da 60 cümleyi işaretledi. `references/derlem-olcumleri.md`'deki "%75 uyuşuyor" cümlesinin yerine sayacın ne kadar fazla ve eksik saydığı yüz cümlelik bir örnekle anlatıldı. Derlem genelindeki devrik oranları değişmedi.
+
 ## 1.3.1 (8 Kasım 2026)
 
 Kural değişmedi, açıklamalar düzeltildi.

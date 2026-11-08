@@ -25,7 +25,9 @@ Model derlemi için beş modele aynı 8 isteği verdik: 4 kurmaca, 4 deneme, her
 
 Ölçümde diyalog paragraflarını çıkarıp yalnızca anlatı cümlelerini saydık. Ritmi, metin boyunca art arda gelen her beş cümlelik pencerede cümle uzunluğunun değişim katsayısıyla (CoV) ölçtük. Kitaplardan çıkarılan metinde paragraf sınırları güvenilir olmadığı için paragrafa dayalı ölçüm kullanmadık. Bazı dosyalarda satırlar sabit genişlikte kırılmıştı. Cümleler ortadan bölünmesin diye noktalamayla bitmeyen satırları ölçümden önce bir sonrakiyle birleştirdik. İlk ölçümde bu adım yoktu. Eklenince kurmaca değerleri neredeyse hiç değişmedi, deneme değerleri değişti: Ortanca cümle 10 kelimeden 12'ye, 15-22 kelime bandı %17'den %23'e çıktı.
 
-Ölçümler düzenli ifadeye dayanan sezgisel sayımlardır, biçim bilgisi (morfoloji) çözümleyicisi kullanmadık. Devrik cümle sezgiseli 40 cümlelik bir doğrulama setinde bağımsız bir okurla %75 uyuştu. Devrik oranlarını bu yüzden kesin değer olarak değil, metinleri birbiriyle karşılaştırmak için kullanıyoruz.
+Ölçümler düzenli ifadeye dayanan sezgisel sayımlardır, biçim bilgisi (morfoloji) çözümleyicisi kullanmadık. Devrik cümle sayacının ne kadar yanıldığını 400 cümleyle denetledik. Önce Gemini, sayacın ne dediğini görmeden bütün cümleleri işaretledi ve ikisinin anlaşamadığı 59 cümleyi Claude tek tek okudu. Son olarak bir insan okur 60 cümle işaretledi. Kararlarının %97'si Claude'unkiyle aynıydı.
+
+Sonucu yüz cümlelik bir roman sayfasıyla anlatmak kolay. Böyle bir sayfada aslında 13 kadar devrik cümle var. Sayaç 14 cümleye devrik diyor. Bunların 10'u gerçekten devrik, 4'ü değil: Sayaç *"Bu koltuklar da üç kişilik."* gibi yüklemi olmayan cümleleri ya da taramada bozulmuş kelimeleri devrik sanıyor. Gerçek 13 devrikten 3'ünü de kaçırıyor, bunlar çoğunlukla *"Güzel bir şey bu."* türünden cümleler. Fazla saydığıyla eksik saydığı birbirine yakın olduğu için toplam neredeyse doğru çıkıyor. Bu yüzden derlemin geneli için verdiğimiz devrik oranlarına güvenilebilir, ama tek bir kitabın oranı birkaç puan oynayabilir. Devrik oranlarını kesin değer olarak değil, metinleri birbiriyle karşılaştırmak için kullanıyoruz.
 
 ## Sonuçlar (ortanca değerler)
 
@@ -157,6 +159,6 @@ Bu sayılar skill'in teknik metin kuralını (`-mAktAdIr` yerine `-Ar/-Ir`, tan�
 
 Model tarafı küçük: beş modelden 40 metin, yaklaşık 17.000 kelime. Modellerle ilgili sayılar yön gösterir, kesin değildir.
 
-Ölçümler sezgisel. Cümle ve devrik tespiti düzenli ifadeyle yapıldı, biçim bilgisi çözümleyicisi kullanılmadı. Devrik sezgiseli edebî metinde bağımsız okurla %75 uyuşuyor, akademik ve teknik metinde güvenilmez.
+Ölçümler sezgisel. Cümle ve devrik tespiti düzenli ifadeyle yapıldı, biçim bilgisi çözümleyicisi kullanılmadı. Devrik sayacı edebî metinde gerçek devriklerin dörtte üçünü buluyor, devrik dediklerinin de üçte ikisi gerçekten devrik (ayrıntısı yukarıda). Akademik ve teknik metinde güvenilmez.
 
 OCR ve PDF çıkarımından gelen hataları temizledik ama hepsini gideremedik. Çıkarımı bozuk olan dört kitabı ilk derlemden çıkardık. Sonraki turlarda da editör notu karışmış ya da OCR'ı çok bozuk kitapları almadık.
