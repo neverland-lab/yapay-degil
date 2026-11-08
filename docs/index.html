@@ -65,7 +65,10 @@ a { color: var(--pencil); }
 header.top { padding-block: 32px 20px; display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: flex-end; justify-content: space-between; }
 .brand h1 { font: 600 2.4rem/1.05 var(--font-display); margin: 0; letter-spacing: -.01em; }
 .brand h1 span { color: var(--pencil); }
-.brand p { margin: 8px 0 0; color: var(--muted); max-width: 52ch; text-wrap: pretty; }
+.brand p { margin: 8px 0 0; color: var(--muted); max-width: 60ch; text-wrap: pretty; }
+.adimlar { margin: 10px 0 0; padding-left: 1.3em; display: grid; gap: 2px; max-width: 60ch; }
+.adimlar li::marker { color: var(--pencil); font-weight: 600; }
+.brand p.gizlilik { font-size: .85rem; margin-top: 8px; }
 nav.links { display: flex; gap: 18px; font-weight: 500; }
 nav.links a { text-decoration: none; }
 nav.links a:hover, nav.links a:focus-visible { text-decoration: underline; }
@@ -119,6 +122,7 @@ aside.notes { display: flex; flex-direction: column; gap: 20px; }
 .m:first-of-type { border-top: 0; }
 .m-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
 .m-name { font-weight: 500; }
+.m-karar { font-size: .92rem; font-weight: 500; }
 .m-val { font: 500 1rem var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .chip { font: 500 .72rem/1 var(--font-ui); padding: 4px 7px; border-radius: 3px; border: 1px solid var(--line); color: var(--muted); margin-left: 8px; letter-spacing: .02em; }
 .chip.dikkat { border-color: var(--pencil); color: var(--sheet); background: var(--pencil); }
@@ -159,7 +163,7 @@ a.git[aria-disabled="true"] { opacity: .45; pointer-events: none; }
 .kural p { margin: 0; font-size: .9rem; }
 .ornek { display: grid; gap: 3px; font: .95rem/1.45 var(--font-text); background: var(--paper); border-radius: 4px; padding: 8px 10px; }
 .ornek span { display: block; }
-.ornek b { font: 600 .7rem/1 var(--font-ui); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); display: inline-block; width: 4.6em; }
+.ornek b { font: 600 .7rem/1 var(--font-ui); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); display: inline-block; width: 7.4em; }
 .ornek .once { text-decoration: line-through; text-decoration-color: var(--muted); color: var(--muted); }
 .yerler { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .yerler > small { color: var(--muted); font-size: .8rem; }
@@ -186,7 +190,13 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
   <header class="top">
     <div class="brand">
       <h1>yapay<span>-</span>değil</h1>
-      <p>Türkçe metni yapıştır, yapay duran yerleri işaretleyeyim. Kalıp sözler, çeviri kokan cümleler, yazım hataları ve tekdüze ritim. Metin bilgisayarından çıkmaz.</p>
+      <p>Yazını buraya yapıştır. Yapay zekâ yazmış gibi duran yerleri ve yazım hatalarını renkle gösterir, her birinin nedenini örnekle anlatır.</p>
+      <ol class="adimlar">
+        <li>Yazını soldaki kutuya yapıştır.</li>
+        <li>Renkli yerlere bak. Sağda her birinin ne olduğu yazıyor.</li>
+        <li>İstersen tek tuşla ChatGPT, Claude ya da Gemini'ye düzelttir.</li>
+      </ol>
+      <p class="gizlilik">Yazın bilgisayarından çıkmaz, hiçbir yere kaydedilmez.</p>
     </div>
     <nav class="links">
       <a href="https://github.com/neverland-lab/yapay-degil">GitHub</a>
@@ -198,53 +208,53 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
   <main class="desk">
     <div class="sheet">
       <div class="toolbar">
-        <label for="tur">Metin türü
+        <label for="tur">Yazının türü
           <select id="tur">
-            <option value="">Belirtmeden</option>
+            <option value="">Bilmiyorum, genel</option>
           </select>
         </label>
         <div class="samples">
-          <span>Örnek:</span>
-          <button type="button" data-ornek="kalip">Kalıplı metin</button>
-          <button type="button" data-ornek="gemini">Gemini denemesi</button>
-          <button type="button" data-ornek="onarim">Onarılmış hâli</button>
+          <span>Örnek dene:</span>
+          <button type="button" data-ornek="kalip">Yapay zekâ yazısı</button>
+          <button type="button" data-ornek="gemini">Gemini'nin denemesi</button>
+          <button type="button" data-ornek="onarim">Düzeltilmiş hâli</button>
           <button type="button" id="temizle">Temizle</button>
         </div>
       </div>
       <div class="ed">
         <div class="ed-back" id="arka" aria-hidden="true"></div>
-        <textarea id="metin" spellcheck="false" aria-label="Denetlenecek metin" placeholder="Metni buraya yapıştır."></textarea>
+        <textarea id="metin" spellcheck="false" aria-label="Denetlenecek metin" placeholder="Kontrol etmek istediğin yazıyı buraya yapıştır."></textarea>
       </div>
       <div class="ed-foot"><span id="sayac">0 kelime</span><span id="durum"></span></div>
     </div>
 
     <aside class="notes">
       <div class="sheet tally" aria-live="polite">
-        <span class="big" id="toplam">0</span><span class="cap" id="toplam-yazi">işaret</span>
+        <span class="big" id="toplam">0</span><span class="cap" id="toplam-yazi">yer işaretlendi</span>
         <span class="sub" id="toplam-alt"></span>
       </div>
+      <div class="sheet findings">
+        <h2>İşaretlenen yerler</h2>
+        <div id="isaretler"></div>
+      </div>
       <div class="sheet onar">
-        <h2>Onart</h2>
-        <p>Metni, düzeltme talimatıyla ve buradaki işaretlerle birlikte kendi sohbet uygulamanda aç. Kendi hesabın kullanılır, bu sayfa hiçbir yere bir şey göndermez.</p>
+        <h2>Yapay zekâya düzelttir</h2>
+        <p>Yazın, nasıl düzeltileceğini anlatan bir talimatla birlikte kendi ChatGPT, Claude ya da Gemini hesabında açılır. Sana sadece gönder tuşuna basmak kalır.</p>
         <div class="onar-dugmeler">
-          <a class="git" id="git-chatgpt" data-s="chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT'de aç</a>
-          <a class="git" id="git-claude" data-s="claude" href="https://claude.ai/new" target="_blank" rel="noopener">Claude'da aç</a>
-          <a class="git" id="git-gemini" data-s="gemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini'de aç</a>
+          <a class="git" id="git-chatgpt" data-s="chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ile düzelt</a>
+          <a class="git" id="git-claude" data-s="claude" href="https://claude.ai/new" target="_blank" rel="noopener">Claude ile düzelt</a>
+          <a class="git" id="git-gemini" data-s="gemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ile düzelt</a>
         </div>
-        <p class="onar-not" id="onar-not">Gemini hazır mesajla açılmıyor. Düğmeye basınca istek panoya kopyalanır, açılan sayfaya yapıştırıp göndermen yeter.</p>
+        <p class="onar-not" id="onar-not"></p>
         <details>
-          <summary>Gönderilecek isteği gör</summary>
+          <summary>Ne gönderileceğini gör</summary>
           <pre id="istek"></pre>
-          <button type="button" id="istek-kopyala">İsteği kopyala</button>
+          <button type="button" id="istek-kopyala">Kopyala</button>
         </details>
       </div>
       <div class="sheet measures">
-        <h2>Ölçüler</h2>
+        <h2>Cümle boyları ve tekrarlar</h2>
         <div id="olculer"></div>
-      </div>
-      <div class="sheet findings">
-        <h2>İşaretler</h2>
-        <div id="isaretler"></div>
       </div>
     </aside>
   </main>
@@ -252,8 +262,8 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
   <section class="about" id="kurulum">
     <div>
       <h2>Ne yapar, ne yapmaz?</h2>
-      <p>Bu sayfa metinde yapay zekâ çıktılarında sık görülen kalıpları arar. Metni kimin yazdığını söylemez, söyleyemez de. İnsanlar da "sonuç olarak" yazar, model de bazen pürüzsüz yazar.</p>
-      <p>İşaretleri bir düzeltmenin kenar notları gibi oku. Her biri bakmaya değer bir yer gösteriyor, hepsini silmek gerekmiyor.</p>
+      <p>Bu sayfa yazıyı kimin yazdığını bilemez. Sadece yapay zekânın sık yaptığı şeyleri gösterir. İnsanlar da bunları yapabilir.</p>
+      <p>İşaretli her yeri silmen gerekmez. Öğretmenin kâğıda düştüğü notlar gibi düşün: bir bak, sonra karar ver.</p>
     </div>
     <div>
       <h2>Sayılar nereden geliyor?</h2>
@@ -288,9 +298,18 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
   };
 
   const GRUPLAR = {
-    kalip: { ad: "Hazır sözler", not: "Yapay zekânın çok sevdiği kalıp ifadeler. Tek tek yanlış değiller ama üst üste gelince metin bir şablondan çıkmış gibi okunur." },
-    cumle: { ad: "Cümle kuruluşu", not: "Kelimeler Türkçe ama cümlenin kuruluşu İngilizceden çevrilmiş gibi kalan yerler ve dil bilgisi aksaklıkları." },
-    yazim: { ad: "Yazım ve noktalama", not: "Türk Dil Kurumunun yazım ve noktalama kurallarına uymayan yerler." },
+    kalip: { ad: "Hazır sözler", not: "Yapay zekânın çok kullandığı süslü sözler. Tek başına yanlış değiller. Ama çok olunca yazı makine yazmış gibi okunur." },
+    cumle: { ad: "Cümle yapısı", not: "Kelimeler Türkçe ama cümle İngilizceden çevrilmiş gibi kurulmuş. Ya da cümlede küçük bir dil bilgisi hatası var." },
+    yazim: { ad: "Yazım ve noktalama", not: "Türkçenin yazım kurallarına uymayan yerler: virgül, çizgi, saat, sayı ve kelime yazımı." },
+  };
+  // Yazı türlerinin ekrandaki adları (dedektördeki teknik adların yerine).
+  const TUR_ADI = {
+    "blog-deneme": "Blog, deneme, sosyal medya",
+    "teknik": "Teknik belge, kullanım kılavuzu",
+    "kurumsal": "Şirket yazısı, tanıtım, e-posta",
+    "akademik-resmi": "Akademik, resmî, hukuki",
+    "edebi-anlati": "Öykü, roman",
+    "kamu-kurum": "Kamu ya da kurum içi yazışma",
   };
   function grupOf(rule) {
     if (/^(Tier-1|Tier-2|P0)/.test(rule)) return "kalip";
@@ -316,8 +335,8 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     s += `<text x="4" y="32">0</text><text x="${W - 4}" y="32" text-anchor="end">${fmt(max, max < 1 ? 1 : 0)}</text></svg>`;
     return s;
   }
-  function chip(dikkat, uygunYazi = "aralıkta") {
-    return dikkat ? `<span class="chip dikkat">dikkat</span>` : `<span class="chip">${uygunYazi}</span>`;
+  function chip(dikkat, uygunYazi = "sorun yok") {
+    return dikkat ? `<span class="chip dikkat">bak</span>` : `<span class="chip">${uygunYazi}</span>`;
   }
   function cumleCubuklari(lens) {
     if (lens.length < 2) return "";
@@ -333,31 +352,44 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
 
   function olculer(r) {
     const rh = r.rhythm, out = [];
-    out.push(`<div class="m"><div class="m-head"><span class="m-name">Cümle boyları</span><span class="m-val">${r.sentence_count} cümle</span></div>
+    const turAdi = r.register ? TUR_ADI[r.register] : "Genel yazı";
+    out.push(`<div class="m"><div class="m-head"><span class="m-name">Cümlelerin uzunluğu</span><span class="m-val">${r.sentence_count} cümle</span></div>
       ${cumleCubuklari(r.sentence_lengths)}
-      <div class="m-note">Her çubuk bir cümle, boyu da cümledeki kelime sayısı. İnsanlar yazarken kısa ve uzun cümleleri karıştırır. Çubuklar birbirine benziyorsa metin tekdüze okunur. Gri şerit 15-22 kelime arası, yapay zekâ cümlelerini en çok bu boya yığıyor.</div></div>`);
+      <div class="m-note">Her çubuk bir cümle. Çubuk ne kadar uzunsa cümle o kadar uzun. İyi bir yazıda kısa ve uzun cümleler karışık olur. Çubukların hepsi aynı boydaysa yazı tekdüze okunur, makine yazmış gibi durur. Gri şerit, yapay zekânın en çok kullandığı orta boy (15-22 kelime).</div></div>`);
+
     const ritimVar = rh.window_cov_median !== null;
-    out.push(`<div class="m"><div class="m-head"><span class="m-name">Ritim değişkenliği</span>
-      <span class="m-val">${ritimVar ? fmt(rh.window_cov_median) : "–"}${ritimVar ? chip(rh.flat_rhythm_warning, rh.flat_rhythm_warning ? "" : (r.register && !K.rhythmWarnRegisters.includes(r.register) ? "bu türde bakılmaz" : "aralıkta")) : ""}</span></div>
-      ${olcek(ritimVar ? rh.window_cov_median : null, 0.8, [0.46, 0.49], [0.28, 0.41])}
-      <div class="legend"><span><i style="background:var(--band-human)"></i>Türk yazarlar 0,46-0,49</span><span><i style="background:var(--band-model)"></i>modeller 0,28-0,41</span></div>
-      <div class="m-note">${ritimVar ? "Cümle boylarının ne kadar değiştiğini tek sayıyla gösterir. Metin beşer cümlelik parçalara bölünür, her parçaya bakılır. Sayı sıfıra yaklaştıkça cümleler aynı boyda demektir. Örneğin 12, 13, 12, 14, 13 kelimelik beş cümle 0,06 çıkar. 4, 18, 9, 25, 7 kelimelik beş cümle 0,62 çıkar. Akademik, teknik ve resmî yazı doğası gereği daha düzenlidir, o türlerde uyarı verilmez." : "Ölçmek için en az beş cümle gerekiyor."}</div></div>`);
+    const bakilmaz = r.register && !K.rhythmWarnRegisters.includes(r.register);
+    const ritimKarar = !ritimVar ? "Bunu ölçmek için en az beş cümle gerekiyor."
+      : rh.flat_rhythm_warning ? "Cümlelerin boyu birbirine çok benziyor. Bazılarını kısalt, bazılarını birleştir."
+      : bakilmaz ? "Bu yazı türünde cümleler zaten düzenli olur, buna bakılmıyor."
+      : "Cümlelerin boyu yeterince karışık.";
+    out.push(`<div class="m"><div class="m-head"><span class="m-name">Cümleler ne kadar farklı uzunlukta?</span>
+      <span class="m-val">${ritimVar ? fmt(rh.window_cov_median) + chip(rh.flat_rhythm_warning, bakilmaz ? "bakılmaz" : "sorun yok") : ""}</span></div>
+      <div class="m-karar">${ritimKarar}</div>
+      ${ritimVar ? olcek(rh.window_cov_median, 0.8, [0.46, 0.49], [0.28, 0.41]) + `<div class="legend"><span><i style="background:var(--band-human)"></i>Türk yazarlar</span><span><i style="background:var(--band-model)"></i>yapay zekâ</span></div>` : ""}
+      <div class="m-note">Sayı büyüdükçe cümleler daha karışık demek. Hep 12-14 kelimelik cümleler kuran bir yazı 0,06 çıkar. 4 ile 25 kelime arasında gidip gelen bir yazı 0,62 çıkar. Türk yazarlarda bu sayı 0,46-0,49, yapay zekâda 0,28-0,41.</div></div>`);
+
     if (rh.band_15_22_ratio !== null) {
-      out.push(`<div class="m"><div class="m-head"><span class="m-name">15-22 kelimelik cümleler</span>
-        <span class="m-val">%${Math.round(rh.band_15_22_ratio * 100)}${chip(rh.band_15_22_warning)}</span></div>
+      const yuzde = Math.round(rh.band_15_22_ratio * 100);
+      out.push(`<div class="m"><div class="m-head"><span class="m-name">Orta boy cümle çok mu?</span>
+        <span class="m-val">%${yuzde}${chip(rh.band_15_22_warning)}</span></div>
+        <div class="m-karar">${rh.band_15_22_warning ? "Cümlelerin çoğu aynı orta boyda. Bazılarını böl." : "Orta boy cümle sayısı normal."}</div>
         ${olcek(rh.band_15_22_ratio, 0.6, [0.14, 0.25], [0.29, 0.49])}
-        <div class="legend"><span><i style="background:var(--band-human)"></i>yazarlar %14-25</span><span><i style="background:var(--band-model)"></i>uzun cümleli modeller %29-49</span></div>
-        <div class="m-note">Cümlelerin yüzde kaçının 15 ile 22 kelime arasında olduğu. Bu oran yüksekse cümleler hep aynı orta boyda kalmış demektir. En az sekiz cümleli metinde uyarı verilir.</div></div>`);
+        <div class="legend"><span><i style="background:var(--band-human)"></i>Türk yazarlar</span><span><i style="background:var(--band-model)"></i>yapay zekâ</span></div>
+        <div class="m-note">Yapay zekâ cümlelerini en çok 15-22 kelime arasında kurar. Bu yazıdaki cümlelerin yüzde ${yuzde}'si bu boyda. Yazarlarda bu oran yüzde 14-25 civarı.</div></div>`);
     }
-    const [lo, hi] = r.mektedir_target_range;
-    out.push(`<div class="m"><div class="m-head"><span class="m-name">"-mektedir" yoğunluğu</span>
-      <span class="m-val">${fmt(r.mektedir_per_100_words)}${chip(r.high_mektedir_warning)}</span></div>
+
+    const hi = r.mektedir_target_range[1];
+    out.push(`<div class="m"><div class="m-head"><span class="m-name">“-mektedir” ile biten kelimeler</span>
+      <span class="m-val">${fmt(r.mektedir_per_100_words, 1)}${chip(r.high_mektedir_warning)}</span></div>
+      <div class="m-karar">${r.high_mektedir_warning ? "Bu yazı türü için çok fazla." : "Sorun yok."}</div>
       ${olcek(r.mektedir_per_100_words, Math.max(4, hi * 1.6), null, null, hi)}
-      <div class="m-note">“Yapılmaktadır”, “görülmektedir” gibi ekler. Resmî yazıda olağandır, blogda ve sohbet havasındaki yazıda ağır durur. Burada yüz kelimede kaç kez geçtiğine bakılıyor. Seçili türde (${esc(r.register_label)}) üst sınır ${fmt(hi, 1)}. Örneğin “Ekip yeni sürüm üzerinde çalışmaktadır” yerine “Ekip yeni sürüm üzerinde çalışıyor” denebilir.</div></div>`);
+      <div class="m-note">“Yapılmaktadır”, “çalışmaktadır” gibi kelimeler. Resmî yazıda normal, başka yerde ağır durur. “Ekip çalışmaktadır” yerine “Ekip çalışıyor” yazabilirsin. Bu yazıda her yüz kelimede ${fmt(r.mektedir_per_100_words, 1)} tane var. Seçili yazı türünde (${esc(turAdi)}) en fazla ${fmt(hi, 1)} olmalı.</div></div>`);
+
     const sinifAd = { "-mAktAdIr": "-mektedir", "-mIştIr": "-mıştır", "-DIr": "-dır" };
-    out.push(`<div class="m"><div class="m-head"><span class="m-name">Aynı ekle biten cümle serisi</span>
+    out.push(`<div class="m"><div class="m-head"><span class="m-name">Art arda aynı sesle biten cümleler</span>
       <span class="m-val">${r.repeated_ending_max_run}${chip(r.repeated_ending_warning)}</span></div>
-      <div class="m-note">Art arda kaç cümlenin aynı ekle bittiği. “Toplantı yapılmıştır. Karar alınmıştır. Rapor hazırlanmıştır.” gibi diziler rapor okuyormuş hissi verir. ${r.repeated_ending_class ? `Bu metinde en uzun seri “${sinifAd[r.repeated_ending_class]}” ile. ` : ""}${r.repeated_ending_limit >= 99 ? "Kamu yazışmasında uzun seri olağandır, işaretlenmez." : `${r.repeated_ending_limit} ve üstü işaretlenir.`}</div></div>`);
+      <div class="m-note">“Toplantı yapılmıştır. Karar alınmıştır. Rapor hazırlanmıştır.” gibi art arda aynı sesle biten cümleler tekdüze okunur. ${r.repeated_ending_class ? `Bu yazıda en uzun dizi ${r.repeated_ending_max_run} cümle, hepsi “${sinifAd[r.repeated_ending_class]}” ile bitiyor. ` : ""}${r.repeated_ending_limit >= 99 ? "Kamu yazışmasında bu normaldir, işaretlenmez." : `${r.repeated_ending_limit} ve daha uzun diziler işaretlenir.`}</div></div>`);
     return out.join("");
   }
 
@@ -378,7 +410,7 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
   }
 
   function isaretler(r) {
-    if (!r.findings.length) return `<p class="empty">Kalıp, yazım ya da noktalama işareti yok. Ölçülere de bak, ritim ayrı bir konu.</p>`;
+    if (!r.findings.length) return `<p class="empty">İşaretlenecek bir yer bulunamadı. Aşağıdaki cümle boylarına da bir bak.</p>`;
     // Grup > kural > yakalanan yerler. Aynı kural birkaç kez yakalanınca açıklama bir kez yazılır.
     const gruplar = { kalip: new Map(), cumle: new Map(), yazim: new Map() };
     r.findings.forEach((f, i) => {
@@ -395,8 +427,8 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
         yerler.sort((x, y) => x.f.position - y.f.position);
         h += `<div class="kural"><h4>${esc(a.baslik)}</h4>`;
         if (a.neden) h += `<p>${esc(a.neden)}</p>`;
-        if (a.ornek) h += `<div class="ornek"><span class="once"><b>Böyle</b>${esc(a.ornek[0])}</span><span><b>Daha iyi</b>${esc(a.ornek[1])}</span></div>`;
-        h += `<div class="yerler"><small>Metninde:</small>`;
+        if (a.ornek) h += `<div class="ornek"><span class="once"><b>Böyle değil</b>${esc(a.ornek[0])}</span><span><b>Böyle</b>${esc(a.ornek[1])}</span></div>`;
+        h += `<div class="yerler"><small>Senin yazında:</small>`;
         for (const { f, i } of yerler) {
           const d = a.duzelt ? a.duzelt(f.match, f.rule) : null;
           h += `<button type="button" class="f${i === secili ? " on" : ""}" data-i="${i}" title="Metinde göster">${esc(f.match.trim() || f.match)}${d ? ` <em>→ ${esc(d)}</em>` : ""}</button>`;
@@ -417,23 +449,22 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     if (secili >= r.findings.length) secili = -1;
     boya(text, r.findings);
     $("toplam").textContent = r.total_flags;
-    $("toplam-yazi").textContent = "işaret";
+    $("toplam-yazi").textContent = "yer işaretlendi";
     const uyari = [r.rhythm.flat_rhythm_warning, r.rhythm.band_15_22_warning, r.high_mektedir_warning, r.repeated_ending_warning].filter(Boolean).length;
-    $("toplam-alt").textContent = text.trim() ? (uyari ? `Ölçülerde ${uyari} yerde dikkat notu var.` : "Ölçüler derlem aralığında.") : "Metin bekleniyor.";
+    $("toplam-alt").textContent = text.trim() ? (uyari ? `Cümle boylarıyla ilgili ${uyari} not var, aşağıda.` : "Cümle boylarında sorun görünmüyor.") : "Soldaki kutuya yazını yapıştır ya da bir örnek dene.";
     $("sayac").textContent = `${r.word_count} kelime, ${r.sentence_count} cümle`;
-    $("olculer").innerHTML = text.trim() ? olculer(r) : `<p class="empty">Metin yapıştırınca ritim ve ek yoğunluğu burada görünür.</p>`;
-    $("isaretler").innerHTML = text.trim() ? isaretler(r) : `<p class="empty">İşaretler burada listelenir. Birine tıklayınca metinde o yer seçilir.</p>`;
+    $("olculer").innerHTML = text.trim() ? olculer(r) : `<p class="empty">Yazını yapıştırınca cümlelerin uzunluğu burada çizilir.</p>`;
+    $("isaretler").innerHTML = text.trim() ? isaretler(r) : `<p class="empty">Burada renkli yerlerin listesi çıkacak. Her birinin ne demek olduğu ve nasıl düzeltileceği örnekle yazacak.</p>`;
     onarGuncelle(text, r);
-    try { localStorage.setItem("yd-taslak", JSON.stringify({ metin: text, tur: tur.value })); } catch (e) {}
   }
 
-  // Onart düğmeleri: istek kısa ise adres çubuğuyla gider, uzunsa (ve Gemini'de her zaman) panoya kopyalanır.
+  // Düzelttir düğmeleri: istek kısa ise adres çubuğuyla gider, uzunsa (ve Gemini'de her zaman) panoya kopyalanır.
   const O = globalThis.YD_ONARIM;
   let sonIstek = "";
   function onarGuncelle(text, r) {
     const bos = !text.trim();
     sonIstek = bos ? "" : O.istek(text, r, (k) => globalThis.YD_ACIKLAMA_BUL(k)[0]);
-    $("istek").textContent = bos ? "Önce metin yapıştır." : sonIstek;
+    $("istek").textContent = bos ? "Önce yazını yapıştır." : sonIstek;
     let uzun = false;
     document.querySelectorAll("a.git").forEach((a) => {
       a.setAttribute("aria-disabled", bos ? "true" : "false");
@@ -444,8 +475,8 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
       if (ad.kopyala && a.dataset.s !== "gemini") uzun = true;
     });
     $("onar-not").textContent = uzun
-      ? "Metin uzun olduğu için hiçbir uygulama hazır mesajla açılamıyor. Düğmeye basınca istek panoya kopyalanır, açılan sayfaya yapıştırıp göndermen yeter."
-      : "Gemini hazır mesajla açılmıyor. Düğmeye basınca istek panoya kopyalanır, açılan sayfaya yapıştırıp göndermen yeter.";
+      ? "Yazın uzun olduğu için üç düğme de şöyle çalışır: Basınca her şey kopyalanır ve sohbet sayfası açılır. Sen açılan kutuya yapıştırıp (Ctrl+V) gönderirsin."
+      : "Gemini'de bir adım fazla: Düğmeye basınca her şey kopyalanır ve Gemini açılır. Açılan kutuya yapıştırıp (Ctrl+V) gönderirsin.";
   }
   async function kopyala(t) {
     try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; }
@@ -455,8 +486,8 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     if (a.dataset.kopyala) {
       kopyala(sonIstek).then((ok) => {
         $("onar-not").textContent = ok
-          ? `İstek panoya kopyalandı. Açılan ${O.SAGLAYICI[a.dataset.s].ad} sayfasına yapıştırıp gönder.`
-          : "Panoya kopyalanamadı. Aşağıdaki “Gönderilecek isteği gör” bölümünden kendin kopyalayabilirsin.";
+          ? `Kopyalandı. Açılan ${O.SAGLAYICI[a.dataset.s].ad} sayfasında kutuya yapıştır (Ctrl+V) ve gönder.`
+          : "Kopyalanamadı. Aşağıdaki “Ne gönderileceğini gör” bölümünü açıp oradan kopyalayabilirsin.";
       });
     }
   }));
@@ -464,12 +495,12 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     const b = $("istek-kopyala");
     if (await kopyala(sonIstek)) b.textContent = "Kopyalandı";
     else { const sel = getSelection(), rg = document.createRange(); rg.selectNodeContents($("istek")); sel.removeAllRanges(); sel.addRange(rg); b.textContent = "Seçildi, kopyala"; }
-    setTimeout(() => (b.textContent = "İsteği kopyala"), 1800);
+    setTimeout(() => (b.textContent = "Kopyala"), 1800);
   });
   function planla() { clearTimeout(zaman); zaman = setTimeout(calistir, 120); }
 
   for (const [k, p] of Object.entries(K.registers)) {
-    const o = document.createElement("option"); o.value = k; o.textContent = p.label; tur.appendChild(o);
+    const o = document.createElement("option"); o.value = k; o.textContent = TUR_ADI[k] || p.label; tur.appendChild(o);
   }
 
   metin.addEventListener("input", () => { boyut(); secili = -1; planla(); });
@@ -497,10 +528,6 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     setTimeout(() => (b.textContent = "Kopyala"), 1600);
   });
 
-  let taslak = null;
-  try { taslak = JSON.parse(localStorage.getItem("yd-taslak") || "null"); } catch (e) {}
-  if (taslak && taslak.metin && taslak.metin.trim()) { metin.value = taslak.metin; tur.value = taslak.tur || ""; }
-  else { metin.value = ORNEK.kalip.metin; tur.value = ORNEK.kalip.tur; }
   boyut(); calistir();
   if (document.fonts) document.fonts.ready.then(() => { boyut(); boya(metin.value, son.findings); });
 })();

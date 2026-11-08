@@ -1,4 +1,4 @@
-// onarim.js - "Onart" düğmelerinin hazırladığı istek. Skill'in (SKILL.md) en önemli kurallarının kısa hâli,
+// onarim.js - "Yapay zekâya düzelttir" düğmelerinin hazırladığı istek. Skill'in (SKILL.md) en önemli kurallarının kısa hâli,
 // metin türüne göre bir satır, denetçinin bulduğu yerler ve metnin kendisi. İstek ziyaretçinin kendi
 // sohbetinde açılır: hiçbir API çağrılmaz.
 (function (root) {
