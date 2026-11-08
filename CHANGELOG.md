@@ -2,6 +2,12 @@
 
 Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar: kuralları ya da kurulum adını değiştiren büyük adımda ilk sayı, yeni kural ya da ölçümde ortadaki sayı, düzeltmede sondaki sayı.
 
+## Web sayfası (8 Kasım 2026)
+
+Skill değişmedi, sürüm numarası artmadı.
+- Dedektörün tarayıcı sürümü yayına çıktı: https://neverland-lab.github.io/yapay-degil/ Metni yapıştırınca kalıpları, yazım hatalarını ve ritmi gösteriyor. Her kural için sade bir açıklama ve önce/sonra örneği var. Metin bilgisayardan çıkmıyor, hiçbir API kullanılmıyor.
+- Kurallar tek yerde, `detect_tr_ai.py`'de duruyor. `scripts/build_site.py` sayfanın kural dosyasını onlardan üretiyor. `scripts/check_site.py` tarayıcı sürümünün Python'la aynı sonucu verdiğini ve her kuralın açıklaması olduğunu sınıyor (eval örnekleri ve 120 derlem dosyası, 952 durum).
+
 ## 1.3.2 (8 Kasım 2026)
 
 Kural değişmedi.

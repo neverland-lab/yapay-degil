@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>yapay-değil</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Türkçe metindeki yapay kalıpları, yazım hatalarını ve düz ritmi gösteren denetçi. Metin bilgisayarından çıkmaz.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap">
+<style>
+/* Düzen: dizgi masası. Solda müsvedde (metin), sağda mavi kalemli düzeltmen notları. */
+:root {
+  --paper: #f5f6f8;
+  --sheet: #ffffff;
+  --ink: #1a1f2b;
+  --muted: #5a6273;
+  --line: #d8dce4;
+  --pencil: #2343c4;
+  --pencil-soft: rgba(35, 67, 196, .11);
+  --violet: #7535a8;
+  --violet-soft: rgba(117, 53, 168, .11);
+  --slate: #4f6782;
+  --slate-soft: rgba(79, 103, 130, .14);
+  --band-human: rgba(35, 67, 196, .20);
+  --band-model: rgba(26, 31, 43, .10);
+  --font-display: "Literata", Georgia, "Times New Roman", serif;
+  --font-text: "Literata", Georgia, "Times New Roman", serif;
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #12151c; --sheet: #191d26; --ink: #e5e8ef; --muted: #9aa2b3; --line: #2c3241;
+    --pencil: #8ea4ff; --pencil-soft: rgba(142, 164, 255, .17);
+    --violet: #c79cf0; --violet-soft: rgba(199, 156, 240, .16);
+    --slate: #9db3cb; --slate-soft: rgba(157, 179, 203, .17);
+    --band-human: rgba(142, 164, 255, .28); --band-model: rgba(229, 232, 239, .12);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #12151c; --sheet: #191d26; --ink: #e5e8ef; --muted: #9aa2b3; --line: #2c3241;
+  --pencil: #8ea4ff; --pencil-soft: rgba(142, 164, 255, .17);
+  --violet: #c79cf0; --violet-soft: rgba(199, 156, 240, .16);
+  --slate: #9db3cb; --slate-soft: rgba(157, 179, 203, .17);
+  --band-human: rgba(142, 164, 255, .28); --band-model: rgba(229, 232, 239, .12);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 15px/1.55 var(--font-ui);
+}
+a { color: var(--pencil); }
+.wrap {
+  max-width: 1180px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+header.top { padding-block: 32px 20px; display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: flex-end; justify-content: space-between; }
+.brand h1 { font: 600 2.4rem/1.05 var(--font-display); margin: 0; letter-spacing: -.01em; }
+.brand h1 span { color: var(--pencil); }
+.brand p { margin: 8px 0 0; color: var(--muted); max-width: 52ch; text-wrap: pretty; }
+nav.links { display: flex; gap: 18px; font-weight: 500; }
+nav.links a { text-decoration: none; }
+nav.links a:hover, nav.links a:focus-visible { text-decoration: underline; }
+
+main.desk { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 20px; align-items: start; padding-bottom: 40px; }
+@media (max-width: 880px) { main.desk { grid-template-columns: minmax(0, 1fr); } }
+
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 6px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.toolbar label { font-size: .85rem; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+select, button {
+  font: 500 .88rem var(--font-ui); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; cursor: pointer;
+}
+button:hover { border-color: var(--pencil); }
+:focus-visible { outline: 2px solid var(--pencil); outline-offset: 2px; }
+.samples { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.samples span { font-size: .85rem; color: var(--muted); align-self: center; }
+
+.ed { position: relative; }
+.ed-back, .ed textarea {
+  font: 1.06rem/1.75 var(--font-text); padding: 20px 22px 28px; margin: 0;
+  white-space: pre-wrap; overflow-wrap: break-word; word-break: normal; letter-spacing: 0;
+  border: 0; width: 100%;
+}
+.ed-back { position: absolute; inset: 0; color: transparent; overflow: hidden; pointer-events: none; }
+.ed textarea {
+  position: relative; display: block; background: transparent; color: var(--ink);
+  resize: none; overflow: hidden; min-height: 340px; outline: none; caret-color: var(--pencil);
+}
+.ed textarea::placeholder { color: var(--muted); }
+.ed-back mark { color: transparent; border-radius: 2px; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+mark.g-kalip { background: var(--pencil-soft); text-decoration: underline solid var(--pencil); text-decoration-thickness: 2px; }
+mark.g-cumle { background: var(--violet-soft); text-decoration: underline wavy var(--violet); text-decoration-thickness: 1.5px; }
+mark.g-yazim { background: var(--slate-soft); text-decoration: underline dotted var(--slate); text-decoration-thickness: 2.5px; }
+mark.on { outline: 2px solid currentColor; }
+mark.g-kalip.on { outline-color: var(--pencil); }
+mark.g-cumle.on { outline-color: var(--violet); }
+mark.g-yazim.on { outline-color: var(--slate); }
+.ed-foot { display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+aside.notes { display: flex; flex-direction: column; gap: 20px; }
+.tally { padding: 18px 20px; display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: baseline; }
+.tally .big { font: 600 2.6rem/1 var(--font-display); color: var(--pencil); font-variant-numeric: tabular-nums; }
+.tally .cap { font-size: .95rem; }
+.tally .sub { width: 100%; color: var(--muted); font-size: .85rem; }
+
+.measures { padding: 6px 20px 16px; }
+.measures h2, .findings h2 { font: 600 .74rem/1 var(--font-ui); text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 14px 0 6px; }
+.m { padding-block: 12px; border-top: 1px solid var(--line); display: grid; gap: 6px; }
+.m:first-of-type { border-top: 0; }
+.m-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.m-name { font-weight: 500; }
+.m-val { font: 500 1rem var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chip { font: 500 .72rem/1 var(--font-ui); padding: 4px 7px; border-radius: 3px; border: 1px solid var(--line); color: var(--muted); margin-left: 8px; letter-spacing: .02em; }
+.chip.dikkat { border-color: var(--pencil); color: var(--sheet); background: var(--pencil); }
+.m-note { font-size: .82rem; color: var(--muted); }
+.scale { width: 100%; height: 34px; display: block; overflow: visible; }
+.scale text { font: 10px var(--font-data); fill: var(--muted); }
+.bars { width: 100%; height: 54px; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .78rem; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 8px; vertical-align: middle; margin-right: 5px; border-radius: 1px; }
+
+.findings { padding: 6px 20px 18px; }
+.fgroup { display: grid; gap: 2px; margin-bottom: 10px; }
+.fgroup h3 { font: 600 .92rem var(--font-ui); margin: 10px 0 4px; display: flex; gap: 8px; align-items: center; }
+.swatch { width: 18px; height: 10px; border-radius: 2px; display: inline-block; }
+.swatch.g-kalip { background: var(--pencil-soft); border-bottom: 2px solid var(--pencil); }
+.swatch.g-cumle { background: var(--violet-soft); border-bottom: 2px dashed var(--violet); }
+.swatch.g-yazim { background: var(--slate-soft); border-bottom: 2px dotted var(--slate); }
+.fgroup p.gnote { margin: 0 0 6px; font-size: .82rem; color: var(--muted); }
+.kural { padding: 12px 0 14px; border-top: 1px solid var(--line); display: grid; gap: 7px; }
+.kural h4 { margin: 0; font: 600 1rem/1.35 var(--font-ui); }
+.kural p { margin: 0; font-size: .9rem; }
+.ornek { display: grid; gap: 3px; font: .95rem/1.45 var(--font-text); background: var(--paper); border-radius: 4px; padding: 8px 10px; }
+.ornek span { display: block; }
+.ornek b { font: 600 .7rem/1 var(--font-ui); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); display: inline-block; width: 4.6em; }
+.ornek .once { text-decoration: line-through; text-decoration-color: var(--muted); color: var(--muted); }
+.yerler { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.yerler > small { color: var(--muted); font-size: .8rem; }
+.f {
+  font: .92rem var(--font-text); background: var(--sheet); border: 1px solid var(--line); border-radius: 4px;
+  padding: 3px 8px; cursor: pointer; font-weight: 400; text-align: left;
+}
+.f:hover, .f.on { border-color: var(--pencil); background: var(--pencil-soft); }
+.f em { font-style: normal; color: var(--pencil); font-family: var(--font-ui); font-size: .82rem; }
+.empty { color: var(--muted); font-size: .9rem; padding: 6px 0 4px; }
+
+section.about { border-top: 1px solid var(--line); padding-block: 32px 48px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+@media (max-width: 880px) { section.about { grid-template-columns: minmax(0, 1fr); } }
+section.about h2 { font: 600 1.2rem/1.3 var(--font-display); margin: 0 0 8px; text-wrap: balance; }
+section.about p { margin: 0 0 10px; max-width: 62ch; color: var(--ink); }
+.cmd { display: flex; gap: 8px; align-items: center; background: var(--sheet); border: 1px solid var(--line); border-radius: 4px; padding: 6px 6px 6px 12px; margin: 6px 0 10px; }
+.cmd code { font: .86rem var(--font-data); overflow-x: auto; white-space: nowrap; flex: 1; min-width: 0; }
+footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
+@media (prefers-reduced-motion: no-preference) { .f, button { transition: background-color .12s, border-color .12s; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>yapay<span>-</span>değil</h1>
+      <p>Türkçe metni yapıştır, yapay duran yerleri işaretleyeyim. Kalıp sözler, çeviri kokan cümleler, yazım hataları ve tekdüze ritim. Metin bilgisayarından çıkmaz.</p>
+    </div>
+    <nav class="links">
+      <a href="https://github.com/neverland-lab/yapay-degil">GitHub</a>
+      <a href="#kurulum">Skill'i kur</a>
+      <a href="https://github.com/neverland-lab/yapay-degil/blob/main/references/derlem-olcumleri.md">Ölçümler</a>
+    </nav>
+  </header>
+
+  <main class="desk">
+    <div class="sheet">
+      <div class="toolbar">
+        <label for="tur">Metin türü
+          <select id="tur">
+            <option value="">Belirtmeden</option>
+          </select>
+        </label>
+        <div class="samples">
+          <span>Örnek:</span>
+          <button type="button" data-ornek="kalip">Kalıplı metin</button>
+          <button type="button" data-ornek="gemini">Gemini denemesi</button>
+          <button type="button" data-ornek="onarim">Onarılmış hâli</button>
+          <button type="button" id="temizle">Temizle</button>
+        </div>
+      </div>
+      <div class="ed">
+        <div class="ed-back" id="arka" aria-hidden="true"></div>
+        <textarea id="metin" spellcheck="false" aria-label="Denetlenecek metin" placeholder="Metni buraya yapıştır."></textarea>
+      </div>
+      <div class="ed-foot"><span id="sayac">0 kelime</span><span id="durum"></span></div>
+    </div>
+
+    <aside class="notes">
+      <div class="sheet tally" aria-live="polite">
+        <span class="big" id="toplam">0</span><span class="cap" id="toplam-yazi">işaret</span>
+        <span class="sub" id="toplam-alt"></span>
+      </div>
+      <div class="sheet measures">
+        <h2>Ölçüler</h2>
+        <div id="olculer"></div>
+      </div>
+      <div class="sheet findings">
+        <h2>İşaretler</h2>
+        <div id="isaretler"></div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="about" id="kurulum">
+    <div>
+      <h2>Ne yapar, ne yapmaz?</h2>
+      <p>Bu sayfa metinde yapay zekâ çıktılarında sık görülen kalıpları arar. Metni kimin yazdığını söylemez, söyleyemez de. İnsanlar da "sonuç olarak" yazar, model de bazen pürüzsüz yazar.</p>
+      <p>İşaretleri bir düzeltmenin kenar notları gibi oku. Her biri bakmaya değer bir yer gösteriyor, hepsini silmek gerekmiyor.</p>
+    </div>
+    <div>
+      <h2>Sayılar nereden geliyor?</h2>
+      <p>Ritim ve "-mektedir" sınırları doğrudan Türkçe yazılmış 145 metinden ölçüldü. Romanlar, denemeler, mektuplar, makaleler, teknik ve resmî belgeler var, toplam 2,7 milyon kelime. Aynı ölçümler beş dil modelinin yazdıklarına da uygulandı.</p>
+      <p>Metin türü seçince sınırlar o türe göre değişir. Akademik ve resmî yazıda "-mektedir" ve "bu bağlamda" olağandır, orada işaretlenmez.</p>
+    </div>
+    <div>
+      <h2>Onarmak için</h2>
+      <p>yapay-degil aslında bir skill. Claude, Cursor ya da Gemini CLI'a kurunca metni bu kurallara göre yazdırır veya onarır.</p>
+      <div class="cmd"><code id="kur-komut">npx skills add neverland-lab/yapay-degil</code><button type="button" id="kopyala">Kopyala</button></div>
+      <p>Claude Code'da <code>/plugin install yapay-degil@yapay-degil</code> da olur. Diğer yollar <a href="https://github.com/neverland-lab/yapay-degil#kurulum">README'de</a>.</p>
+    </div>
+  </section>
+  <footer>MIT lisanslı. Kurallar depodaki <code>detect_tr_ai.py</code> ile aynı, bu sayfa onun tarayıcı sürümü. Yanlış bir işaret gördüysen <a href="https://github.com/neverland-lab/yapay-degil/issues/new/choose">bildir</a>.</footer>
+</div>
+
+<script src="site/kurallar.js"></script>
+<script src="site/denetci.js"></script>
+<script src="site/aciklamalar.js"></script>
+<script>
+(function () {
+  "use strict";
+  const K = globalThis.YD_KURALLAR;
+  const $ = (id) => document.getElementById(id);
+  const metin = $("metin"), arka = $("arka"), tur = $("tur");
+
+  const ORNEK = {
+    kalip: { tur: "blog-deneme", metin: "Günümüzün hızla değişen iş dünyasında, uzaktan çalışma modeli sadece geçici bir trend değil, aynı zamanda kurumsal kültürün temel bir yapı taşı haline gelmiştir — ve bu durumun önemi yadsınamaz. Şirketler tarafından gerçekleştirilen araştırmalar göstermektedir ki, çalışanlara esneklik sağlamak verimlilik üzerinde kritik bir rol oynamaktadır. Bununla birlikte, iletişim kopukluklarını önlemek adına bütüncül bir yaklaşım benimsenmelidir. Sonuç olarak, 2026 yılında başarılı olmak isteyen kurumlar bu dönüşüme ayak uydurmak zorundadır." },
+    gemini: { tur: "blog-deneme", metin: "Modern insanın zamanla kurduğu ilişki, tarihte hiç olmadığı kadar hız ve yenilik ekseninde şekilleniyor. Her sabah yeni bir teknolojik sıçrayışa, değişen normlara ve eskimeye mahkûm tüketim nesnelerine uyanıyoruz. Bu baş döndürücü devinim içinde gelenek kavramı, çoğu zaman ilerlemenin önündeki köhne bir engel, geçmişin tozlu sayfalarına hapsolmuş bir pranga gibi algılanabiliyor. Oysa insanı bütünüyle bugünden ibaret saymak, nehrin yalnızca gözümüzün önünden geçen damlasını su zannedip kaynağını ve yatağını inkâr etmeye benzer. Geleneğin modern hayattaki yeri, geçmişe duyulan romantik bir özlemden ya da katı bir muhafazakârlıktan çok daha derin; varoluşsal bir çıpa ve anlam arayışıdır." },
+    onarim: { tur: "blog-deneme", metin: "Modern insanın zamanla ilişkisini hız ve yenilik belirliyor. Tarihte hiç bu kadar olmamıştı. Her sabah yeni bir teknolojik sıçrayışa, değişen normlara, eskimeye mahkûm eşyalara uyanıyoruz. Bu hızın içinde gelenek çoğu zaman ilerlemenin önünde duran eski bir engel gibi görülebiliyor, geçmişten kalma bir pranga gibi. Ama insanı yalnızca bugünden ibaret saymak, nehrin önümüzden akıp giden damlasını su sanıp kaynağını da yatağını da inkâr etmeye benzer. Geleneğin bugünkü hayattaki yeri daha derin. Geçmişe duyulan romantik bir özlem değil o, katı bir muhafazakârlık da değil: varoluşsal bir çıpa, bir anlam arayışı." },
+  };
+
+  const GRUPLAR = {
+    kalip: { ad: "Hazır sözler", not: "Yapay zekânın çok sevdiği kalıp ifadeler. Tek tek yanlış değiller ama üst üste gelince metin bir şablondan çıkmış gibi okunur." },
+    cumle: { ad: "Cümle kuruluşu", not: "Kelimeler Türkçe ama cümlenin kuruluşu İngilizceden çevrilmiş gibi kalan yerler ve dil bilgisi aksaklıkları." },
+    yazim: { ad: "Yazım ve noktalama", not: "Türk Dil Kurumunun yazım ve noktalama kurallarına uymayan yerler." },
+  };
+  function grupOf(rule) {
+    if (/^(Tier-1|Tier-2|P0)/.test(rule)) return "kalip";
+    if (/^(P1|P2 Terminoloji)/.test(rule)) return "cumle";
+    return "yazim";
+  }
+  function aciklamaOf(rule) {
+    return globalThis.YD_ACIKLAMA_BUL(rule)[0] || { baslik: rule, neden: "", ornek: null };
+  }
+
+  // Ölçek çizgileri: değer, insan ve model aralığı aynı ölçekte.
+  const fmt = (x, n = 2) => (x === null || x === undefined) ? "–" : x.toFixed(n).replace(".", ",");
+  function olcek(val, max, insan, model, hedefMax) {
+    const W = 300, X = (v) => 4 + Math.min(Math.max(v, 0), max) / max * (W - 8);
+    let s = `<svg class="scale" viewBox="0 0 ${W} 34" preserveAspectRatio="none" role="img">`;
+    s += `<rect x="4" y="9" width="${W - 8}" height="8" fill="var(--paper)" stroke="var(--line)"/>`;
+    if (model) s += `<rect x="${X(model[0])}" y="9" width="${X(model[1]) - X(model[0])}" height="8" fill="var(--band-model)"/>`;
+    if (insan) s += `<rect x="${X(insan[0])}" y="9" width="${Math.max(X(insan[1]) - X(insan[0]), 2)}" height="8" fill="var(--band-human)"/>`;
+    if (hedefMax !== undefined) s += `<rect x="4" y="9" width="${X(hedefMax) - 4}" height="8" fill="var(--band-human)"/>`;
+    if (val !== null && val !== undefined) {
+      s += `<line x1="${X(val)}" x2="${X(val)}" y1="3" y2="23" stroke="var(--ink)" stroke-width="2"/>`;
+    }
+    s += `<text x="4" y="32">0</text><text x="${W - 4}" y="32" text-anchor="end">${fmt(max, max < 1 ? 1 : 0)}</text></svg>`;
+    return s;
+  }
+  function chip(dikkat, uygunYazi = "aralıkta") {
+    return dikkat ? `<span class="chip dikkat">dikkat</span>` : `<span class="chip">${uygunYazi}</span>`;
+  }
+  function cumleCubuklari(lens) {
+    if (lens.length < 2) return "";
+    const n = Math.min(lens.length, 60), L = lens.slice(0, n), mx = Math.max(30, ...L);
+    const W = 300, H = 54, gw = W / n, bw = Math.max(gw - 2, 1);
+    let s = `<svg class="bars" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Cümle başına kelime sayısı: ${L.join(", ")}">`;
+    const y = (v) => H - 2 - (v / mx) * (H - 6);
+    s += `<rect x="0" y="${y(22)}" width="${W}" height="${y(15) - y(22)}" fill="var(--band-model)"/>`;
+    L.forEach((v, i) => { s += `<rect x="${i * gw + 1}" y="${y(v)}" width="${bw}" height="${H - 2 - y(v)}" fill="var(--pencil)"/>`; });
+    s += `<line x1="0" x2="${W}" y1="${H - 1.5}" y2="${H - 1.5}" stroke="var(--line)"/></svg>`;
+    return s;
+  }
+
+  function olculer(r) {
+    const rh = r.rhythm, out = [];
+    out.push(`<div class="m"><div class="m-head"><span class="m-name">Cümle boyları</span><span class="m-val">${r.sentence_count} cümle</span></div>
+      ${cumleCubuklari(r.sentence_lengths)}
+      <div class="m-note">Her çubuk bir cümle, boyu da cümledeki kelime sayısı. İnsanlar yazarken kısa ve uzun cümleleri karıştırır. Çubuklar birbirine benziyorsa metin tekdüze okunur. Gri şerit 15-22 kelime arası, yapay zekâ cümlelerini en çok bu boya yığıyor.</div></div>`);
+    const ritimVar = rh.window_cov_median !== null;
+    out.push(`<div class="m"><div class="m-head"><span class="m-name">Ritim değişkenliği</span>
+      <span class="m-val">${ritimVar ? fmt(rh.window_cov_median) : "–"}${ritimVar ? chip(rh.flat_rhythm_warning, rh.flat_rhythm_warning ? "" : (r.register && !K.rhythmWarnRegisters.includes(r.register) ? "bu türde bakılmaz" : "aralıkta")) : ""}</span></div>
+      ${olcek(ritimVar ? rh.window_cov_median : null, 0.8, [0.46, 0.49], [0.28, 0.41])}
+      <div class="legend"><span><i style="background:var(--band-human)"></i>Türk yazarlar 0,46-0,49</span><span><i style="background:var(--band-model)"></i>modeller 0,28-0,41</span></div>
+      <div class="m-note">${ritimVar ? "Cümle boylarının ne kadar değiştiğini tek sayıyla gösterir. Metin beşer cümlelik parçalara bölünür, her parçaya bakılır. Sayı sıfıra yaklaştıkça cümleler aynı boyda demektir. Örneğin 12, 13, 12, 14, 13 kelimelik beş cümle 0,06 çıkar. 4, 18, 9, 25, 7 kelimelik beş cümle 0,62 çıkar. Akademik, teknik ve resmî yazı doğası gereği daha düzenlidir, o türlerde uyarı verilmez." : "Ölçmek için en az beş cümle gerekiyor."}</div></div>`);
+    if (rh.band_15_22_ratio !== null) {
+      out.push(`<div class="m"><div class="m-head"><span class="m-name">15-22 kelimelik cümleler</span>
+        <span class="m-val">%${Math.round(rh.band_15_22_ratio * 100)}${chip(rh.band_15_22_warning)}</span></div>
+        ${olcek(rh.band_15_22_ratio, 0.6, [0.14, 0.25], [0.29, 0.49])}
+        <div class="legend"><span><i style="background:var(--band-human)"></i>yazarlar %14-25</span><span><i style="background:var(--band-model)"></i>uzun cümleli modeller %29-49</span></div>
+        <div class="m-note">Cümlelerin yüzde kaçının 15 ile 22 kelime arasında olduğu. Bu oran yüksekse cümleler hep aynı orta boyda kalmış demektir. En az sekiz cümleli metinde uyarı verilir.</div></div>`);
+    }
+    const [lo, hi] = r.mektedir_target_range;
+    out.push(`<div class="m"><div class="m-head"><span class="m-name">"-mektedir" yoğunluğu</span>
+      <span class="m-val">${fmt(r.mektedir_per_100_words)}${chip(r.high_mektedir_warning)}</span></div>
+      ${olcek(r.mektedir_per_100_words, Math.max(4, hi * 1.6), null, null, hi)}
+      <div class="m-note">“Yapılmaktadır”, “görülmektedir” gibi ekler. Resmî yazıda olağandır, blogda ve sohbet havasındaki yazıda ağır durur. Burada yüz kelimede kaç kez geçtiğine bakılıyor. Seçili türde (${esc(r.register_label)}) üst sınır ${fmt(hi, 1)}. Örneğin “Ekip yeni sürüm üzerinde çalışmaktadır” yerine “Ekip yeni sürüm üzerinde çalışıyor” denebilir.</div></div>`);
+    const sinifAd = { "-mAktAdIr": "-mektedir", "-mIştIr": "-mıştır", "-DIr": "-dır" };
+    out.push(`<div class="m"><div class="m-head"><span class="m-name">Aynı ekle biten cümle serisi</span>
+      <span class="m-val">${r.repeated_ending_max_run}${chip(r.repeated_ending_warning)}</span></div>
+      <div class="m-note">Art arda kaç cümlenin aynı ekle bittiği. “Toplantı yapılmıştır. Karar alınmıştır. Rapor hazırlanmıştır.” gibi diziler rapor okuyormuş hissi verir. ${r.repeated_ending_class ? `Bu metinde en uzun seri “${sinifAd[r.repeated_ending_class]}” ile. ` : ""}${r.repeated_ending_limit >= 99 ? "Kamu yazışmasında uzun seri olağandır, işaretlenmez." : `${r.repeated_ending_limit} ve üstü işaretlenir.`}</div></div>`);
+    return out.join("");
+  }
+
+  function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+  let son = null, secili = -1, zaman = 0;
+  function boya(text, findings) {
+    const sirali = findings.map((f, i) => ({ ...f, i })).sort((a, b) => a.position - b.position || b.match.length - a.match.length);
+    let html = "", pos = 0;
+    for (const f of sirali) {
+      if (f.position < pos) continue;
+      html += esc(text.slice(pos, f.position));
+      html += `<mark class="g-${grupOf(f.rule)}${f.i === secili ? " on" : ""}">${esc(f.match)}</mark>`;
+      pos = f.position + f.match.length;
+    }
+    html += esc(text.slice(pos)) + "\n ";
+    arka.innerHTML = html;
+  }
+
+  function isaretler(r) {
+    if (!r.findings.length) return `<p class="empty">Kalıp, yazım ya da noktalama işareti yok. Ölçülere de bak, ritim ayrı bir konu.</p>`;
+    // Grup > kural > yakalanan yerler. Aynı kural birkaç kez yakalanınca açıklama bir kez yazılır.
+    const gruplar = { kalip: new Map(), cumle: new Map(), yazim: new Map() };
+    r.findings.forEach((f, i) => {
+      const a = aciklamaOf(f.rule), g = gruplar[grupOf(f.rule)];
+      if (!g.has(a.baslik)) g.set(a.baslik, { a, yerler: [] });
+      g.get(a.baslik).yerler.push({ f, i });
+    });
+    let h = "";
+    for (const [k, kurallar] of Object.entries(gruplar)) {
+      if (!kurallar.size) continue;
+      const adet = [...kurallar.values()].reduce((s, x) => s + x.yerler.length, 0);
+      h += `<div class="fgroup"><h3><span class="swatch g-${k}"></span>${GRUPLAR[k].ad} <span class="chip">${adet}</span></h3><p class="gnote">${GRUPLAR[k].not}</p>`;
+      for (const { a, yerler } of kurallar.values()) {
+        yerler.sort((x, y) => x.f.position - y.f.position);
+        h += `<div class="kural"><h4>${esc(a.baslik)}</h4>`;
+        if (a.neden) h += `<p>${esc(a.neden)}</p>`;
+        if (a.ornek) h += `<div class="ornek"><span class="once"><b>Böyle</b>${esc(a.ornek[0])}</span><span><b>Daha iyi</b>${esc(a.ornek[1])}</span></div>`;
+        h += `<div class="yerler"><small>Metninde:</small>`;
+        for (const { f, i } of yerler) {
+          const d = a.duzelt ? a.duzelt(f.match, f.rule) : null;
+          h += `<button type="button" class="f${i === secili ? " on" : ""}" data-i="${i}" title="Metinde göster">${esc(f.match.trim() || f.match)}${d ? ` <em>→ ${esc(d)}</em>` : ""}</button>`;
+        }
+        h += `</div></div>`;
+      }
+      h += `</div>`;
+    }
+    return h;
+  }
+
+  function boyut() { metin.style.height = "auto"; metin.style.height = metin.scrollHeight + "px"; }
+
+  function calistir() {
+    const text = metin.value;
+    const r = globalThis.YD.analyzeText(text, tur.value || null);
+    son = r;
+    if (secili >= r.findings.length) secili = -1;
+    boya(text, r.findings);
+    $("toplam").textContent = r.total_flags;
+    $("toplam-yazi").textContent = "işaret";
+    const uyari = [r.rhythm.flat_rhythm_warning, r.rhythm.band_15_22_warning, r.high_mektedir_warning, r.repeated_ending_warning].filter(Boolean).length;
+    $("toplam-alt").textContent = text.trim() ? (uyari ? `Ölçülerde ${uyari} yerde dikkat notu var.` : "Ölçüler derlem aralığında.") : "Metin bekleniyor.";
+    $("sayac").textContent = `${r.word_count} kelime, ${r.sentence_count} cümle`;
+    $("olculer").innerHTML = text.trim() ? olculer(r) : `<p class="empty">Metin yapıştırınca ritim ve ek yoğunluğu burada görünür.</p>`;
+    $("isaretler").innerHTML = text.trim() ? isaretler(r) : `<p class="empty">İşaretler burada listelenir. Birine tıklayınca metinde o yer seçilir.</p>`;
+    try { localStorage.setItem("yd-taslak", JSON.stringify({ metin: text, tur: tur.value })); } catch (e) {}
+  }
+  function planla() { clearTimeout(zaman); zaman = setTimeout(calistir, 120); }
+
+  for (const [k, p] of Object.entries(K.registers)) {
+    const o = document.createElement("option"); o.value = k; o.textContent = p.label; tur.appendChild(o);
+  }
+
+  metin.addEventListener("input", () => { boyut(); secili = -1; planla(); });
+  tur.addEventListener("change", calistir);
+  window.addEventListener("resize", boyut);
+  document.querySelectorAll("[data-ornek]").forEach((b) => b.addEventListener("click", () => {
+    const o = ORNEK[b.dataset.ornek]; metin.value = o.metin; tur.value = o.tur; secili = -1; boyut(); calistir();
+  }));
+  $("temizle").addEventListener("click", () => { metin.value = ""; secili = -1; boyut(); calistir(); metin.focus(); });
+  $("isaretler").addEventListener("click", (e) => {
+    const b = e.target.closest(".f"); if (!b || !son) return;
+    secili = Number(b.dataset.i);
+    const f = son.findings[secili];
+    boya(metin.value, son.findings);
+    document.querySelectorAll(".f.on").forEach((x) => x.classList.remove("on")); b.classList.add("on");
+    metin.focus({ preventScroll: true });
+    metin.setSelectionRange(f.position, f.position + f.match.length);
+    const m = arka.querySelector("mark.on");
+    if (m) { const r = m.getBoundingClientRect(); if (r.top < 60 || r.bottom > innerHeight - 20) window.scrollBy({ top: r.top - innerHeight / 3, behavior: "smooth" }); }
+  });
+  $("kopyala").addEventListener("click", async () => {
+    const t = $("kur-komut").textContent, b = $("kopyala");
+    try { await navigator.clipboard.writeText(t); b.textContent = "Kopyalandı"; }
+    catch (e) { const sel = getSelection(), rg = document.createRange(); rg.selectNodeContents($("kur-komut")); sel.removeAllRanges(); sel.addRange(rg); b.textContent = "Seçildi"; }
+    setTimeout(() => (b.textContent = "Kopyala"), 1600);
+  });
+
+  let taslak = null;
+  try { taslak = JSON.parse(localStorage.getItem("yd-taslak") || "null"); } catch (e) {}
+  if (taslak && taslak.metin && taslak.metin.trim()) { metin.value = taslak.metin; tur.value = taslak.tur || ""; }
+  else { metin.value = ORNEK.kalip.metin; tur.value = ORNEK.kalip.tur; }
+  boyut(); calistir();
+  if (document.fonts) document.fonts.ready.then(() => { boyut(); boya(metin.value, son.findings); });
+})();
+</script>
+</body>
+</html>

@@ -6,6 +6,8 @@ Yapay zekâya Türkçe yazdırınca bir şey hep tuhaf durur. Kelimeler Türkçe
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-v1.0-blue)](https://agentskills.io/specification)
 [![Öneri ve hata bildirimi](https://img.shields.io/badge/%C3%B6neri%20ve%20hata-issues-blue.svg)](https://github.com/neverland-lab/yapay-degil/issues/new/choose)
 
+Kurmadan denemek istersen [tarayıcıdaki denetçiye](https://neverland-lab.github.io/yapay-degil/) metin yapıştırabilirsin. Yapay duran yerleri işaretler, nedenini örnekle anlatır. Metin bilgisayarından çıkmaz.
+
 *Turkish AI-text humanizer for Claude and other agents. Its rules are calibrated on 2.7 million words of Turkish writing: novels, essays, columns, letters, papers, technical and official documents.*
 
 ## Önce bir örnek
@@ -121,7 +123,7 @@ Bir kuralı hiç esnetmez: Onarırken kaynakta olmayan sayı, isim, anekdot ekle
 
 ## Dedektör
 
-Skill'in yanında küçük bir Python betiği var. Metni okuyup kalıpları, TDK hatalarını, cümle ritmini ve "-mektedir" yoğunluğunu raporlar. Ek kütüphane istemez, internete bağlanmaz.
+Skill'in yanında küçük bir Python betiği var. Metni okuyup kalıpları, TDK hatalarını, cümle ritmini ve "-mektedir" yoğunluğunu raporlar. Ek kütüphane istemez, internete bağlanmaz. Aynı dedektör [web sayfasında](https://neverland-lab.github.io/yapay-degil/) tarayıcıda da çalışıyor, kurallar ortak.
 
 ```bash
 python3 scripts/detect_tr_ai.py metin.md
@@ -143,11 +145,12 @@ references/
   tdk-ve-noktalama.md         Noktalama ve yazım kuralları, kaynaklarıyla
   register-ve-ornekler.md     Metin türleri ve önce/sonra örnekleri
 scripts/                      Dedektör, testler, paketleme
+docs/                         Tarayıcı denetçisi (web sayfası), araştırma notları
 dist/                         Web arayüzleri için tek dosya
 skills/yapay-degil/           Kurulumda inen paket (betik içermez)
 ```
 
-Betikler hakkında: `detect_tr_ai.py` ve `run_tests.py` dosya yazmaz. `build_dist.py` yalnızca depo içinde çalışır: `dist/` dosyasını yeniden yazar, `skills/yapay-degil/references/` klasörünü silip yeniden kopyalar. Silme bu tek klasörle sınırlı, başka bir yol ya da sembolik bağlantı görürse durur. `npx skills` ya da `gh skill` ile kurulumda yalnızca `skills/yapay-degil/` iner, orada betik yoktur.
+Betikler hakkında: `detect_tr_ai.py` ve `run_tests.py` dosya yazmaz. `build_dist.py` yalnızca depo içinde çalışır: `dist/` dosyasını yeniden yazar, `skills/yapay-degil/references/` klasörünü silip yeniden kopyalar. Silme bu tek klasörle sınırlı, başka bir yol ya da sembolik bağlantı görürse durur. `npx skills` ya da `gh skill` ile kurulumda yalnızca `skills/yapay-degil/` iner, orada betik yoktur. `build_site.py` web sayfasının kural dosyasını (`docs/site/kurallar.js`) dedektörden üretir. `check_site.py` dosya yazmaz, Node.js ile sayfanın dedektörle aynı sonucu verdiğini sınar.
 
 ## Öneri ve hata bildirimi
 
