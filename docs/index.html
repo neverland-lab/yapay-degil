@@ -129,6 +129,23 @@ aside.notes { display: flex; flex-direction: column; gap: 20px; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .78rem; color: var(--muted); }
 .legend i { display: inline-block; width: 12px; height: 8px; vertical-align: middle; margin-right: 5px; border-radius: 1px; }
 
+.onar { padding: 6px 20px 18px; display: grid; gap: 10px; }
+.onar h2 { font: 600 .74rem/1 var(--font-ui); text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 14px 0 0; }
+.onar p { margin: 0; font-size: .9rem; }
+.onar-dugmeler { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 420px) { .onar-dugmeler { grid-template-columns: minmax(0, 1fr); } }
+a.git {
+  display: block; text-align: center; text-decoration: none; font: 500 .9rem var(--font-ui);
+  padding: 9px 8px; border-radius: 4px; border: 1px solid var(--pencil); color: var(--pencil); background: var(--sheet);
+}
+a.git:hover { background: var(--pencil-soft); }
+a.git[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.onar-not { color: var(--muted); font-size: .82rem !important; }
+.onar details summary { cursor: pointer; font-size: .86rem; color: var(--pencil); }
+.onar pre {
+  white-space: pre-wrap; overflow-wrap: break-word; font: .78rem/1.5 var(--font-data); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 4px; padding: 10px; max-height: 320px; overflow-y: auto; margin: 8px 0;
+}
 .findings { padding: 6px 20px 18px; }
 .fgroup { display: grid; gap: 2px; margin-bottom: 10px; }
 .fgroup h3 { font: 600 .92rem var(--font-ui); margin: 10px 0 4px; display: flex; gap: 8px; align-items: center; }
@@ -206,6 +223,21 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
         <span class="big" id="toplam">0</span><span class="cap" id="toplam-yazi">işaret</span>
         <span class="sub" id="toplam-alt"></span>
       </div>
+      <div class="sheet onar">
+        <h2>Onart</h2>
+        <p>Metni, düzeltme talimatıyla ve buradaki işaretlerle birlikte kendi sohbet uygulamanda aç. Kendi hesabın kullanılır, bu sayfa hiçbir yere bir şey göndermez.</p>
+        <div class="onar-dugmeler">
+          <a class="git" id="git-chatgpt" data-s="chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT'de aç</a>
+          <a class="git" id="git-claude" data-s="claude" href="https://claude.ai/new" target="_blank" rel="noopener">Claude'da aç</a>
+          <a class="git" id="git-gemini" data-s="gemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini'de aç</a>
+        </div>
+        <p class="onar-not" id="onar-not">Gemini hazır mesajla açılmıyor. Düğmeye basınca istek panoya kopyalanır, açılan sayfaya yapıştırıp göndermen yeter.</p>
+        <details>
+          <summary>Gönderilecek isteği gör</summary>
+          <pre id="istek"></pre>
+          <button type="button" id="istek-kopyala">İsteği kopyala</button>
+        </details>
+      </div>
       <div class="sheet measures">
         <h2>Ölçüler</h2>
         <div id="olculer"></div>
@@ -241,6 +273,7 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
 <script src="site/kurallar.js"></script>
 <script src="site/denetci.js"></script>
 <script src="site/aciklamalar.js"></script>
+<script src="site/onarim.js"></script>
 <script>
 (function () {
   "use strict";
@@ -390,8 +423,49 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     $("sayac").textContent = `${r.word_count} kelime, ${r.sentence_count} cümle`;
     $("olculer").innerHTML = text.trim() ? olculer(r) : `<p class="empty">Metin yapıştırınca ritim ve ek yoğunluğu burada görünür.</p>`;
     $("isaretler").innerHTML = text.trim() ? isaretler(r) : `<p class="empty">İşaretler burada listelenir. Birine tıklayınca metinde o yer seçilir.</p>`;
+    onarGuncelle(text, r);
     try { localStorage.setItem("yd-taslak", JSON.stringify({ metin: text, tur: tur.value })); } catch (e) {}
   }
+
+  // Onart düğmeleri: istek kısa ise adres çubuğuyla gider, uzunsa (ve Gemini'de her zaman) panoya kopyalanır.
+  const O = globalThis.YD_ONARIM;
+  let sonIstek = "";
+  function onarGuncelle(text, r) {
+    const bos = !text.trim();
+    sonIstek = bos ? "" : O.istek(text, r, (k) => globalThis.YD_ACIKLAMA_BUL(k)[0]);
+    $("istek").textContent = bos ? "Önce metin yapıştır." : sonIstek;
+    let uzun = false;
+    document.querySelectorAll("a.git").forEach((a) => {
+      a.setAttribute("aria-disabled", bos ? "true" : "false");
+      if (bos) return;
+      const ad = O.adres(a.dataset.s, sonIstek);
+      a.href = ad.url;
+      a.dataset.kopyala = ad.kopyala ? "1" : "";
+      if (ad.kopyala && a.dataset.s !== "gemini") uzun = true;
+    });
+    $("onar-not").textContent = uzun
+      ? "Metin uzun olduğu için hiçbir uygulama hazır mesajla açılamıyor. Düğmeye basınca istek panoya kopyalanır, açılan sayfaya yapıştırıp göndermen yeter."
+      : "Gemini hazır mesajla açılmıyor. Düğmeye basınca istek panoya kopyalanır, açılan sayfaya yapıştırıp göndermen yeter.";
+  }
+  async function kopyala(t) {
+    try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; }
+  }
+  document.querySelectorAll("a.git").forEach((a) => a.addEventListener("click", (e) => {
+    if (!sonIstek) { e.preventDefault(); return; }
+    if (a.dataset.kopyala) {
+      kopyala(sonIstek).then((ok) => {
+        $("onar-not").textContent = ok
+          ? `İstek panoya kopyalandı. Açılan ${O.SAGLAYICI[a.dataset.s].ad} sayfasına yapıştırıp gönder.`
+          : "Panoya kopyalanamadı. Aşağıdaki “Gönderilecek isteği gör” bölümünden kendin kopyalayabilirsin.";
+      });
+    }
+  }));
+  $("istek-kopyala").addEventListener("click", async () => {
+    const b = $("istek-kopyala");
+    if (await kopyala(sonIstek)) b.textContent = "Kopyalandı";
+    else { const sel = getSelection(), rg = document.createRange(); rg.selectNodeContents($("istek")); sel.removeAllRanges(); sel.addRange(rg); b.textContent = "Seçildi, kopyala"; }
+    setTimeout(() => (b.textContent = "İsteği kopyala"), 1800);
+  });
   function planla() { clearTimeout(zaman); zaman = setTimeout(calistir, 120); }
 
   for (const [k, p] of Object.entries(K.registers)) {

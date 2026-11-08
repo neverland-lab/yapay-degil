@@ -7,6 +7,7 @@ Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar
 Skill değişmedi, sürüm numarası artmadı.
 - Dedektörün tarayıcı sürümü yayına çıktı: https://neverland-lab.github.io/yapay-degil/ Metni yapıştırınca kalıpları, yazım hatalarını ve ritmi gösteriyor. Her kural için sade bir açıklama ve önce/sonra örneği var. Metin bilgisayardan çıkmıyor, hiçbir API kullanılmıyor.
 - Kurallar tek yerde, `detect_tr_ai.py`'de duruyor. `scripts/build_site.py` sayfanın kural dosyasını onlardan üretiyor. `scripts/check_site.py` tarayıcı sürümünün Python'la aynı sonucu verdiğini ve her kuralın açıklaması olduğunu sınıyor (eval örnekleri ve 120 derlem dosyası, 952 durum).
+- Sayfaya "Onart" düğmeleri eklendi: metin, skill'in kısaltılmış onarım talimatı ve sayfanın bulduğu işaretlerle birlikte ziyaretçinin kendi ChatGPT, Claude ya da Gemini sohbetinde açılıyor. Gemini'de ve uzun metinlerde istek panoya kopyalanıyor. Talimat `docs/site/onarim.js` dosyasında.
 
 ## 1.3.2 (8 Kasım 2026)
 
