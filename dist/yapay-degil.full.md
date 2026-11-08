@@ -4,7 +4,7 @@ description: Türkçe metni insan eliyle yazılmış gibi doğal yazar veya onar
 license: MIT
 metadata:
   author: yucezerey, neverland-lab
-  version: "1.3.0"
+  version: "1.3.1"
 ---
 
 # yapay-degil (Doğal Türkçe ve Anti-Slop Mimari Kılavuzu)
@@ -16,7 +16,7 @@ Detaylı dilbilimi kuralları ve sözlük tabloları için bu dizindeki referans
 - `references/sentaks-ve-morfoloji.md`: Türkçe cümlenin geometrisi (öge dizilimi, bilgi yapısı, gömme derinliği), sola dallanma, ulaç sistemi, vurgu yuvası, `-DIr` ile `-mAktAdIr` ayrımı, zamir düşürme, adlaştırma zincirleri, kof yardımcı fiil dönüşümleri ve koşutluk (ortak öge, liste biçim birliği, yapay simetri).
 - `references/ai-turkcesi-sozlugu.md`: Tier-1 (kesin AI ifşaları), Tier-2 (bürokratik bağlaçlar) ve Tier-3 (SaaS/pazarlama çeviri kalıpları) sözlüğü.
 - `references/tdk-ve-noktalama.md`: 5 mutlak noktalama yasağı, TDK birleşik/ayrı kelimeler ve yabancı teknik terimlerin Türkçe okunuşa göre ek uyumu.
-- `references/derlem-olcumleri.md`: 22 Türk yazarının 24 kitabından, 8 akademik kitaptan, 44 DergiPark makalesinden ve beş dil modelinden ölçülmüş cümle uzunluğu, ritim, noktalama ve devrik oranları. Ritim ve noktalama kurallarının dayanağı.
+- `references/derlem-olcumleri.md`: Türkçe yazılmış 145 metinden (roman, deneme, köşe yazısı, mektup, akademik kitap ve makale, psikoloji, teknik ve kamu belgesi) ve beş dil modelinin metinlerinden ölçülmüş cümle uzunluğu, ritim, noktalama ve devrik oranları. Ritim ve noktalama kurallarının dayanağı.
 - `references/register-ve-ornekler.md`: 6 register × 9 üslup boyutu matrisi (kamu ve kurum içi yazışma profili dâhil) ve uçtan uca Before/After dönüşüm çiftleri.
 
 ## Temel İlkeler
@@ -730,14 +730,32 @@ Dil modelinin ritim kusuru tek tek cümlelerde değil, paragrafın bütününde 
 
 # Derlem Ölçümleri: İnsan Türkçesi ve Dil Modeli Türkçesi
 
-Bu dosyadaki sayılar skill'in ritim, noktalama ve devrik kurallarının dayanağıdır. Ölçümler Kasım 2026'da yapıldı. Kitap metinleri telif nedeniyle bu depoda yer almaz, yalnızca toplu istatistikler verilir.
+Skill'in ritim, noktalama ve devrik kurallarındaki sayılar bu dosyadan gelir. Ölçümleri Kasım 2026'da yaptık. Derlem birkaç turda büyüdü: Önce 24 roman ve deneme kitabıyla beş modelin metinleri ölçüldü, sonra akademik kitaplar, DergiPark makaleleri, kurum belgeleri, teknik metinler, çağdaş romanlar, psikoloji kitapları, köşe yazıları ve mektuplar eklendi. İnsan tarafı 145 metin, yaklaşık 2,7 milyon kelime. Kitapların metni telif yüzünden depoda yok, burada yalnızca toplu sayılar var.
+
+| Parça | Metin | Kelime (yaklaşık) |
+| :--- | :--- | :--- |
+| Roman, öykü ve deneme (ilk derlem) | 22 yazarın 24 kitabı | 215.000 (örneklem) |
+| Akademik kitap | 8 | 75.000 (örneklem) |
+| DergiPark makalesi (2016-2019 ve 2026) | 44 | 253.000 |
+| Kurum belgesi ve faaliyet raporu | 7 belge, 5 İBB raporu | 36.000 + rapor başına 8.000 |
+| Teknik metin | 19 | 38.500 |
+| Çağdaş roman ve öykü | 17 | 1.000.000 |
+| Psikoloji (açıklayıcı metin) | 5 | 415.000 |
+| Köşe yazısı | 5 yazar | 285.000 |
+| Mektup, günlük, anı | 5 | 260.000 |
+| Dil modeli metni | 5 modelden 40 | 17.000 |
 
 ## Yöntem
 
-- **İnsan derlemi:** Türkçe yazmış 22 yazardan 24 kitap (17 kurmaca, 7 deneme/anı/inceleme). Çeviri eserler bilerek dışarıda bırakıldı, çünkü çeviri Türkçesi skill'in temizlemeye çalıştığı izleri taşır. Kitapların tamamı değil, her kitaptan %20, %50 ve %80 noktalarındaki 8'er sayfalık pencereler alındı (.txt ve .epub dosyalarında sayfa olmadığı için aynı noktalardan 4.000'er kelime). Ölçülen örneklem toplamı diyalog dâhil yaklaşık 215.000 kelimedir. Yazarlardan bazıları: Adalet Ağaoğlu, İhsan Oktay Anar, Oğuz Atay, Fakir Baykurt, Halide Edib Adıvar, Memduh Şevket Esendal, Sait Faik Abasıyanık, Cemil Meriç, Murathan Mungan, Aziz Nesin, Ömer Seyfettin, Orhan Pamuk (2), Peyami Safa (2), Sabahattin Ali, Kemal Tahir, Ahmet Hamdi Tanpınar, Hasan Ali Toptaş, Ayfer Tunç, Ahmet Ümit, Çetin Altan, Attila İlhan.
-- **Akademik derlem:** Aynı yöntemle 8 Türkçe akademik ve inceleme kitabı (tarih, felsefe, siyaset bilimi, iktisat, bilim tartışması): Bahriye Üçok, Ahmet Cevizci, Tarık Zafer Tunaya, Doğan Avcıoğlu, Asaf Savaş Akat, İsmail Cem, Ahmet Yüksel Özemre, Aydın Topaloğlu. Örneklem toplamı yaklaşık 75.000 kelime. Kitaplar 1960'lardan 2000'lere uzanır, çoğu 2000 öncesidir, bugünkü dergi makalesi dilini tam temsil etmez.
-- **Model derlemi:** Beş modele aynı 8 istek verildi (4 kurmaca, 4 deneme, her biri yaklaşık 400-500 kelime): Gemini 4 Argon, Gemini 3.8 Flash, GPT-OSS 120B, Claude Sonnet 5.5, Claude Opus 5.5. İsteklerde "doğal yaz" ya da "yapay yaz" gibi yönlendirme yoktu.
-- **Ölçüm:** Diyalog paragrafları çıkarıldı, yalnızca anlatı cümleleri sayıldı. Ritim, metin boyunca art arda gelen her 5 cümlelik pencerenin değişim katsayısıyla ölçüldü. Kitaplardan çıkarılan metinlerde gerçek paragraf sınırları güvenilir olmadığı için paragraf temelli ölçüm kullanılmadı. Sabit genişlikte kırılmış satırlar cümle ortasında bölünmesin diye noktalamayla bitmeyen satırlar ölçümden önce bir sonraki satırla birleştirildi. (Bu düzeltme ilk ölçümde yoktu. Eklenince kurmaca değerleri neredeyse hiç değişmedi, deneme değerleri değişti: ortanca cümle 10'dan 12'ye, 15-22 bandı %17'den %23'e çıktı.) Biçim bilgisi (morfoloji) çözümleyicisi kullanılmadı, ölçümler düzenli ifadeye dayalı sezgisel ölçümlerdir. Devrik cümle sezgiseli 40 cümlelik bir doğrulama setinde bağımsız bir okurla %75 uyuştu. Bu yüzden devrik oranları kesin değer değil, göreli karşılaştırma içindir.
+İlk derlem Türkçe yazmış 22 yazarın 24 kitabından oluşur: 17 kurmaca, 7 deneme, anı ya da inceleme. Çeviri kitapları bilerek almadık, çünkü çeviri Türkçesi skill'in temizlemeye çalıştığı izleri taşır. Kitapların tamamını değil, %20, %50 ve %80 noktalarındaki sekizer sayfayı ölçtük. Sayfası olmayan .txt ve .epub dosyalarında aynı noktalardan 4.000'er kelime aldık. Örneklem diyalog dâhil yaklaşık 215.000 kelime. Yazarlardan bazıları: Adalet Ağaoğlu, İhsan Oktay Anar, Oğuz Atay, Fakir Baykurt, Halide Edib Adıvar, Memduh Şevket Esendal, Sait Faik Abasıyanık, Cemil Meriç, Murathan Mungan, Aziz Nesin, Ömer Seyfettin, Orhan Pamuk (iki kitap), Peyami Safa (iki kitap), Sabahattin Ali, Kemal Tahir, Ahmet Hamdi Tanpınar, Hasan Ali Toptaş, Ayfer Tunç, Ahmet Ümit, Çetin Altan, Attila İlhan.
+
+Akademik derlem aynı yöntemle ölçülen 8 kitaptır. Tarih, felsefe, siyaset bilimi, iktisat ve bilim tartışması alanlarından Bahriye Üçok, Ahmet Cevizci, Tarık Zafer Tunaya, Doğan Avcıoğlu, Asaf Savaş Akat, İsmail Cem, Ahmet Yüksel Özemre ve Aydın Topaloğlu'nun kitapları. Örneklem yaklaşık 75.000 kelime. Kitaplar 1960'lardan 2000'lere uzanıyor, çoğu 2000 öncesi. Bugünkü dergi makalesinin dilini tam temsil etmedikleri için makaleleri ayrıca ölçtük (aşağıda).
+
+Model derlemi için beş modele aynı 8 isteği verdik: 4 kurmaca, 4 deneme, her biri 400-500 kelime civarı. Modeller Gemini 4 Argon, Gemini 3.8 Flash, GPT-OSS 120B, Claude Sonnet 5.5 ve Claude Opus 5.5. İsteklerde "doğal yaz" ya da "yapay yaz" gibi bir yönlendirme yoktu.
+
+Ölçümde diyalog paragraflarını çıkarıp yalnızca anlatı cümlelerini saydık. Ritmi, metin boyunca art arda gelen her beş cümlelik pencerede cümle uzunluğunun değişim katsayısıyla (CoV) ölçtük. Kitaplardan çıkarılan metinde paragraf sınırları güvenilir olmadığı için paragrafa dayalı ölçüm kullanmadık. Bazı dosyalarda satırlar sabit genişlikte kırılmıştı. Cümleler ortadan bölünmesin diye noktalamayla bitmeyen satırları ölçümden önce bir sonrakiyle birleştirdik. İlk ölçümde bu adım yoktu. Eklenince kurmaca değerleri neredeyse hiç değişmedi, deneme değerleri değişti: Ortanca cümle 10 kelimeden 12'ye, 15-22 kelime bandı %17'den %23'e çıktı.
+
+Ölçümler düzenli ifadeye dayanan sezgisel sayımlardır, biçim bilgisi (morfoloji) çözümleyicisi kullanmadık. Devrik cümle sezgiseli 40 cümlelik bir doğrulama setinde bağımsız bir okurla %75 uyuştu. Devrik oranlarını bu yüzden kesin değer olarak değil, metinleri birbiriyle karşılaştırmak için kullanıyoruz.
 
 ## Sonuçlar (ortanca değerler)
 
@@ -748,7 +766,7 @@ Bu dosyadaki sayılar skill'in ritim, noktalama ve devrik kurallarının dayana�
 | 6 kelime ve altı cümle oranı | %37 | %17 | %16 | %0-13 | %18-50 |
 | 5 cümlelik pencerede CoV (cümle uzunluğu değişim katsayısı) | 0,49 | 0,46 | 0,47 | 0,28-0,41 | 0,35-0,40 |
 | CoV'si 0,40'ın altında kalan pencere oranı | %33 | %36 | %33 | %47-90 | %51-76 |
-| Devrik cümle oranı (sezgisel) | %9,5 | %7 | ölçülemedi (bkz. yorum 7) | %1-8 | %3-7 |
+| Devrik cümle oranı (sezgisel) | %9,5 | %7 | ölçülemedi (bkz. 7. not) | %1-8 | %3-7 |
 | Soru işareti (1000 kelimede) | 13,0 | 3,3 | 1,1 | 0-2,3 | 0-1,5 |
 | Ünlem (1000 kelimede) | 6,7 | 0,6 | 0,2 | 0 | 0 |
 | Üç nokta (1000 kelimede) | 9,0 | 0,8 | 0,3 | 0-1,2 | 0 |
@@ -759,19 +777,19 @@ Bu dosyadaki sayılar skill'in ritim, noktalama ve devrik kurallarının dayana�
 | Cümle sonu `-DIr` oranı (deneme ve akademik) | - | %12 | %25 | %15-24 | %16 |
 | `-mAktAdIr` (100 kelimede) | 0 | 0,02 | 0,35 | 0 | 0 |
 
-## Yorum
+## Notlar
 
-1. **Ortak iz ritimdir, cümle uzunluğu değil.** Bütün modellerde art arda gelen cümlelerin boy değişkenliği insan yazarlarınkinden düşük. En yakın olanlar Claude Opus ve Gemini Flash (kurmacada 0,40-0,41), en uzak olanlar GPT-OSS ve Gemini 4 denemeleri (0,29-0,31). Modellerin bir kısmı uzun cümlelere, bir kısmı kısa cümlelere yığılıyor. Bu yüzden skill'in ritim kuralı "kısa cümle ekle" değil, "ardışık cümlelerin boyunu çeşitlendir" biçiminde yazıldı.
-2. **15-22 bandına yığılma Gemini ve GPT tipi modellerin işaretidir.** Claude tipi modeller ise kurmacada insan yazarlardan bile kısa cümle kurar.
-3. **Modeller anlatıda neredeyse hiç soru, ünlem ve üç nokta kullanmaz.** Türk yazarların anlatısında bunlar olağandır.
-4. **Noktalı virgül tek başına yapay zekâ işareti değildir.** Bazı yazarlar sık kullanır (bir yazarda 1000 kelimede 14). Ama Gemini ve GPT tipi modellerde sıklık 2-6 kat yüksektir.
-5. **`ki` bağlacı genel bir şüphe işareti değildir.** Yazarlar modellerden daha sık kullanır, çoğunlukla kalıplaşmış biçimlerde (*demek ki, öyle ki, kaldı ki, dedi ki*).
-6. **Sözlükteki tek tek klişelerin ayırt ediciliği modele göre değişir.** *Söz konusu* ve *dönüm noktası* hiçbir modelde sık değil. *Öte yandan* ve *Bununla birlikte* bazı modellerde (GPT-OSS, Claude Sonnet) cümle başında sık, Gemini'de seyrek. Modelleri en tutarlı ayıran şey cümle başı geçiş sözü alışkanlığı (*Oysa, Ancak, Sonuç olarak*) ve ritimdir.
-7. **Akademik metin cümle boyunda modellere yaklaşır, ritimde yaklaşmaz.** Akademik kitaplarda 15-22 bandı %25 (en yüksek %30), noktalı virgül 1000 kelimede 5,6 (aralık 0,8-8,5). Bu iki ölçüt akademik metinde tek başına yapay zekâ işareti sayılmamalı. Pencere CoV'si ise kurmaca ve denemeyle aynı düzeyde (ortanca 0,47, kitaplar arasında 0,42-0,55). Akademik register'da da en güvenilir ayırt edici ölçüt ritimdir. Devrik sezgiseli akademik metinde %5-8 verdi ama elle bakılan 25 örneğin neredeyse hepsi hatalıydı: dipnot numaraları, kaynak gösterimleri ve yüklemi düşmüş ad cümleleri devrik sayılmıştı. Gerçek devrikler yalnızca alıntı şiir çevirilerindeydi. Akademik register'da devrik kullanılmaz kuralı bu yüzden korundu. `-mAktAdIr` bu kitaplarda beklenenden seyrek (100 kelimede ortanca 0,35, en yüksek 1,4). Ölçülen kitapların çoğu eski olduğu için bu sayı bugünkü makale dili için alt sınır sayılmalı.
+1. Modelleri yazarlardan ayıran ortak iz cümle uzunluğunda görünmüyor, ritimde görünüyor. Bütün modellerde art arda gelen cümlelerin boyu yazarlarınkinden daha az değişiyor. Yazarlara en yakın olanlar Claude Opus ile Gemini Flash (kurmacada 0,40-0,41), en uzak olanlar GPT-OSS ile Gemini 4'ün denemeleri (0,29-0,31). Modellerin bir kısmı uzun cümlelere, bir kısmı kısa cümlelere yığılıyor. Skill'in ritim kuralı bu yüzden kısa cümle eklemeyi değil, ardışık cümlelerin boyunu çeşitlendirmeyi istiyor.
+2. Cümlelerin 15-22 kelime bandına yığılması Gemini ve GPT tipi modellerde görülüyor. Claude tipi modeller kurmacada yazarlardan da kısa cümle kuruyor.
+3. Modeller anlatıda soru, ünlem ve üç noktayı neredeyse hiç kullanmıyor. Türk yazarların anlatısında üçü de olağan.
+4. Noktalı virgülü tek başına yapay zekâ işareti saymak yanlış olur. Bazı yazarlar onu sık kullanıyor, birinde 1000 kelimede 14'e çıkıyor. Yine de Gemini ve GPT tipi modellerde sıklık yazarlarınkinin 2-6 katı.
+5. `ki` bağlacı da şüphe işareti sayılmamalı. Yazarlar onu modellerden sık kullanıyor, çoğunlukla kalıplaşmış biçimlerde: *demek ki, öyle ki, kaldı ki, dedi ki*.
+6. Sözlükteki klişelerin ayırt ediciliği modelden modele değişiyor. *Söz konusu* ve *dönüm noktası* hiçbir modelde sık değil. *Öte yandan* ve *Bununla birlikte* GPT-OSS ile Claude Sonnet'te cümle başında sık, Gemini'de seyrek. Modelleri en tutarlı ayıran iki şey ritim ve cümleye geçiş sözüyle başlama alışkanlığı (*Oysa, Ancak, Sonuç olarak*).
+7. Akademik kitaplar cümle boyunda modellere yaklaşıyor, ritimde yaklaşmıyor. 15-22 bandı %25 (en yüksek kitapta %30), noktalı virgül 1000 kelimede 5,6 (kitaplar arasında 0,8-8,5). Akademik metinde bu iki ölçüt tek başına yapay zekâ işareti sayılmamalı. Pencere CoV'si ise kurmaca ve denemeyle aynı düzeyde: ortanca 0,47, kitaplar arasında 0,42-0,55. Akademik metinde de en güvenilir ölçüt ritim. Devrik sezgiseli bu kitaplarda %5-8 verdi, ama elle baktığımız 25 örneğin neredeyse hepsi yanlıştı. Dipnot numaraları, kaynak gösterimleri ve yüklemi düşmüş ad cümleleri devrik sayılmıştı. Gerçek devrikler yalnızca alıntılanan şiir çevirilerindeydi. "Akademik metinde devrik kullanılmaz" kuralını bu yüzden koruduk. `-mAktAdIr` bu kitaplarda beklediğimizden seyrek çıktı: 100 kelimede ortanca 0,35, en yüksek 1,4. Kitapların çoğu eski olduğu için bu sayıyı bugünkü makale dili için alt sınır saymak gerekir.
 
 ## Akademik Makale Ölçümü (DergiPark)
 
-Akademik kitapların çoğu eski olduğu için ayrıca güncel makale ölçüldü. DergiPark'ın açık arşivinden iki örneklem alındı. Her dergiden bir makale alındı ve alanlar karışık tutuldu (hukuk, tarih, eğitim, tıp, ziraat, iktisat, matematik, sosyoloji, ilahiyat). İlk örneklem ChatGPT öncesinde, 2016-2019 arasında yayımlanmış 19 makaledir (yaklaşık 106.000 kelime). İkinci örneklem 2026'da yayımlanmış 25 makaledir (yaklaşık 147.000 kelime). Ölçüm yalnızca "Giriş" ile "Kaynakça" arasındaki gövdeye yapıldı. İngilizce özet satırları, tablolar ve parantez içi atıflar çıkarıldı.
+Akademik kitapların çoğu eski olduğundan güncel makaleleri de ölçtük. DergiPark'ın açık arşivinden iki örneklem aldık, her dergiden bir makale. Alanları karışık tuttuk: hukuk, tarih, eğitim, tıp, ziraat, iktisat, matematik, sosyoloji, ilahiyat. İlk örneklem ChatGPT'den önce, 2016-2019 arasında yayımlanmış 19 makale (yaklaşık 106.000 kelime). İkincisi 2026'da yayımlanmış 25 makale (yaklaşık 147.000 kelime). Yalnızca "Giriş" ile "Kaynakça" arasındaki gövdeyi ölçtük, İngilizce özet satırlarını, tabloları ve parantez içi atıfları çıkardık.
 
 | Ölçüm | Makale 2016-2019 | Makale 2026 | Akademik kitap |
 | :--- | :--- | :--- | :--- |
@@ -785,17 +803,17 @@ Akademik kitapların çoğu eski olduğu için ayrıca güncel makale ölçüld�
 | Art arda üç `-mAktAdIr` serisi bulunan makale | 19'da 14 | 25'te 19 | 8'de 5 |
 | Noktalı virgül (1000 kelimede) | 3,7 | 3,6 | 5,6 |
 
-Yorum:
+Skill'in akademik metin için verdiği `-mAktAdIr` aralığı (100 kelimede 0,5-2,5) makalelerle uyuşuyor, iki örneklemde de ortanca 1,0. Kitaplardaki düşük değer (0,35) türden geliyor, makale dili kitap dilinden daha resmî.
 
-1. **Skill'in akademik `-mAktAdIr` aralığı (100 kelimede 0,5-2,5) makalelerle uyuşuyor.** İki örneklemde de ortanca 1,0. Kitaplardaki düşük değer (0,35) türden kaynaklanıyor: Makale dili kitap dilinden daha resmî.
-2. **Art arda üç cümlenin aynı ekle bitmesi akademik yazıda olağandır.** ChatGPT öncesi makalelerin çoğunda üçlü `-mAktAdIr`, `-mIştIr` ya da `-DIr` serisi var. Bu yüzden "art arda üç cümle aynı ekle bitmez" kuralı akademik register'dan kaldırıldı. Dedektör akademik register'da yedi ve üstü seriyi işaretliyor. Bu sınırla 2016-2019 makalelerinin 19'unda 3'ü, 2026 makalelerinin 25'inde 19'u uyarı aldı.
-3. **2026 makaleleri ChatGPT öncesi makalelerden farklı.** Cümle sonu `-DIr` oranı yarıya inmiş (fark anlamlı, permütasyon testi p<0,001), aynı ekle biten seriler uzamış (p≈0,02), pencere CoV'si düşmüş (p≈0,07). Bu fark yapay zekâ destekli yazımın izi olabilir. Ama örneklemler küçük ve alan dağılımları birebir eşleşmiyor. Bu yüzden bu bir kanıt değil, bir gözlemdir. Akademik insan referansı olarak 2026 makaleleri değil, 2016-2019 makaleleri kullanılmalı.
+Art arda üç cümlenin aynı ekle bitmesi akademik yazıda olağan. ChatGPT öncesi makalelerin çoğunda üçlü `-mAktAdIr`, `-mIştIr` ya da `-DIr` serisi var. "Art arda üç cümle aynı ekle bitmez" kuralını bu yüzden akademik metin için kaldırdık. Dedektör akademik metinde yedi ve üstü seriyi işaretliyor. Bu sınırla 2016-2019 makalelerinin 19'undan 3'ü, 2026 makalelerinin 25'inden 19'u uyarı aldı.
 
-## Skill Deneyi: Etkisi Ne Kadar?
+2026 makaleleri ChatGPT öncesi makalelerden farklı yazılmış. Cümle sonunda `-DIr` oranı yarıya inmiş (permütasyon testinde p<0,001), aynı ekle biten seriler uzamış (p≈0,02), pencere CoV'si düşmüş (p≈0,07). Bu, yapay zekâ destekli yazımın izi olabilir. Ama örneklemler küçük ve alan dağılımları birebir eşleşmiyor, o yüzden bunu kanıt değil gözlem olarak kaydediyoruz. Akademik metinde insan ölçütü olarak 2026 makalelerini değil, 2016-2019 makalelerini kullanıyoruz.
 
-Aynı ölçümler skill uygulanmış metinlere de yapıldı. Model, istemde skill'in tam metniyle çalıştı.
+## Skill Uygulanınca Ne Değişiyor?
 
-**Yazma modu (Gemini 4, 8 istek):**
+Aynı ölçümleri skill'le yazılmış ve onarılmış metinlere de uyguladık. Model her denemede skill'in tam metnini istemde gördü.
+
+### Sıfırdan yazma (Gemini 4, 8 istek)
 
 | Ölçüm | İnsan (kurmaca ve deneme, 24 kitap) | Gemini, skill'siz | Gemini, skill ile |
 | :--- | :--- | :--- | :--- |
@@ -807,35 +825,68 @@ Aynı ölçümler skill uygulanmış metinlere de yapıldı. Model, istemde skil
 | `ki` (1000 kelimede) | 2,7 | 0 | 2,4 |
 | Noktalı virgül (1000 kelimede) | 2,3 | 7,6 | 6,8 |
 
-Skill sıfırdan yazımda ritmi ve noktalama çeşitliliğini insan düzeyine yaklaştırıyor. Sonuç tekrarlarda da korundu: Gemini 4 ile ikinci çalıştırmada pencere CoV'si 0,44, 15-22 bandı %19 oldu. Gemini Flash ile pencere CoV'si 0,31'den 0,44'e çıktı, 15-22 bandı %41'den %17'ye indi. Claude Sonnet ile de aynı sonuç alındı: pencere CoV'si 0,36'dan 0,45'e çıktı, CoV'si 0,40'ın altında kalan pencere oranı %62'den %36'ya indi (insan yazarlarda %33), soru işareti 1000 kelimede 1,2'den 5,8'e çıktı. İki yan etki görüldü: Flash devrik cümleyi abarttı (%29, yazarlarda %8-9). Noktalı virgül sıklığı ise skill'in açık sınırına rağmen düşmedi (1000 kelimede 6,8-10). Noktalı virgül alışkanlığı bazı modellerde kurala baskın çıkıyor. Skill'in sonraki sürümüyle (derlem sayıları ve ritim örneğiyle) Gemini 4 iki kez yeniden yazdığında noktalı virgül 1000 kelimede 8,7'den 3,9 ve 5,7'ye indi, pencere CoV'si 0,45-0,49 oldu, devrik oranı %14-15'e çıktı (yazarlarda %9,5). Devrik cümleleri saydırıp sınırı aşanları düzelttiren bir talimat denendi, oran değişmedi, talimat eklenmedi. Skill'le yazan modellerde devriğin biçimi yazarlarınkine benziyor: Yüklemden sonraki kuyruk devriklerin %76-93'ünde 1-2 kelime (yazarlarda %83). Fark yalnızca sıklıkta: Gemini 4 %11-14, Flash %29, Claude Sonnet %8 (yazarlarda %9). Körlemesine okur iki skill sürümünü 4-4 berabere sıraladı, skill'siz metin 8 isteğin 8'inde sonuncu oldu.
+Skill sıfırdan yazarken ritmi ve noktalama çeşitliliğini insan düzeyine yaklaştırıyor. Tekrarlarda da sonuç değişmedi. Gemini 4'le ikinci çalıştırmada pencere CoV'si 0,44, 15-22 bandı %19 çıktı. Gemini Flash'ta pencere CoV'si 0,31'den 0,44'e çıktı, 15-22 bandı %41'den %17'ye indi. Claude Sonnet'te pencere CoV'si 0,36'dan 0,45'e yükseldi, CoV'si 0,40'ın altında kalan pencereler %62'den %36'ya düştü (yazarlarda %33), soru işareti 1000 kelimede 1,2'den 5,8'e çıktı.
 
-**Akademik yazma (Gemini 4, 4 istek: tarih, felsefe, sosyoloji, iktisat):** Skill'siz Gemini akademik metinde çok düz yazdı: pencere CoV'si 0,23, bütün pencereler 0,40'ın altında, ortanca cümle 24 kelime, cümlelerin %74'ü `-mIştIr` ile bitiyor (yazarlarda %14), cümle başında sık sık *Sonuç olarak* ve *Öte yandan*. Skill'le iki çalıştırmada pencere CoV'si 0,35-0,36'ya çıktı ama model bütün uzun cümleleri orta boya indirdi: 28 kelimeyi aşan cümleler %35'ten %3-4'e düştü (yazarlarda %17), 15-22 bandı %38-44'te kaldı. Skill'e "akademik metinde uzun cümleyi koru, yanına kısa cümle koy" notu denendi. Üç çalıştırmada pencere CoV'si 0,39-0,42, uzun cümle oranı %6-12 oldu. Ama körlemesine okur (Gemini, akademik editör gözüyle) notlu metinleri daha doğal bulmadı: Üç sıralamada notsuz skill metni 12 karşılaştırmanın 9'unda birinci oldu, notun son sürümü girdiği 8 karşılaştırmanın hiçbirinde birinci olmadı. Okur, ritim için eklenen kısa cümleleri ("Öğrenme süreci böyle işler.") mekanik buldu, tarih anlatısında geniş zamana kaymayı da kusur saydı. Bu yüzden not skill'e eklenmedi. Akademik metinde ritim değişkenliğini zorlamak kaliteyi artırmıyor. Skill'siz metin ise 8 karşılaştırmanın 7'sinde sonuncu oldu, yani skill akademik metinde de işe yarıyor.
-**Onarım modu (Gemini 4 onarıcı, 8 metin):** Kaynak metinlerde pencere CoV'si 0,34. Skill'in eski sürümüyle 0,38, ritim örneği eklenmiş sürümle iki ayrı çalıştırmada 0,39 ve 0,44 oldu. Onarımda etki yazıma göre küçük ve çalıştırmadan çalıştırmaya değişken, çünkü onarıcı kaynak cümlelerine bağlı kalıyor. Etki kaynağa göre de değişiyor: Claude Opus metinlerinde pencere CoV'si 0,38'den 0,43'e çıktı, GPT-OSS metinlerinde 0,31'den 0,33'e çıktı. Onarıcı model de belirleyici: Aynı 8 metni Claude Sonnet onardığında pencere CoV'si hiç değişmedi (0,34'ten 0,33'e), Gemini onardığında 0,38-0,44'e çıktı. Sonnet onarımda kaynak cümlelere çok sadık kalıyor. Bu, sadakat için iyi ama ritmi düzeltmiyor. Ritim onarımı isteniyorsa kullanıcıdan açıkça "cümle boylarını da düzelt" denmesi gerekebilir. Onarıcı modelin kendi alışkanlıkları da metne sızıyor: Onarıcı olarak kullanılan Gemini, hiç noktalı virgül içermeyen Opus metinlerine noktalı virgül ekledi.
+İki yan etki gördük. Flash devrik cümleyi abarttı: Cümlelerin %29'u devrikti, yazarlarda bu oran %8-9. Noktalı virgül ise skill açıkça sınır koymasına rağmen azalmadı (1000 kelimede 6,8-10), bazı modellerde bu alışkanlık kuraldan güçlü çıkıyor. Skill'in derlem sayılarını ve ritim örneğini içeren sonraki sürümüyle Gemini 4 iki kez daha yazdı. Noktalı virgül 1000 kelimede 8,7'den 3,9'a ve 5,7'ye indi, pencere CoV'si 0,45-0,49 oldu, ama devrik oranı %14-15'e çıktı (yazarlarda %9,5). Modele devrik cümlelerini saydırıp sınırı aşanları düzelttiren bir talimat denedik. Oran değişmedi, talimatı eklemedik.
 
-**Kalite ve sadakat:** Yazma modunda aynı isteğe skill'siz ve skill'le yazılmış Gemini metinleri bağımsız bir model okura (Gemini) körlemesine verildi. Okur 8 isteğin 8'inde skill'le yazılmış metni daha doğal buldu. Onarım modunda aynı okur kaynak ve onarılmış sürümleri körlemesine sıraladı. Onarılmış sürümler 8 metnin 7'sinde kaynağın önüne geçti. Onarımda ritim kontrolünün de geçerli olduğu talimatı eklendikten sonra aynı 8 metin yeniden onarıldı (Gemini onarıcı) ve eski onarımla birlikte körlemesine sıralandı. İki sürüm 4-4 berabere kaldı, kaynak metin hiçbir sıralamada birinci olmadı. Ritim aynı düzeyde kaldı (pencere CoV'si 0,44 ve 0,43). Yeni sürümde noktalı virgül yarıya indi (1000 kelimede 5,3'ten 2,8'e), devrik oranı %12'den %7'ye döndü. Ritmi zorlayan sürüm her zaman daha doğal bulunmadı: Ritim için yeniden kurulan cümlelerde yeni hatalar görüldü. Skill'deki "ritim için yeni ifade icat etme" uyarısı bu yüzden eklendi. Sadakat denetiminde 8 onarımdan 5'i temiz, 3'ünde küçük kayıp vardı. Kayıpların ikisi kuralların yan etkisiydi (negatif paralellik ve kapanış kuralları), iki kurala da sınır eklendi.
+Skill'le yazan modellerin devrikleri biçim olarak yazarlarınkine benziyor. Yüklemden sonraki kuyruk devriklerin %76-93'ünde bir iki kelime, yazarlarda %83. Fark sıklıkta: Gemini 4'te %11-14, Flash'ta %29, Claude Sonnet'te %8, yazarlarda %9. Körlemesine okur skill'in iki sürümünü 4-4 berabere sıraladı, skill'siz metin 8 isteğin 8'inde sonuncu oldu.
+
+### Akademik yazma (Gemini 4, 4 istek: tarih, felsefe, sosyoloji, iktisat)
+
+Skill'siz Gemini akademik metni çok düz yazdı. Pencere CoV'si 0,23 çıktı, pencerelerin hepsi 0,40'ın altındaydı. Ortanca cümle 24 kelime, cümlelerin %74'ü `-mIştIr` ile bitiyor (yazarlarda %14), cümle başlarında sık sık *Sonuç olarak* ve *Öte yandan* var. Skill'le iki çalıştırmada pencere CoV'si 0,35-0,36'ya çıktı, ama model bu kez bütün uzun cümleleri orta boya indirdi. 28 kelimeyi aşan cümleler %35'ten %3-4'e düştü (yazarlarda %17), 15-22 bandı %38-44'te kaldı.
+
+Bunun üzerine skill'e "akademik metinde uzun cümleyi koru, yanına kısa cümle koy" notunu ekleyip denedik. Üç çalıştırmada pencere CoV'si 0,39-0,42, uzun cümle oranı %6-12 oldu. Sayılar düzeldi ama okur metni daha doğal bulmadı. Körlemesine okur (akademik editör gözüyle okuyan Gemini) üç sıralamada notsuz skill metnini 12 karşılaştırmanın 9'unda birinci seçti. Notun son sürümü girdiği 8 karşılaştırmanın hiçbirinde birinci olmadı. Okur, ritim için eklenen kısa cümleleri ("Öğrenme süreci böyle işler.") mekanik buldu, tarih anlatısının geniş zamana kaymasını da kusur saydı. Notu skill'e eklemedik: Akademik metinde ritim değişkenliğini zorlamak kaliteyi artırmıyor. Skill'siz metin ise 8 karşılaştırmanın 7'sinde sonuncu oldu, yani skill akademik metinde de işe yarıyor.
+
+### Onarım (Gemini 4 onarıcı, 8 metin)
+
+Kaynak metinlerde pencere CoV'si 0,34'tü. Skill'in eski sürümüyle onarınca 0,38, ritim örneği eklenmiş sürümle iki ayrı çalıştırmada 0,39 ve 0,44 oldu. Onarımda etki yazmaya göre küçük ve çalıştırmadan çalıştırmaya değişiyor, çünkü onarıcı kaynağın cümlelerine bağlı kalıyor. Etki kaynağa göre de değişiyor: Claude Opus metinlerinde pencere CoV'si 0,38'den 0,43'e, GPT-OSS metinlerinde 0,31'den 0,33'e çıktı.
+
+Onarıcı model de sonucu belirliyor. Aynı 8 metni Claude Sonnet onardığında pencere CoV'si yerinden oynamadı (0,34'ten 0,33'e), Gemini onardığında 0,38-0,44'e çıktı. Sonnet onarırken kaynak cümlelere çok sadık kalıyor. Bu sadakat için iyi, ritim için değil. Ritmin de düzelmesi isteniyorsa kullanıcının açıkça "cümle boylarını da düzelt" demesi gerekebilir. Onarıcının kendi alışkanlıkları da metne sızıyor: Gemini, hiç noktalı virgül içermeyen Opus metinlerine noktalı virgül ekledi.
+
+### Kalite ve sadakat
+
+Sıfırdan yazmada aynı isteğe skill'siz ve skill'le yazılmış Gemini metinlerini bağımsız bir model okura (yine Gemini) etiketsiz verdik. Okur 8 isteğin 8'inde skill'le yazılmış metni daha doğal buldu. Onarımda aynı okur kaynakla onarılmış sürümü körlemesine sıraladı, onarılmış sürüm 8 metnin 7'sinde öne geçti.
+
+Skill'e "ritim kontrolü onarımda da geçerli" talimatını ekledikten sonra aynı 8 metni Gemini'ye yeniden onarttık ve eski onarımla birlikte körlemesine sıralattık. İki sürüm 4-4 berabere kaldı, kaynak metin hiçbir sıralamada birinci olmadı. Ritim aynı düzeyde kaldı (pencere CoV'si 0,44 ve 0,43). Yeni sürümde noktalı virgül yarıya indi (1000 kelimede 5,3'ten 2,8'e), devrik oranı %12'den %7'ye geriledi. Ritmi zorlayan sürüm her zaman daha doğal bulunmadı, çünkü ritim için yeniden kurulan cümlelerde yeni hatalar çıktı. Skill'deki "ritim için yeni ifade icat etme" uyarısı bu yüzden var.
+
+Sadakat denetiminde 8 onarımın 5'i temiz çıktı, 3'ünde küçük bilgi kaybı vardı. Kayıpların ikisi kuralların yan etkisiydi (negatif paralellik ve kapanış kuralları). İki kurala da sınır ekledik.
 
 ## Çağdaş Roman Ölçümü
 
-Derlemin çoğu 20. yüzyıl yazarlarından oluştuğu için 17 roman ve öykü kitabı ayrıca ölçüldü (EPUB, yaklaşık bir milyon kelime). 13'ü 2000 sonrası: Hakan Günday, Sema Kaygusuz, Ayfer Tunç, Barış Bıçakçı, Emrah Serbes, Ahmet Ümit, Zülfü Livaneli, İhsan Oktay Anar, Burhan Sönmez, Ayşe Kulin, Elif Şafak (*Mahrem*), Murathan Mungan (*Çador*), Hasan Ali Toptaş (*Heba*). Karşılaştırma için aynı yazarların eski kitapları da ölçüldü (Orhan Pamuk, Mungan, Toptaş).
+İlk derlemin çoğu 20. yüzyıl yazarı olduğu için 17 roman ve öykü kitabını ayrıca ölçtük (EPUB, yaklaşık bir milyon kelime). 13'ü 2000 sonrası: Hakan Günday, Sema Kaygusuz, Ayfer Tunç, Barış Bıçakçı, Emrah Serbes, Ahmet Ümit, Zülfü Livaneli, İhsan Oktay Anar, Burhan Sönmez, Ayşe Kulin, Elif Şafak (*Mahrem*), Murathan Mungan (*Çador*), Hasan Ali Toptaş (*Heba*). Karşılaştırmak için aynı yazarların eski kitaplarını da ölçtük (Orhan Pamuk, Mungan, Toptaş). Bundan önce de iki çağdaş romandan (Alev Alatlı, Ayla Kutlu) örnek almıştık. İkisinde de pencere CoV'si 0,50, soru işareti 1000 kelimede 8-15 çıkmıştı.
 
-2000 sonrası kitaplarda ortanca cümle 8 kelime (eski derlemde 10,5), 1-6 kelimelik cümle oranı %40 (eskide %25). Pencere değişkenliği 0,45, eskiyle aynı. Devrik oranının ortancası %13 (eskide %8), ama kitaptan kitaba %4 (Sönmez) ile %37 (Toptaş, *Heba*) arasında değişiyor. Aynı yazarın eski ve yeni kitabında yön tutarsız: Pamuk *Cevdet Bey ve Oğulları*'nda (1982) %4, *Kafamda Bir Tuhaflık*'ta (2014) %12; Toptaş %17'den %37'ye çıkıyor, Mungan %26'dan %13'e iniyor. Yani devrik oranını dönem değil yazar ve kitap belirliyor. Skill'deki "kullanıcının örneği yoksa on cümlede birden fazla devrik kurma" varsayılanı bu yüzden korundu.
+2000 sonrası kitaplarda ortanca cümle 8 kelime (eski derlemde 10,5), 1-6 kelimelik cümleler %40 (eskide %25). Pencere CoV'si 0,45, eskiyle aynı. Cümleler kısalmış ama ritim değişmemiş.
+
+Devrik oranının ortancası %13 (eskide %8), ama kitaptan kitaba çok oynuyor: Sönmez'de %4, Toptaş'ın *Heba*'sında %37. Aynı yazarın eski ve yeni kitabını karşılaştırınca yön tutarsız çıkıyor. Pamuk *Cevdet Bey ve Oğulları*'nda (1982) %4, *Kafamda Bir Tuhaflık*'ta (2014) %12. Toptaş %17'den %37'ye çıkıyor, Mungan %26'dan %13'e iniyor. Devrik oranını dönem değil yazar ve kitap belirliyor. Skill'deki "kullanıcının örneği yoksa on cümlede birden fazla devrik kurma" varsayılanını bu yüzden değiştirmedik.
 
 ## Açıklayıcı Metin Ölçümü (Psikoloji)
 
-Ders kitabı ile popüler bilim arasındaki register için Türkçe yazılmış beş psikoloji kitabı ölçüldü (yaklaşık 415.000 kelime): Doğan Cüceloğlu, Üstün Dökmen, Engin Geçtan, Çiğdem Kağıtçıbaşı ve Zeynep Cemalcılar, Serol Teber. Ortanca cümle 12 kelime, 15-22 bandı %25 (öbür register'lardan yüksek), 28 kelimeden uzun cümle %6,5. Pencere değişkenliği 0,435 (0,38-0,48), yani edebî metinden daha tekdüze. `-mAktAdIr` 100 kelimede 0,39, edebî metin (~0) ile akademik makale (~1,0) arasında. Cümlelerin %16'sı `-DIr`, %7'si `-mIştIr` ile bitiyor. Devrik %4. Noktalı virgül 1000 kelimede 3,9 (2,9-10,7), iki nokta 7,6. Skill'in ritim ve noktalı virgül kurallarına açıklayıcı metin için bu aralıklar eklendi.
+Ders kitabıyla popüler bilim arasındaki türü ölçmek için Türkçe yazılmış beş psikoloji kitabı aldık (yaklaşık 415.000 kelime): Doğan Cüceloğlu, Üstün Dökmen, Engin Geçtan, Çiğdem Kağıtçıbaşı ile Zeynep Cemalcılar, Serol Teber. Ortanca cümle 12 kelime. 15-22 bandı %25, öbür türlerden yüksek. 28 kelimeden uzun cümleler %6,5. Pencere CoV'si 0,435 (kitaplar arasında 0,38-0,48), edebî metinden daha tekdüze. `-mAktAdIr` 100 kelimede 0,39, edebî metin (yaklaşık 0) ile akademik makale (yaklaşık 1,0) arasında. Cümlelerin %16'sı `-DIr`, %7'si `-mIştIr` ile bitiyor. Devrik %4. Noktalı virgül 1000 kelimede 3,9 (2,9-10,7), iki nokta 7,6. Skill'in ritim ve noktalı virgül kurallarına açıklayıcı metin için bu aralıkları ekledik.
 
 ## Köşe Yazısı ve Mektup Ölçümü
 
-Blog ve sosyal medya register'ına en yakın yerli metin köşe yazısıdır. Beş yazarın köşe yazısı derlemesi ölçüldü (yaklaşık 285.000 kelime): Murat Menteş, Atilla İlhan, Çetin Altan, Cemal Süreya'nın *Günler*'i ve 2000'lerden bir magazin köşesi. Ortanca cümle 8 kelime, 1-6 kelimelik cümle %39, pencere değişkenliği 0,46, devrik %12. 1000 kelimede yaklaşık 11 soru, 9 üç nokta, 7 iki nokta ve 4 ünlem var. Denemeye göre soru üç, üç nokta üç dört kat fazla.
+Blog ve sosyal medya yazısına en yakın yerli tür köşe yazısı. Beş yazarın köşe yazısı derlemesini ölçtük (yaklaşık 285.000 kelime): Murat Menteş, Attila İlhan, Çetin Altan, Cemal Süreya'nın *Günler*'i ve 2000'lerden bir magazin köşesi. Ortanca cümle 8 kelime, 1-6 kelimelik cümleler %39, pencere CoV'si 0,46, devrik %12. 1000 kelimede yaklaşık 11 soru, 9 üç nokta, 7 iki nokta ve 4 ünlem var. Denemeye göre soru üç kat, üç nokta üç dört kat fazla.
 
-Mektup, günlük ve anı için beş kitap ölçüldü (yaklaşık 260.000 kelime): Oğuz Atay'ın *Günlük*'ü, Tezer Özlü'nün *Kalanlar*'ı, Sabahattin Ali'nin mektupları, Refik Halit'in *Minelbab İlelmihrab*'ı ve Orhan Pamuk'un *İstanbul*'u. Değerler edebî anlatıya yakın: ortanca cümle 9 kelime, pencere değişkenliği 0,48, devrik %13, 1000 kelimede yaklaşık 4,5 soru ve 4 iki nokta.
+Mektup, günlük ve anı için beş kitap ölçtük (yaklaşık 260.000 kelime): Oğuz Atay'ın *Günlük*'ü, Tezer Özlü'nün *Kalanlar*'ı, Sabahattin Ali'nin mektupları, Refik Halit'in *Minelbab İlelmihrab*'ı ve Orhan Pamuk'un *İstanbul*'u. Değerler edebî anlatıya yakın: ortanca cümle 9 kelime, pencere CoV'si 0,48, devrik %13, 1000 kelimede yaklaşık 4,5 soru ve 4 iki nokta.
 
-`ama`dan önce virgül: Türk yazarlar `ama`ların %19-32'sinin önüne virgül koyuyor (çağdaş roman %30, mektup %32, köşe yazısı %19). Beş modelin metinlerinde bu oran %18, skill'in eski kuralıyla yazılan metinlerde %8. Yani eski kural insan yazısında olağan bir özelliği siliyordu. Kural kaldırıldı.
+Bu derlemlerde `ama`dan önceki virgüle de baktık. Türk yazarlar `ama`ların %19-32'sinin önüne virgül koyuyor (çağdaş romanda %30, mektupta %32, köşe yazısında %19). Beş modelin metinlerinde bu oran %18, skill'in eski kuralıyla yazılmış metinlerde %8. Eski kural insan yazısında olağan bir özelliği siliyordu, kaldırdık.
+
+## Kurum Dili Ölçümü
+
+Kurum dili için 7 kamu belgesi ölçtük: iki belediye faaliyet raporu, iki Sayıştay denetim raporu, bir yönerge, bir mevzuat metni ve bir RAM raporu, toplam yaklaşık 36.000 kelime. Ortanca cümle 20 kelime, cümlelerin %35'i 28 kelimeden uzun, devrik %2. Cümlelerin %34'ü `-mIştIr` ile bitiyor, aynı ekle biten en uzun seri ortanca 9 cümle. Skill kurum yazışmasında ritim kuralını ve "art arda aynı ek" sınırını bu yüzden uygulamıyor.
+
+Bu özelliklerin yapay zekâdan önce de var olup olmadığına bakmak için İstanbul Büyükşehir Belediyesinin 2018, 2019 ve 2020 faaliyet raporlarını 2024 raporlarıyla (Kayseri, Kozan) aynı yöntemle örnekledik, her rapordan yaklaşık 8.000 kelime düz yazı. Eski raporlarda ortanca cümle 21-24 kelime, cümlelerin %34-40'ı 28 kelimeden uzun, %31-44'ü `-mIştIr` ile bitiyor. Aynı ekle biten en uzun seri 8-13 cümle, `-mAktAdIr` 100 kelimede 1,1-1,3. 2024 raporları da aynı aralıkta: ortanca cümle 19-20, `-mIştIr` %18-37, seri 10-15, `-mAktAdIr` 0,7-1,1. Kurum farkını ayırmak için İBB'nin 2023 ve 2024 raporlarına da baktık, sonuç değişmedi: ortanca cümle 22-23, `-mIştIr` %35-42, `-mAktAdIr` 1,2-1,3. Model metinlerinde sık görülen kalıplar (*bu bağlamda*, *kritik*, *öte yandan*) iki dönemde de 1000 kelimede 0,2'nin altında. Kurum dilinin bu özellikleri yapay zekâdan önce de vardı. Faaliyet raporlarındaki noktalı virgül (1000 kelimede 3-12) liste ve sıralama ayıracı olarak kullanılıyor.
+
+## Teknik Metin Ölçümü
+
+Doğrudan Türkçe yazılmış 19 teknik belge ölçtük (yaklaşık 38.500 kelime): dört MEB mesleki eğitim modülü, Fırat Özgül'ün Python kitabından iki bölüm, sekiz yerli geliştirici blog yazısı, iki kurum kılavuzu (KVKK, ODTÜ), üç Pardus ve Ubuntu Türkiye belgesi. Belge ortancaları şöyle: cümle 10 kelime, 15-22 bandı %16, 28 kelimeden uzun cümle %3. `-mAktAdIr` 100 kelimede 0,29, en yüksek KVKK'da 0,97, hiçbir belge 1,0'ı geçmiyor, kitap bölümlerinde hiç yok. Cümlelerin %15'i `-DIr` ile bitiyor (kurum kılavuzlarında %31), `-mIştIr` %2, noktalı virgül yok.
+
+Bu sayılar skill'in teknik metin kuralını (`-mAktAdIr` yerine `-Ar/-Ir`, tanımda `-DIr` kalır) ve dedektördeki 0-1,0 aralığını destekliyor. Kısa ortanca cümlenin bir kısmı başlıklardan ve liste maddelerinden geliyor. Devrik sezgiseli bu metinlerde işe yaramadı: Devrik sayılan cümlelerin hepsi tablo artığı ya da PDF'in böldüğü kelimelerdi.
 
 ## Sınırlamalar
 
-- İnsan derleminin çoğu 20. yüzyıl yazarlarıdır. Ayrı bir denetim için iki çağdaş romandan (Alev Alatlı, Ayla Kutlu) örnek ölçüldü: Pencere CoV'si ikisinde de 0,50, soru işareti 1000 kelimede 8-15. Ritim bulgusu çağdaş romanda da geçerli görünüyor.
-- Model tarafı küçüktür (beş modelden 40 metin, yaklaşık 17.000 kelime). Sayılar yön göstericidir.
-- İnsan derlemi edebî ve düşünsel metinlerden oluşur. Teknik metin ayrıca ölçüldü (aşağıda). Kurum dili için 7 kamu belgesi ölçüldü (iki belediye faaliyet raporu, iki Sayıştay denetim raporu, bir yönerge, bir mevzuat metni, bir RAM raporu, toplam yaklaşık 36.000 kelime). Ortanca cümle uzunluğu 20 kelime, cümlelerin %35'i 28 kelimeden uzun, devrik oranı %2. Cümlelerin %34'ü `-mIştIr` ile bitiyor ve aynı ekle biten en uzun seri ortanca 9 cümle. Bu yüzden kurum register'ında ritim kuralı ve "art arda aynı ek" sınırı uygulanmaz. Yapay zekâ öncesiyle karşılaştırmak için İstanbul Büyükşehir Belediyesinin 2018, 2019 ve 2020 faaliyet raporları, 2024 raporlarıyla (Kayseri, Kozan) aynı yöntemle örneklendi (her rapordan yaklaşık 8.000 kelime düz yazı). Eski raporlarda ortanca cümle 21-24 kelime, cümlelerin %34-40'ı 28 kelimeden uzun, %31-44'ü `-mIştIr` ile bitiyor, aynı ekle biten en uzun seri 8-13 cümle, `-mAktAdIr` 100 kelimede 1,1-1,3. 2024 raporlarında değerler aynı aralıkta (ortanca cümle 19-20, `-mIştIr` %18-37, seri 10-15, `-mAktAdIr` 0,7-1,1). Aynı kurumun 2023 ve 2024 raporları da öyle: ortanca cümle 22-23, `-mIştIr` %35-42, `-mAktAdIr` 1,2-1,3. Model metinlerinde sık görülen kalıplar (*bu bağlamda*, *kritik*, *öte yandan*) iki dönemde de 1000 kelimede 0,2'nin altında. Kurum dilinin bu özellikleri yapay zekâdan önce de vardı. Faaliyet raporlarındaki noktalı virgül (1000 kelimede 3-12) liste ve sıralama ayıracıdır.
-- Teknik metin için doğrudan Türkçe yazılmış 19 belge ölçüldü (yaklaşık 38.500 kelime): dört MEB mesleki eğitim modülü, Fırat Özgül'ün Python kitabından iki bölüm, sekiz yerli geliştirici blog yazısı, iki kurum kılavuzu (KVKK, ODTÜ), üç Pardus ve Ubuntu Türkiye belgesi. Belge ortancaları: cümle 10 kelime, 15-22 bandı %16, 28 kelimeden uzun cümle %3. `-mAktAdIr` 100 kelimede 0,29; en yüksek değer 0,97 (KVKK) ve hiçbir belge 1,0'ı aşmıyor. Kitap bölümlerinde sıfır. Cümlelerin %15'i `-DIr` ile bitiyor (kurum kılavuzlarında %31), `-mIştIr` %2, noktalı virgül yok. Bu sayılar teknik register satırını (`-mAktAdIr` yerine `-Ar/-Ir`, tanımda `-DIr` korunur) ve dedektördeki 0-1,0 aralığını destekliyor. Kısa ortanca cümle kısmen başlık ve liste maddelerinden gelir. Devrik sezgiseli bu metinlerde güvenilmez: Örneklemde devrik sayılan cümlelerin hepsi tablo artığı ya da PDF'in böldüğü kelimeydi.
-- OCR ve PDF çıkarımından kaynaklanan hatalar temizlendi ama tamamen giderilemedi. Çıkarımı bozuk dört kitap derlemden çıkarıldı.
+Model tarafı küçük: beş modelden 40 metin, yaklaşık 17.000 kelime. Modellerle ilgili sayılar yön gösterir, kesin değildir.
+
+Ölçümler sezgisel. Cümle ve devrik tespiti düzenli ifadeyle yapıldı, biçim bilgisi çözümleyicisi kullanılmadı. Devrik sezgiseli edebî metinde bağımsız okurla %75 uyuşuyor, akademik ve teknik metinde güvenilmez.
+
+OCR ve PDF çıkarımından gelen hataları temizledik ama hepsini gideremedik. Çıkarımı bozuk olan dört kitabı ilk derlemden çıkardık. Sonraki turlarda da editör notu karışmış ya da OCR'ı çok bozuk kitapları almadık.

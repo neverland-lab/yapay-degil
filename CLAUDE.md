@@ -1,10 +1,11 @@
-# CLAUDE.md: Claude Code Geliştirici ve Kullanım Rehberi
+# CLAUDE.md
 
-Bu repo, Türkçe metinlerdeki yapay zekâ izlerini (*AI slop & Translationese*) temizleyen `yapay-degil` yeteneğini içerir.
+Bu depoda Türkçe metni doğal yazan ya da yapay zekâ izlerini temizleyen `yapay-degil` skill'i var.
 
-- Ana yetenek tanımı: `SKILL.md`
-- Dilbilimi, sentaks, sözlük ve TDK referansları: `references/`
-- Deterministik denetim aracı: `python3 scripts/detect_tr_ai.py <dosya_yolu>`
-- Dağıtım (`dist/` ve `skills/`) derleyicisi: `python3 scripts/build_dist.py`
+- Skill'in kendisi: `SKILL.md`
+- Cümle yapısı, sözlük, TDK kuralları ve derlem ölçümleri: `references/`
+- Dedektör: `python3 scripts/detect_tr_ai.py <dosya>`
+- `dist/` ve `skills/` kopyalarını güncellemek için: `python3 scripts/build_dist.py`
+- Testler: `python3 scripts/run_tests.py`
 
-Kullanıcı Türkçe bir metin yazmanı, düzenlemeni veya "insanlaştırmanı" istediğinde `SKILL.md` içindeki 4 adımlı iş akışını ve **Olgusal Sadakat Kilidini** uygula.
+Kullanıcı Türkçe bir metni yazmanı, düzeltmeni ya da doğallaştırmanı istediğinde `SKILL.md`'deki dört adımı izle. Onarırken kaynakta olmayan bilgi ekleme.

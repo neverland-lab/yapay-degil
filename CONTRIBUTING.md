@@ -1,41 +1,37 @@
-# Katkıda Bulunma Rehberi (CONTRIBUTING.md)
+# Katkı rehberi
 
-> İki yolla katkı verebilirsin. Hata ya da öneriyi [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden "Hata bildirimi" ya da "İstek ya da öneri" şablonuyla yazabilirsin. Değişikliği kendin yapmak istersen pull request açabilirsin (bkz. 4. bölüm). Aşağıdaki şablon ikisi için de hangi bilgilerin işe yaradığını gösteriyor.
+İki yolla katkı verebilirsin. Hata ya da öneriyi [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden, "Hata bildirimi" ya da "İstek ya da öneri" şablonuyla yazabilirsin. Değişikliği kendin yapmak istersen pull request açabilirsin (4. bölüm).
 
-`yapay-degil` projesine katkıda bulunmak istediğin için teşekkürler! Bu projenin temel ilkesi, "bence bu kelime güzel değil" gibi öznel yargılar yerine, **Büyük Dil Modellerinin (LLM) Türkçe çıktılarında istatistiksel olarak aşırı temsil edilen kalıpları, İngilizce sözdizimsel kopyaları (calque/translationese) ve TDK Yazım Kılavuzu kurallarını** kanıta dayalı olarak belgelemektir.
+Bu projede "bence bu kelime güzel durmuyor" türünden bir yargı yetmiyor. Bir kalıbı eklemek için onun dil modellerinin Türkçesinde insan yazısından belirgin biçimde sık geçtiğini, İngilizce bir cümle yapısını kopyaladığını ya da bir TDK kuralına aykırı olduğunu gösterebilmek gerekiyor.
 
-## 1. Yeni Bir "Yapay Zekâ Türkçesi" Kalıbı Ekleme Kuralları
+## 1. Yeni bir kalıp önerirken
 
-Yeni bir kelime, bağlaç veya cümle yapısı için Issue açarken lütfen aşağıdaki şablonu doldur:
+Issue açarken şunları yazarsan iş kolaylaşır:
 
-- **Kalıp / Kelime Adı:** (Örn: *"potansiyelini ortaya çıkarmak"*)
-- **İngilizce Kaynak Kalıp (Calque):** (Örn: *"unlock the potential"*)
-- **Şiddet Derecesi (Severity):**
-  - `P0 / Tier-1`: Tek görülmede dahi kesin AI ifşası olan kalıplar.
-  - `P1 / Sentaks`: İngilizce cümle iskeletinin Türkçeye kopyalanması.
-  - `P2 / Tier-2 & TDK`: Yoğunlukta yapay duran bağlaçlar veya TDK noktalama/imla hataları.
-- **Önce (Makine Türkçesi Örneği):** Kalıbın gerçek bir LLM çıktısındaki doğal olmayan kullanımı.
-- **Sonra (İnsan Türkçesi Örneği):** Olgusal sadakati bozmadan onarılmış doğal Türkçe karşılığı.
-- **İstisna / Sınır Durumu (Do-Not-Flag):** Bu kuralın hangi register'da veya bağlamda **uygulanmaması** gerektiği (Örn: `-mAktAdIr` eki akademik/resmî register'da korunur).
-- **Kural Türü:** `[TDK]`, `[Dil bilgisi]` veya `[Üslup]`. Cümle yapısı kurallarında `[Dil bilgisi]` etiketi yalnızca uyulmadığında cümlenin bozulduğu ya da anlamın kaydığı durumlar içindir, dayanağını göster (bkz. `references/sentaks-ve-morfoloji.md` başındaki kaynaklar). Bir kuralı `[TDK]` diye etiketlemek için TDK Yazım Kılavuzu'ndaki ([yazim.tdk.gov.tr](https://yazim.tdk.gov.tr/index.html)) veya Güncel Türkçe Sözlük'teki ([sozluk.gov.tr](https://sozluk.gov.tr/)) ilgili maddeyi bağlantısıyla göster. Kılavuzda karşılığı olmayan kurallar `[Üslup]` olarak eklenir ve dedektörde "TDK hatası" diye raporlanmaz.
+- Kalıbın kendisi, örneğin *"potansiyelini ortaya çıkarmak"*.
+- Varsa İngilizce kaynağı, örneğin *"unlock the potential"*.
+- Ne kadar ağır olduğu. Sözlükte üç katman var: Tier-1 tek görülmede bile yapay duran kalıplar, sentaks katmanı İngilizce cümle iskeletinin Türkçeye taşınması, Tier-2 ise ancak sık geçince yapay duran bağlaçlar ve TDK yazım hataları.
+- Gerçek bir model çıktısından bir örnek ve aynı cümlenin bilgi kaybı olmadan onarılmış hâli.
+- Kuralın uygulanmaması gereken yerler. Örneğin `-mAktAdIr` akademik ve resmî yazıda korunur.
+- Kuralın türü: `[TDK]`, `[Dil bilgisi]` ya da `[Üslup]`. `[Dil bilgisi]` yalnızca uyulmayınca cümlenin bozulduğu ya da anlamın kaydığı durumlar için kullanılır, dayanağı `references/sentaks-ve-morfoloji.md` başındaki kaynaklarda. Bir kurala `[TDK]` demek için [TDK Yazım Kılavuzu](https://yazim.tdk.gov.tr/index.html) ya da [Güncel Türkçe Sözlük](https://sozluk.gov.tr/) maddesini bağlantısıyla göster. Kılavuzda karşılığı olmayan kural `[Üslup]` olarak girer, dedektör de onu "TDK hatası" diye raporlamaz.
 
-## 2. Paket Senkronizasyonu ve Doğrulama
+## 2. Dosyaları eşitleme
 
-`SKILL.md` veya `references/*.md` dosyalarında değişiklik yaptıktan sonra (depo bakımcıları için) commit atmadan önce şu iki komutu çalıştır:
+`SKILL.md` ya da `references/*.md` dosyalarından birini değiştirdiysen commit'ten önce şunları çalıştır:
 
 ```bash
-# 1. Tek parça dist/ dosyasını ve skills/ alt paketini güncelle
+# dist/ altındaki tek dosyayı ve skills/ paketini günceller
 python3 scripts/build_dist.py
 
-# 2. Dedektör betiğinin sorunsuz çalıştığını doğrula
+# dedektörün çalıştığını gösterir
 python3 scripts/detect_tr_ai.py README.md
 ```
 
-## 3. Olgusal Sadakat İlkemiz
+## 3. Bilgi eklememe ilkesi
 
-Test ve örnek (`evals/evals.json` ve `references/register-ve-ornekler.md`) eklerken "Sonra (After)" metinlerinde kaynak metinde bulunmayan hiçbir yeni sayı, tarih, özel isim veya kişisel anekdot eklenmediğinden emin ol. Miktar ve kesinlik de bilgidir: Kaynak "birçok" diyorsa "yüzlerce", "artırabilir" diyorsa "artırır" yazma. Klişeyi silince somut bilgi gerekiyorsa ve kaynakta yoksa `[somut veri: ...]` yer tutucusunu kullan.
+`evals/evals.json` ya da `references/register-ve-ornekler.md` dosyasına örnek eklerken onarılmış metinde kaynakta olmayan sayı, tarih, özel isim ya da kişisel anekdot olmasın. Miktar ve kesinlik de bilgidir: Kaynak "birçok" diyorsa "yüzlerce", "artırabilir" diyorsa "artırır" yazma. Klişeyi silince somut bir bilgi gerekiyorsa ve kaynakta yoksa `[somut veri: ...]` yer tutucusunu kullan.
 
-## 4. Pull Request Açma
+## 4. Pull request açma
 
 Depoyu fork'la, değişikliğin için ayrı bir dal aç. Büyük bir değişiklikse önce bir issue açıp konuşalım, emeğin boşa gitmesin.
 

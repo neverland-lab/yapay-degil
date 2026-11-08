@@ -2,6 +2,14 @@
 
 Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar: kuralları ya da kurulum adını değiştiren büyük adımda ilk sayı, yeni kural ya da ölçümde ortadaki sayı, düzeltmede sondaki sayı.
 
+## 1.3.1 (8 Kasım 2026)
+
+Kural değişmedi, açıklamalar düzeltildi.
+- `references/derlem-olcumleri.md` baştan yazıldı. Derlemin bütün parçaları (145 insan metni) başa bir tabloyla kondu. Kurum dili ve teknik metin ölçümleri "Sınırlamalar" bölümünden kendi bölümlerine taşındı. Sayılar aynı, yalnızca anlatım sadeleşti. Attila İlhan'ın adındaki yazım hatası düzeltildi.
+- `SKILL.md`'deki derlem özeti güncel derlemi anlatıyor.
+- `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md` ve `docs/ARASTIRMA_VE_MIMARI_RAPORU.md` sade Türkçeyle yeniden yazıldı. `AGENTS.md` artık altı metin türünü ve ölçüm dosyasını gösteriyor.
+- `docs/TEST_VE_DOGRULAMA_RAPORU.txt` güncel test çıktısıyla yenilendi.
+
 ## 1.3.0 (8 Kasım 2026)
 
 Ölçümler:

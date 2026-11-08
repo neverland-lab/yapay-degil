@@ -1,31 +1,32 @@
-# Türkçe Dilbilimi, TDK Yazım Kılavuzu ve Anti-AI Mimarisi Araştırma Raporu
+# Skill'in dayandığı araştırma
 
-Bu rapor, `yapay-degil` açık kaynak projesinin kuramsal ve pratik temelini oluşturmak üzere yürütülen üç sütunlu araştırmanın (Türkçe Dilbilimi & TDK, Küresel Humanizer Mimarileri ve GitHub Agent Skills Standartları) bulgularını içerir.
+Bu not, skill'in ilk hâli kurulurken yapılan araştırmayı özetliyor. Üç konuya bakıldı: dil modellerinin Türkçesinde hangi yapıların bozulduğu, başka dillerde ve Türkçede yazılmış benzer projelerin nasıl çalıştığı, skill'in hangi standartla paketleneceği. Kurallardaki sayıların nereden geldiği ayrı bir dosyada: [`references/derlem-olcumleri.md`](../references/derlem-olcumleri.md). O ölçümler bu araştırmadan sonra yapıldı ve ilk kuralların bir kısmını değiştirdi.
 
-## 1. İngilizce Eğitimli Modellerin Türkçedeki Yapısal Kusurları (Translationese)
+## 1. Modellerin Türkçede bozduğu yapılar
 
-Büyük dil modelleri (LLM), İngilizce ağırlıklı eğitim verisi ve RLHF süreçleri nedeniyle Türkçe metin üretirken kelimeleri Türkçe seçse de cümle mimarisini İngilizce (Sağa Dallanan SVO) olarak kurar. Doğal Türkçe ise **sondan eklemeli (agglutinative)** ve **sola dallanan (left-branching)** bir dildir:
+Dil modelleri ağırlıkla İngilizce metinle eğitiliyor. Türkçe yazarken kelimeyi Türkçe seçiyorlar ama cümleyi çoğu zaman İngilizce gibi kuruyorlar. Türkçe sondan eklemeli bir dil, yan cümleyi de ismin soluna koyuyor. İngilizce ise yan cümleyi ismin sağına takıyor. Sorunların çoğu bu farktan çıkıyor.
 
-1. **Dallanma Yönü (Branching Direction):** İngilizcede yan cümleler baş ismin sağına takılır (*"We built a system that scans data"*). Model bunu Türkçeye *"Bir sistem kurduk, bu sistem verileri tarıyor"* veya Hint-Avrupa tipi `ki` bağlacıyla (*"Öyle bir sistem kurduk ki..."*) taşır. Doğal Türkçede yan cümle sıfat-fiil (`-An, -DIk, -AcAk`) alarak baş ismin soluna yerleşir: *"Verileri tarayan bir sistem kurduk."*
-2. **Bağlaç (`ve`) vs. Ulaç (Zarf-Fiil) Sistemi:** İngilizce sıralı eylemleri `and`, `then`, `when`, `as` bağlaçlarıyla birleştirir. Doğal Türkçe ise iki yüklem arasındaki ilişkiyi ulaç ekleriyle (`-Ip, -IncA, -dIkçA, -ArAk, -mAdAn`) kaynaştırır (*"Veriyi çekip işledik"*, *"Cache dolunca istekler yavaşladı"*).
-3. **Koşulaç (`is/are`) ve `-DIr / -mAktAdIr` Salgını:** İngilizce geniş zaman isim cümlesindeki zorunlu `is/are` koşulacı, Türkçe model çıktılarında her cümlenin `-DIr` veya `-mAktAdIr` ile bitmesine yol açar. Oysa Türkçede geniş zaman isim cümlesinde koşulaç sıfırdır; akademik/resmi register dışında bu ekler silinir.
-4. **Vurgu Yuvası (Pre-Verbal Focus) ve Devrik Cümle Ritmi:** Türkçede vurgu kalın yazıyla veya *"İşte tam da bu noktada"* dolgusuyla değil, vurgulanacak öğenin **yüklemin hemen önündeki yuvaya** çekilmesiyle kurulur.
-5. **Özne Düşürme (Pro-Drop) ve Gereksiz `"Bir"` / `"Kendi"` Kullanımı:** Yüklemdeki şahıs eki özneyi zaten taşıdığından gereksiz zamirler (`ben, biz, o`) ve İngilizce `a/an` çevirisi olan soyut isim önündeki `"bir"` sıfatları (*"büyük bir önem"* -> *"büyük önem"*) temizlenir.
-6. **Edilgen Çatı (`tarafından`) ve Kof Yardımcı Fiiller:** *"Ekibimiz tarafından gerçekleştirilmiştir"* gibi edilgen ve şişirilmiş yardımcı fiil öbekleri (`gerçekleştirmek, sağlamak, katkıda bulunmak, sahip olmak, ev sahipliği yapmak`) doğrudan Türkçe eylem fiillerine dönüştürülür.
-7. **Kanıtsallık Kipi (`-mIş`):** Görgü tanıklığı olmayan, log kaydından okunan veya sonradan fark edilen olaylarda kesin geçmiş zaman (`-DI`) yerine Türkçenin delil kipi (`-mIş`) kullanılır.
+1. Yan cümlenin yeri. İngilizcede *"We built a system that scans data"* denir. Model bunu *"Bir sistem kurduk, bu sistem verileri tarıyor"* ya da *"Öyle bir sistem kurduk ki..."* diye aktarıyor. Türkçede sıfat-fiil (`-An, -DIk, -AcAk`) yan cümleyi ismin önüne alır: *"Verileri tarayan bir sistem kurduk."*
+2. `ve` yerine ulaç. İngilizce art arda gelen eylemleri `and`, `then`, `when`, `as` ile bağlar. Türkçe ise iki eylem arasındaki ilişkiyi çoğu zaman ulaçla kurar (`-Ip, -IncA, -dIkçA, -ArAk, -mAdAn`): *"Veriyi çekip işledik"*, *"Önbellek dolunca istekler yavaşladı"*.
+3. `-DIr` ve `-mAktAdIr` yığılması. İngilizcede ad cümlesinde `is/are` zorunlu. Bu alışkanlık model çıktısında cümlelerin `-DIr` ya da `-mAktAdIr` ile bitmesine yol açıyor. Türkçede geniş zamanlı ad cümlesi çoğu zaman eksiz kurulur, bu ekler akademik ve resmî yazı dışında seyreltilir.
+4. Vurgu. Türkçede bir ögeyi vurgulamak için onu yüklemin hemen önüne getirmek yeter. Kalın yazı ya da *"İşte tam da bu noktada"* gibi dolgular buna gerek bırakmaz.
+5. Gereksiz zamir ve `bir`. Yüklemdeki kişi eki özneyi zaten taşıdığı için `ben, biz, o` çoğu zaman fazladır. İngilizce `a/an`'ın karşılığı olarak soyut isimlerin önüne konan `bir` de öyle: *"büyük bir önem"* yerine *"büyük önem"*.
+6. Edilgen çatı ve kof fiiller. *"Ekibimiz tarafından gerçekleştirilmiştir"* gibi edilgen yapılar ve `gerçekleştirmek, sağlamak, katkıda bulunmak, sahip olmak, ev sahipliği yapmak` gibi şişirilmiş fiiller doğrudan eylem fiiliyle yazılabilir.
+7. `-mIş` kipi. Görülmeyen, kayıttan okunan ya da sonradan fark edilen olaylarda Türkçe `-DI` yerine `-mIş` kullanır: *"Sunucu gece yeniden başlamış."*
 
-## 2. Küresel ve Yerel Anti-AI / Humanizer Mimarilerinin Karşılaştırması
+## 2. Benzer projeler
 
-| Proje / Kaynak | Temel Yaklaşım | `yapay-degil` İçine Alınan Mimari Prensip |
+| Proje | Yaklaşımı | Bu skill'e geçen |
 | :--- | :--- | :--- |
-| [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) | İçerik şişirme, negatif paralellikler ve yüzeysel `-ing` analizlerinin taksonomisi | Katman 1 (P0) kompozisyon ve retorik kalıp yasakları |
-| [blader/humanizer](https://github.com/blader/humanizer) | 25 kural, şiddet ağırlıklandırması ve `Mark -> Draft -> Audit` döngüsü | 4 adımlı iş akışı ve tek görülmede vs. yoğunlukta tetiklenen kural hiyerarşisi |
-| [conorbronsdon/avoid-ai-writing](https://github.com/conorbronsdon/avoid-ai-writing) | Tier 1/2/3 kelime tabloları, `rewrite / detect / edit` modları ve `dist/` derlemesi | 3 katmanlı sözlük, çalışma modları ve çoklu ajan (`dist/` + `.mdc`) paketlemesi |
-| [durmazoguzhan/turkish-humanify](https://github.com/durmazoguzhan/turkish-humanify) | Türkçe cümle mimarisi, register dozajı, fonetik ek uyumu ve Olgusal Sadakat Kilidi | Sola dallanma, ulaç sistemi, 5 register kalibrasyonu ve Anti-Fabrication Lock |
-| [oguzhankayan/turkish-native](https://github.com/oguzhankayan/turkish-native) | SaaS/UI lokalizasyon kalıpları ve aşırı düzeltmeyi (overcorrection) önleme | Tier-3 SaaS/ürün tablosu ve doğal Türkçe ifadeleri koruma (*Gotchas*) |
-| [bushrabeg/turkce-humanizer](https://github.com/bushrabeg/turkce-humanizer) | TDK noktalama referansı ve 5 mutlak noktalama/bağlaç yasağı | Katman 3 Beş Mutlak Noktalama Yasağı ve yazar profili kalibrasyonu |
+| [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) | Şişirme, negatif paralellik ve yüzeysel `-ing` çözümlemeleri gibi yapay yazı işaretlerinin sınıflandırması | Kompozisyon ve söz sanatı kalıplarının yasaklandığı ilk katman |
+| [blader/humanizer](https://github.com/blader/humanizer) | 25 kural, ağırlığa göre sıralama, işaretle-yaz-denetle döngüsü | Dört adımlı çalışma düzeni, tek görülmede tetiklenen kuralla sıklıkla tetiklenen kuralın ayrılması |
+| [conorbronsdon/avoid-ai-writing](https://github.com/conorbronsdon/avoid-ai-writing) | Üç katmanlı kelime tabloları, yazma, denetleme ve düzeltme modları, `dist/` paketi | Üç katmanlı sözlük, çalışma modları, `dist/` ve Cursor kuralıyla paketleme |
+| [durmazoguzhan/turkish-humanify](https://github.com/durmazoguzhan/turkish-humanify) | Türkçe cümle yapısı, metin türüne göre doz, ek uyumu, bilgi uydurmama ilkesi | Sola dallanma, ulaçlar, metin türleri, bilgi eklememe ilkesi |
+| [oguzhankayan/turkish-native](https://github.com/oguzhankayan/turkish-native) | Arayüz ve ürün metni çeviri kalıpları, aşırı düzeltmeyi önleme | Tier-3 ürün ve pazarlama tablosu, doğal ifadelere dokunmama uyarıları |
+| [bushrabeg/turkce-humanizer](https://github.com/bushrabeg/turkce-humanizer) | TDK noktalama kaynağı ve kesin noktalama yasakları | Noktalama kuralları ve yazar profiline göre ayar |
 
-## 3. Agent Skills (`SKILL.md`) ve Çoklu Ajan Uyumluluk Standartları
+İlk sürümde beş metin türü vardı. Sonradan kamu ve kurum içi yazışma eklendi, şu an altı tür var.
 
-- **Progressive Disclosure (Aşamalı Yükleme):** [Agent Skills Spesifikasyonu](https://agentskills.io/specification) uyarınca `SKILL.md` dosyası 500 satırın altında tutularak yalnızca iş akışını yönetir; detaylı dilbilimi ve TDK tabloları `references/` altından ihtiyaç anında okunur.
-- **Evrensel Kurulum (`npx skills` & `gh skill`):** Hem kök dizinde `SKILL.md` hem de `skills/yapay-degil/` paket dizini bulundurularak [Vercel Labs `npx skills` CLI](https://github.com/vercel-labs/skills), GitHub CLI (`gh skill`) ve Claude Cowork plugin sistemleriyle %100 uyumluluk sağlanır.
+## 3. Paketleme
+
+Skill, [Agent Skills belirtimine](https://agentskills.io/specification) göre paketlendi. `SKILL.md` kısa tutuluyor ve yalnızca çalışma adımlarını içeriyor. Ayrıntılı kurallar ve tablolar `references/` altında duruyor, model onlara gerektiğinde bakıyor. Kökteki `SKILL.md` ile `skills/yapay-degil/` paketi birlikte durduğu için skill `npx skills`, `gh skill` ve Claude Code eklenti sistemiyle kurulabiliyor.

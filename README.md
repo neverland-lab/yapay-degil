@@ -37,11 +37,11 @@ Skill'in ilk hâlinde "insanlar 18-22 kelimelik cümlelere sıkışmaz", "on cü
 
 Doğrudan Türkçe yazılmış 145 metin topladık, toplam 2,7 milyon kelime. Sait Faik'ten Oğuz Atay'a eski romanlar ve öyküler, Hakan Günday'dan Ayfer Tunç'a, Burhan Sönmez'e 2000 sonrası romanlar ilk sırada. Yanlarında denemeler, köşe yazıları, Sabahattin Ali'nin mektupları, Atay'ın günlüğü, Cüceloğlu'ndan Geçtan'a psikoloji kitapları duruyor. Bilim ve devlet dili için de DergiPark'tan 44 makale, 19 teknik belge, Sayıştay raporları ve belediye faaliyet raporları aldık. Çeviri kitapları bilerek dışarıda bıraktık, çünkü çeviri Türkçesi tam da temizlemeye çalıştığımız izleri taşıyor. Aynı yazma isteklerini beş dil modeline de verdik (Gemini 4, Gemini Flash, GPT-OSS, Claude Sonnet, Claude Opus) ve modellerin yazdıklarını insan metinleriyle aynı ölçümlerden geçirdik.
 
-Kitaplardan içerik öğrenmedik, cümle öğrendik. Bir yazarın ne anlattığı bizi ilgilendirmedi, cümlesini kaç kelimeyle kurduğu, ne sıklıkla soru sorduğu, yüklemi ne zaman sona bıraktığı ilgilendirdi. Skill'in içinde hiçbir kitaptan tek bir cümle yok. Depoda yalnızca sayılar var, örnek cümleleri biz kurduk. Hepsi [`references/derlem-olcumleri.md`](references/derlem-olcumleri.md) dosyasında.
+Kitaplarda ne anlatıldığına bakmadık. Bize bir yazarın cümlesini kaç kelimeyle kurduğu, ne sıklıkla soru sorduğu, yüklemi ne zaman sona bıraktığı lazımdı. Skill'in içinde hiçbir kitaptan tek bir cümle yok. Depoda yalnızca sayılar var, örnek cümleleri biz kurduk. Hepsi [`references/derlem-olcumleri.md`](references/derlem-olcumleri.md) dosyasında.
 
 Çıkanların bir kısmı beklediğimiz gibi değildi.
 
-İnsanı modelden ayıran şey kelimeler değil, ritim. Metni art arda beşer cümlelik parçalara bölüp her parçada cümle boylarının ne kadar değiştiğine baktık. Bu değişkenlik yazarlarda 0,46-0,49, modellerde 0,28-0,41. Üstelik modeller tek tip de değil. Gemini ve GPT cümleleri orta boyda topluyor. Claude ise yazarlardan bile kısa yazıyor ama onun cümleleri de hep aynı boyda. Sorun cümlelerin kısalığı ya da uzunluğu değil, hepsinin aynı boyda olması. "Kısa cümle ekle" önerisi bu yüzden Claude'a hiç yaramıyordu.
+İnsanı modelden asıl ayıran ritim çıktı. Metni art arda beşer cümlelik parçalara bölüp her parçada cümle boylarının ne kadar değiştiğine baktık. Bu değişkenlik yazarlarda 0,46-0,49, modellerde 0,28-0,41. Üstelik modeller tek tip de değil. Gemini ve GPT cümleleri orta boyda topluyor. Claude ise yazarlardan bile kısa yazıyor ama onun cümleleri de hep aynı boyda. "Kısa cümle ekle" önerisi bu yüzden Claude'a hiç yaramıyordu.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/ritim-dark.svg">
@@ -54,7 +54,7 @@ Devrik cümleyi dönem değil yazar belirliyor. 2000 sonrası romanlarda oran %4
 
 Kurum dilinin uzun cümleleri ve art arda "-mıştır"la biten paragrafları yapay zekâdan önce de vardı. İBB'nin 2018-2020 faaliyet raporlarıyla 2023-2024 raporları aynı aralıkta çıktı. Skill bu yüzden kamu yazışmasında o dile dokunmuyor.
 
-Ders kitabı ve popüler bilim yazısının ritmi romandan daha düzenli. Bu yazarlarda da cümle boyu değişkenliği 0,38-0,48 arasında. Skill orada edebî ritmi zorlamıyor.
+Ders kitabı ve popüler bilim yazısının ritmi romandan daha düzenli. Bu kitaplarda cümle boyu değişkenliği 0,38-0,48 arasında. Skill orada edebî ritmi zorlamıyor.
 
 Bir de yan bulgumuz var. 2026'da yayımlanan makaleler 2016-2019'dakilerden farklı yazılıyor: cümle sonunda "-dır" kullanımı yarıya inmiş, aynı ekle biten seriler uzamış. Yapay zekânın izi olabilir ama örneklem küçük, şimdilik gözlem olarak duruyor.
 
@@ -155,7 +155,7 @@ Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördü
 
 ## Sürümler
 
-Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 1.3.0.
+Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 1.3.1.
 
 ## Teşekkür ve lisans
 
