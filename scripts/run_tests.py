@@ -131,6 +131,24 @@ def test_eval_scenarios() -> list:
     return scenario_results
 
 
+LEVEL_ORDER = ["Düşük", "Orta", "Yüksek"]
+
+
+def test_score_smoke() -> list:
+    data = json.loads((ROOT / "evals" / "skor_ornekleri.json").read_text(encoding="utf-8"))
+    out = []
+    for case in data["test_cases"]:
+        r = analyze_text(case["text"], case["register"])
+        if case["min_level"] is None:
+            passed = r["score"] is None and r["level"] == "Yetersiz metin"
+        else:
+            passed = (r["score"] is not None and LEVEL_ORDER.index(r["level"]) >= LEVEL_ORDER.index(case["min_level"])
+                      and bool(r["reasons"]))
+        out.append({"id": case["id"], "passed": passed, "score": r["score"], "level": r["level"],
+                    "expected": case["min_level"] or "skor yok"})
+    return out
+
+
 def main():
     print("=" * 78)
     print("YAPAY-DEGIL KAPSAMLI TEST VE DOĞRULAMA PAKETİ")
@@ -161,8 +179,17 @@ def main():
         if res["caught_examples"]:
             print(f"           -> Yakalanan Örnek Sinyaller: {', '.join(repr(x) for x in res['caught_examples'])}")
 
-    total_checks = len(pkg_results) + len(eval_results)
-    passed_checks = sum(1 for x in pkg_results if x["passed"]) + sum(1 for x in eval_results if x["passed"])
+    score_results = test_score_smoke()
+    print("\n[BÖLÜM 3] YAPAY ZEKÂ İZİ SKORU (DUMAN TESTİ)")
+    for res in score_results:
+        status = "[GEÇTİ]" if res["passed"] else "[KALDI]"
+        if not res["passed"]:
+            all_passed = False
+        print(f"  {status} | [{res['id']}] skor: {res['score']} ({res['level']}) | beklenen: {res['expected']}")
+
+    total_checks = len(pkg_results) + len(eval_results) + len(score_results)
+    passed_checks = (sum(1 for x in pkg_results if x["passed"]) + sum(1 for x in eval_results if x["passed"])
+                     + sum(1 for x in score_results if x["passed"]))
     print("\n" + "=" * 78)
     print(f"GENEL SONUÇ: {passed_checks}/{total_checks} TEST BAŞARIYLA GEÇTİ ({'SORUNSUZ' if all_passed else 'HATALI'})")
     print("=" * 78)

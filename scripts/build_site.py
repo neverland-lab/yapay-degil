@@ -67,6 +67,19 @@ data = {
     "rhythmWarnRegisters": [r for r in d.RHYTHM_WARN_REGISTERS if r],
     "rhythmWarnDefault": None in d.RHYTHM_WARN_REGISTERS,
     "band1522Warn": d.BAND_15_22_WARN,
+    "score": {
+        "weights": d.SCORE_WEIGHTS,
+        "lowRhythmRegisters": sorted(d.SCORE_LOW_RHYTHM_REGISTERS),
+        "lowRhythmFactor": d.SCORE_LOW_RHYTHM_FACTOR,
+        "covHuman": d.SCORE_COV_HUMAN, "covModel": d.SCORE_COV_MODEL,
+        "belowHuman": d.SCORE_BELOW_HUMAN, "belowModel": d.SCORE_BELOW_MODEL,
+        "bandHuman": d.SCORE_BAND_HUMAN, "bandModel": d.SCORE_BAND_MODEL,
+        "patternFull": d.SCORE_PATTERN_FULL,
+        "minWindows": d.SCORE_MIN_WINDOWS,
+        "lowPatterns": list(d.SCORE_LOW_PATTERNS),
+        "levels": d.SCORE_LEVELS,
+        "note": d.SCORE_NOTE,
+    },
 }
 
 target = ROOT / "docs" / "site" / "kurallar.js"

@@ -132,6 +132,8 @@ python3 scripts/detect_tr_ai.py yazi.md --register kamu-kurum
 python3 scripts/detect_tr_ai.py metin.md --json
 ```
 
+Raporun en üstünde 0-100 arası bir "yapay zekâ izi" skoru var, altında da puanın nereden geldiği yazıyor: ritim ne kadar düz, orta boy cümle ne kadar çok, hangi kalıp kaç kez geçti. Skor bir olasılık değil, ağırlıkları şimdilik elle seçtim. Derlemi 400 kelimelik parçalara bölüp ölçtüm: Romanlarda parçaların %3-6'sı "Orta" çıkıyor, denemelerde %23, açıklayıcı psikoloji kitaplarında %26. Akademik, teknik ve kurum metinlerinde bu oran %1'in altında, çünkü bu türlerde ritim düşük ağırlıkla sayılıyor. Model metinlerinde "Orta" ya da üstü oranı denemede %85, edebî metinde %40. Yani skor tek başına "bunu yapay zekâ yazdı" demek için yetmez. Etiketli veriyle ayarlandıktan sonra gerçek bir yüzdeye çevrilecek. Beş cümleden kısa metinde skor üretilmez.
+
 Dedektör yalnızca yüzeye bakar. Cümle kuruluşunu düzeltmek modelin işi, dedektör sonuca bakıp "burada ritim düz" ya da "burada beş cümle aynı ekle bitiyor" der. Uyarılarını insan metinleri üzerinde sınadık: Derlemin tamamını dedektörden geçirdik ve insan yazısına sık sık yanlış alarm veren kuralları gevşettik. Eşiklerin kaynağı yine ölçüm dosyasında.
 
 ## İçinde ne var?
@@ -158,7 +160,7 @@ Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördü
 
 ## Sürümler
 
-Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 1.3.2.
+Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 1.3.3.
 
 ## Teşekkür ve lisans
 

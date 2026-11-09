@@ -23,7 +23,7 @@ process.stdout.write(JSON.stringify(cases.map(c => globalThis.YD.analyzeText(c.t
 
 COMPARE = ["mektedir_in_range", "repeated_ending_max_run", "repeated_ending_class", "repeated_ending_warning",
            "word_count", "sentence_count", "sentence_lengths", "sentence_length_cov", "rhythm",
-           "mektedir_per_100_words", "high_mektedir_warning", "total_flags"]
+           "mektedir_per_100_words", "high_mektedir_warning", "total_flags", "score", "level", "reasons"]
 
 
 def main():

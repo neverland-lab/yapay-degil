@@ -1,6 +1,6 @@
 {
   "name": "yapay-degil",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Türkçe metni insan eliyle yazılmış gibi doğal yazan veya onaran, çeviri kokusu ve TDK hatalarını denetleyen Agent Skill paketi.",
   "author": {
     "name": "neverland-lab",

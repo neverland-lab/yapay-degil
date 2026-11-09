@@ -154,7 +154,7 @@
     const runLimit = (key && K.repeatedEndingLimits[key]) || K.repeatedEndingLimit;
     const warnRhythm = key ? K.rhythmWarnRegisters.includes(key) : K.rhythmWarnDefault;
 
-    return {
+    const report = {
       register: key,
       register_label: profile.label,
       mektedir_target_range: [profile.mektedir_min, profile.mektedir_max],
@@ -173,6 +173,81 @@
       total_flags: findings.length,
       findings,
     };
+    return Object.assign(report, scoreReport(report));
+  }
+
+  // Yapay zekâ izi skoru: detect_tr_ai.py'deki score_report'un aynısı. Olasılık değil, iz yoğunluğu.
+  // Python round(x) gerçek yarımlarda çifte yuvarlar (2,5 -> 2), Math.round yukarı. Bu fark burada giderilir.
+  function pyRound0(x) {
+    const f = Math.floor(x);
+    if (x - f === 0.5) return f % 2 === 0 ? f : f + 1;
+    return Math.round(x);
+  }
+  const ramp = (x, lo, hi) => Math.min(Math.max((x - lo) / (hi - lo), 0), 1);
+  const tr = (x) => pyRound(x).toFixed(2).replace(".", ",");
+  function ruleName(rule) {
+    const m = rule.match(/'([^']+)'/u);
+    return m ? m[1] : rule.split(":")[0];
+  }
+  function patternWeight(rule) {
+    if (K.score.lowPatterns.some((p) => rule.startsWith(p))) return 0.5;
+    if (rule.startsWith("Tier-1") || rule.startsWith("P0")) return 1.0;
+    if (rule.startsWith("Tier-2") || rule.startsWith("P1")) return 0.75;
+    return 0.25;                                       // P2: noktalama, TDK, terim
+  }
+
+  function scoreReport(r) {
+    const S = K.score, W = S.weights, rh = r.rhythm;
+    if (rh.window_count < S.minWindows) {
+      return { score: null, level: "Yetersiz metin", reasons: [{ signal: "yetersiz", points: 0,
+        text: `Yetersiz metin, skor üretilmedi: ritim için en az 5 cümle gerekiyor, bu metinde ${r.sentence_count}.` }] };
+    }
+    const low = S.lowRhythmRegisters.includes(r.register);
+    const rfac = low ? S.lowRhythmFactor : 1.0;
+    const reasons = [];
+    const add = (signal, points, text) => {
+      points = pyRound0(points);
+      if (points > 0) reasons.push({ signal, points, text });
+    };
+
+    const med = rh.window_cov_median, below = rh.window_cov_below_target_ratio;
+    const sRhythm = 0.6 * ramp(med, S.covHuman, S.covModel) + 0.4 * ramp(below, S.belowHuman, S.belowModel);
+    const note = low ? " Bu metin türünde ritim düşük ağırlıkla sayıldı." : "";
+    add("ritim", W.ritim * rfac * sRhythm,
+      `Cümle ritmi çok düzenli: ${tr(med)} (insan metinlerinde 0,46-0,49, model metinlerinde 0,28-0,41). ` +
+      `Eşiğin (${tr(K.windowCovTarget)}) altında kalan 5 cümlelik pencere oranı: %${pyRound0(below * 100)}.${note}`);
+
+    const band = rh.band_15_22_ratio;
+    add("bant", W.bant * rfac * ramp(band, S.bandHuman, S.bandModel),
+      `15-22 kelimelik cümle oranı: %${pyRound0(band * 100)} (insanda %14-25, uzun cümleli modellerde %29-49).`);
+
+    const hi = r.mektedir_target_range[1], per100 = r.mektedir_per_100_words;
+    if (per100 > hi) {
+      add("mektedir", W.mektedir * ramp(per100, hi, 2 * hi),
+        `'-mAktAdIr' yoğunluğu 100 kelimede ${tr(per100)}, bu metin türü için üst sınır ${tr(hi)}.`);
+    }
+    if (r.repeated_ending_warning) {
+      add("seri", W.seri,
+        `Art arda ${r.repeated_ending_max_run} cümle aynı ekle (${r.repeated_ending_class}) bitiyor, sınır ${r.repeated_ending_limit}.`);
+    }
+
+    let weighted = 0;
+    const counts = new Map();
+    for (const f of r.findings) {
+      weighted += patternWeight(f.rule);
+      counts.set(f.rule, (counts.get(f.rule) || 0) + 1);
+    }
+    const density = weighted / Math.max(r.word_count, 1) * 100;
+    if (counts.size) {
+      const parts = [...counts].map(([rule, n]) => `'${ruleName(rule)}' (${n} kez)`);
+      add("kalip", W.kalip * Math.min(density / S.patternFull, 1.0),
+        `Kalıp bulguları (100 kelimede ağırlıklı ${tr(density)}): ${parts.join(", ")}.`);
+    }
+
+    const total = Math.min(reasons.reduce((a, x) => a + x.points, 0), 100);
+    const level = S.levels.find(([floor]) => total >= floor)[1];
+    reasons.sort((a, b) => b.points - a.points);
+    return { score: total, level, reasons };
   }
 
   root.YD = { analyzeText, splitSentences };

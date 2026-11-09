@@ -115,6 +115,19 @@ aside.notes { display: flex; flex-direction: column; gap: 20px; }
 .tally .big { font: 600 2.6rem/1 var(--font-display); color: var(--pencil); font-variant-numeric: tabular-nums; }
 .tally .cap { font-size: .95rem; }
 .tally .sub { width: 100%; color: var(--muted); font-size: .85rem; }
+.skor h2 { margin-bottom: 10px; }
+.skor-ust { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.skor-ust .big { font: 600 2.6rem/1 var(--font-display); color: var(--pencil); font-variant-numeric: tabular-nums; }
+.skor-ust .cap { font-size: .95rem; }
+.skor-cubuk { height: 8px; border-radius: 4px; background: var(--band-model); margin: 12px 0 4px; overflow: hidden; }
+.skor-cubuk i { display: block; height: 100%; width: 0; background: var(--pencil); transition: width .2s; }
+.skor-olcek { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); }
+.skor ul { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.skor li { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; }
+.skor li b { grid-column: 2; font-weight: 600; }
+.skor li span { grid-column: 2; color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
+.skor li em { grid-row: 1 / span 2; font-style: normal; font-variant-numeric: tabular-nums; color: var(--pencil); font-weight: 600; min-width: 2.6em; }
+.skor .sub { color: var(--muted); font-size: .82rem; margin: 14px 0 0; }
 
 .measures { padding: 6px 20px 16px; }
 .measures h2, .findings h2 { font: 600 .74rem/1 var(--font-ui); text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 14px 0 6px; }
@@ -229,6 +242,14 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     </div>
 
     <aside class="notes">
+      <div class="sheet skor" aria-live="polite">
+        <h2>Yapay zekâ izi</h2>
+        <div class="skor-ust"><span class="big" id="skor">-</span><span class="cap" id="skor-seviye">/ 100</span></div>
+        <div class="skor-cubuk" aria-hidden="true"><i id="skor-dolu"></i></div>
+        <div class="skor-olcek" aria-hidden="true"><span>0 Düşük</span><span>35 Orta</span><span>65 Yüksek</span><span>100</span></div>
+        <ul id="skor-neden"></ul>
+        <p class="sub">Bu sayı bir olasılık değil. Yazıda yapay zekâya benzeyen ne kadar iz olduğunu gösteriyor, her puanın nereden geldiği yukarıda yazıyor. İnsan yazısı da bazen orta çıkar. Tek başına “bunu yapay zekâ yazdı” demek için kullanma.</p>
+      </div>
       <div class="sheet tally" aria-live="polite">
         <span class="big" id="toplam">0</span><span class="cap" id="toplam-yazi">yer işaretlendi</span>
         <span class="sub" id="toplam-alt"></span>
@@ -440,6 +461,26 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     return h;
   }
 
+  const SINYAL_AD = {
+    ritim: "Cümle boyları birbirine çok benziyor",
+    bant: "Orta boy cümle çok",
+    mektedir: "“-mektedir” çok",
+    seri: "Art arda aynı sesle biten cümleler",
+    kalip: "Yapay zekânın sık kullandığı kalıplar",
+  };
+  function skorGoster(text, r) {
+    const bos = !text.trim();
+    $("skor").textContent = bos || r.score === null ? "-" : r.score;
+    $("skor-seviye").textContent = bos ? "/ 100" : r.score === null ? "Yazı kısa" : `/ 100 · ${r.level}`;
+    $("skor-dolu").style.width = bos || r.score === null ? "0" : `${r.score}%`;
+    let h = "";
+    if (bos) h = `<li><span>Yazını yapıştırınca burada bir puan ve puanın nedenleri çıkacak.</span></li>`;
+    else if (r.score === null) h = `<li><span>Puan vermek için en az beş cümle gerekiyor. Bu yazıda ${r.sentence_count} cümle var.</span></li>`;
+    else if (!r.reasons.length) h = `<li><span>Yapay zekâya benzeyen belirgin bir iz bulunmadı.</span></li>`;
+    else for (const x of r.reasons) h += `<li><em>+${x.points}</em><b>${esc(SINYAL_AD[x.signal] || x.signal)}</b><span>${esc(x.text)}</span></li>`;
+    $("skor-neden").innerHTML = h;
+  }
+
   function boyut() { metin.style.height = "auto"; metin.style.height = metin.scrollHeight + "px"; }
 
   function calistir() {
@@ -448,6 +489,7 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     son = r;
     if (secili >= r.findings.length) secili = -1;
     boya(text, r.findings);
+    skorGoster(text, r);
     $("toplam").textContent = r.total_flags;
     $("toplam-yazi").textContent = "yer işaretlendi";
     const uyari = [r.rhythm.flat_rhythm_warning, r.rhythm.band_15_22_warning, r.high_mektedir_warning, r.repeated_ending_warning].filter(Boolean).length;

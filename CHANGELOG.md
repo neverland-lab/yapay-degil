@@ -2,6 +2,16 @@
 
 Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar: kuralları ya da kurulum adını değiştiren büyük adımda ilk sayı, yeni kural ya da ölçümde ortadaki sayı, düzeltmede sondaki sayı.
 
+## 1.3.3 (9 Kasım 2026)
+
+Skill metni değişmedi, değişiklikler dedektörde ve web sayfasında.
+
+- Dedektör artık bir skor veriyor (0-100) ve her puanın gerekçesini yazıyor. Önceden ritim uyarısı çıksa bile "Toplam Yakalanan Sinyal" satırı yalnızca kalıpları saydığı için güncel modellerin metinleri "0" görünüyordu. Seviyeler: 0-34 Düşük, 35-64 Orta, 65-100 Yüksek. Skor olasılık değil, ağırlıklar elle seçildi. Akademik, teknik ve kamu metninde ritmin ağırlığı azaltıldı. Beş cümleden kısa metinde skor üretilmiyor.
+- `--json` çıktısına `score`, `level`, `reasons` alanları eklendi, eski alanlar aynı.
+- Güncel modellerde sık görülen dört kalıp eklendi: "yalnızca X değil, Y de" ("aynı zamanda" olmadan), "büyük önem taşımak", "rol oynamak", "belirgin şekilde". İnsan metninde 10.000 kelimede en fazla 2 kez geçiyorlar.
+- Web sayfasında skor ve gerekçeleri gösteren bir kutu var. `check_site.py` skoru da karşılaştırıyor.
+- Derlemdeki 400 kelimelik parçalarda "Orta" ya da üstü oranı: roman %3-6, deneme %23, açıklayıcı psikoloji %26, akademik, teknik ve kurum %1'in altında. Model metinlerinde deneme %85, edebî %40.
+
 ## Web sayfası (8 Kasım 2026)
 
 Skill değişmedi, sürüm numarası artmadı.

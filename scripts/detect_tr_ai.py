@@ -44,6 +44,12 @@ TIER2_AND_SYNTAX_PATTERNS = [
     (r"\b\w+m[ae]k,\s+(?:\w+\s+){0,6}\w+m[ae](?:s[ıi]|m[ıi]z|n[ıi]z)\b", "P1 Koşutluk: Listede yalın ve iyelikli ad-eylem karışık ('-mAk, ... -mAsI')"),
     (r"\b(?:uç\s+nokta(?:lar|larda|lara|ları)?|olay\s+güdümlü|ara\s+katman|çekme\s+isteği)\b", "P2 Terminoloji: Zorlama teknik terim çevirisi ('uç nokta / olay güdümlü / ara katman')"),
     (r"\bev\s+sahipliği\s+yapmakta|\bkatkıda\s+bulunmakta", "P1 Kof Fiil: '-mAktAdIr' ile şişirilmiş 'ev sahipliği yapmak / katkıda bulunmak'"),
+    # Güncel modellerin kalıpları (2025-2026). 'aynı zamanda'lı biçimi yukarıdaki P0 kuralı yakalar, burada yalnız onsuzu.
+    (r"\b(?:sadece|yalnızca)\s+[^\s,.!?]+(?:\s+[^\s,.!?]+){0,3}\s+değil,(?!\s*aynı\s+zamanda)", "Tier-2 Yapısal: 'yalnızca X değil, Y de' (aynı zamanda olmadan negatif paralellik)"),
+    # 'bir'li biçimi ('büyük bir önem taşı') yukarıdaki P1 kuralı yakalar.
+    (r"\b(?:büyük|önemli|kritik|hayati)\s+önem\s+taşı", "Tier-2 Kalıp: 'büyük önem taşımak' (önemi söyleyip göstermeyen kalıp)"),
+    (r"(?<!kritik )(?<!bir )\brol\s+oyna", "Tier-2 Kalıp: 'rol oynamak' (ne işe yaradığını söylemeyen kalıp)"),
+    (r"\bbelirgin\s+(?:bir\s+)?şekilde", "Tier-2 Kalıp: 'belirgin şekilde' (ne kadar olduğunu söylemeyen zarf)"),
 ]
 
 PUNCTUATION_AND_TDK_PATTERNS = [
@@ -219,6 +225,104 @@ def rhythm_profile(text: str, window: int = 5, warn: bool = True) -> dict:
         "band_15_22_warning": warn and band is not None and len(lengths) >= 8 and band > BAND_15_22_WARN,
     }
 
+# --- Yapay zekâ izi skoru ---------------------------------------------------------------------------------
+# Ölçümleri tek bir 0-100 skorda toplar ve her puanın nereden geldiğini yazar. Olasılık DEĞİLDİR: ağırlıklar elle
+# seçildi, etiketli veriyle kalibre edilince yüzdeye çevrilecek. Her sinyal puan ekler, toplam 100'de kesilir.
+# Çapalar derlemden (400 kelimelik parçalar): pencere CoV ortancası insan romanında p50 0,45-0,48, model metninde
+# p50 0,33-0,39. 0,38 altı pencere oranı insanda p50 0,28-0,43, modelde p50 0,50-0,75.
+SCORE_WEIGHTS = {"ritim": 55, "bant": 15, "mektedir": 10, "seri": 10, "kalip": 35}
+# Akademik, teknik ve kamu metninde insan ritmi zaten düşük: ritim ve bant ağırlığı azalır.
+SCORE_LOW_RHYTHM_REGISTERS = {"akademik-resmi", "teknik", "kamu-kurum"}
+SCORE_LOW_RHYTHM_FACTOR = 0.4
+SCORE_COV_HUMAN, SCORE_COV_MODEL = 0.45, 0.30          # ortanca bu ikisi arasında 0'dan 1'e
+SCORE_BELOW_HUMAN, SCORE_BELOW_MODEL = 0.35, 0.85      # 0,38 altı pencere oranı
+SCORE_BAND_HUMAN, SCORE_BAND_MODEL = 0.25, 0.50
+SCORE_PATTERN_FULL = 1.5                               # 100 kelimede bu kadar ağırlıklı kalıp = tam puan
+SCORE_MIN_WINDOWS = 1                                  # en az 5 cümle (bir pencere)
+# Kalıp ağırlıkları: yazım ve noktalama hatasını insanlar da yapıyor, düşük sayılır.
+SCORE_LOW_PATTERNS = ("Tier-2 Kalıp: 'rol oynamak'", "Tier-2 Kalıp: 'belirgin şekilde'")
+SCORE_LEVELS = [(65, "Yüksek"), (35, "Orta"), (0, "Düşük")]
+
+
+def _pattern_weight(rule: str) -> float:
+    if rule.startswith(SCORE_LOW_PATTERNS):
+        return 0.5
+    if rule.startswith(("Tier-1", "P0")):
+        return 1.0
+    if rule.startswith(("Tier-2", "P1")):
+        return 0.75
+    return 0.25                                        # P2: noktalama, TDK, terim
+
+
+def _ramp(x: float, lo: float, hi: float) -> float:
+    """x lo'da 0, hi'de 1 (lo > hi olabilir)."""
+    t = (x - lo) / (hi - lo)
+    return min(max(t, 0.0), 1.0)
+
+
+def _tr(x: float) -> str:
+    return f"{x:.2f}".replace(".", ",")
+
+
+def _rule_name(rule: str) -> str:
+    """Etiketteki ilk tırnaklı parça: "Tier-1 Klişe: 'âdeta / adeta' (...)" -> "âdeta / adeta"."""
+    m = re.search(r"'([^']+)'", rule)
+    return m.group(1) if m else rule.split(":")[0]
+
+
+def score_report(report: dict) -> dict:
+    """analyze_text çıktısından skor, seviye ve gerekçe üretir."""
+    rh = report["rhythm"]
+    if rh["window_count"] < SCORE_MIN_WINDOWS:
+        return {"score": None, "level": "Yetersiz metin",
+                "reasons": [{"signal": "yetersiz", "points": 0,
+                             "text": f"Yetersiz metin, skor üretilmedi: ritim için en az 5 cümle gerekiyor, bu metinde {report['sentence_count']}."}]}
+    low = report["register"] in SCORE_LOW_RHYTHM_REGISTERS
+    rfac = SCORE_LOW_RHYTHM_FACTOR if low else 1.0
+    reasons = []
+
+    def add(signal, points, text):
+        points = round(points)
+        if points > 0:
+            reasons.append({"signal": signal, "points": points, "text": text})
+
+    med, below = rh["window_cov_median"], rh["window_cov_below_target_ratio"]
+    s_rhythm = 0.6 * _ramp(med, SCORE_COV_HUMAN, SCORE_COV_MODEL) + 0.4 * _ramp(below, SCORE_BELOW_HUMAN, SCORE_BELOW_MODEL)
+    note = " Bu metin türünde ritim düşük ağırlıkla sayıldı." if low else ""
+    add("ritim", SCORE_WEIGHTS["ritim"] * rfac * s_rhythm,
+        f"Cümle ritmi çok düzenli: {_tr(med)} (insan metinlerinde 0,46-0,49, model metinlerinde 0,28-0,41). "
+        f"Eşiğin ({_tr(WINDOW_COV_TARGET)}) altında kalan 5 cümlelik pencere oranı: %{round(below * 100)}.{note}")
+
+    band = rh["band_15_22_ratio"]
+    add("bant", SCORE_WEIGHTS["bant"] * rfac * _ramp(band, SCORE_BAND_HUMAN, SCORE_BAND_MODEL),
+        f"15-22 kelimelik cümle oranı: %{round(band * 100)} (insanda %14-25, uzun cümleli modellerde %29-49).")
+
+    hi = report["mektedir_target_range"][1]
+    per100 = report["mektedir_per_100_words"]
+    if per100 > hi:
+        add("mektedir", SCORE_WEIGHTS["mektedir"] * _ramp(per100, hi, 2 * hi),
+            f"'-mAktAdIr' yoğunluğu 100 kelimede {_tr(per100)}, bu metin türü için üst sınır {_tr(hi)}.")
+
+    if report["repeated_ending_warning"]:
+        add("seri", SCORE_WEIGHTS["seri"],
+            f"Art arda {report['repeated_ending_max_run']} cümle aynı ekle ({report['repeated_ending_class']}) bitiyor, sınır {report['repeated_ending_limit']}.")
+
+    weighted, counts = 0.0, {}
+    for f in report["findings"]:
+        weighted += _pattern_weight(f["rule"])
+        counts[f["rule"]] = counts.get(f["rule"], 0) + 1
+    density = weighted / max(report["word_count"], 1) * 100
+    if counts:
+        parts = [f"'{_rule_name(r)}' ({n} kez)" for r, n in counts.items()]
+        add("kalip", SCORE_WEIGHTS["kalip"] * min(density / SCORE_PATTERN_FULL, 1.0),
+            f"Kalıp bulguları (100 kelimede ağırlıklı {_tr(density)}): " + ", ".join(parts) + ".")
+
+    total = min(sum(r["points"] for r in reasons), 100)
+    level = next(name for floor, name in SCORE_LEVELS if total >= floor)
+    reasons.sort(key=lambda r: -r["points"])
+    return {"score": total, "level": level, "reasons": reasons}
+
+
 def analyze_text(text: str, register: str = None) -> dict:
     register_key = resolve_register(register)
     profile = REGISTER_PROFILES[register_key] if register_key else DEFAULT_PROFILE
@@ -263,7 +367,7 @@ def analyze_text(text: str, register: str = None) -> dict:
     run_limit = REPEATED_ENDING_LIMITS.get(register_key, REPEATED_ENDING_LIMIT)
     mektedir_in_range = profile["mektedir_min"] <= mektedir_per_100 <= profile["mektedir_max"]
 
-    return {
+    report = {
         "register": register_key,
         "register_label": profile["label"],
         "mektedir_target_range": [profile["mektedir_min"], profile["mektedir_max"]],
@@ -282,6 +386,11 @@ def analyze_text(text: str, register: str = None) -> dict:
         "total_flags": len(findings),
         "findings": findings,
     }
+    report.update(score_report(report))
+    return report
+
+
+SCORE_NOTE = "Not: Bu skor henüz etiketli veriyle kalibre edilmedi. Olasılık değil, iz yoğunluğu göstergesidir."
 
 
 def main():
@@ -305,6 +414,18 @@ def main():
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:
         print(f"=== yapay-degil Denetim Raporu: {path.name} ===")
+        if report["score"] is None:
+            print(f"Yapay zekâ izi: skor yok ({report['level']})")
+        else:
+            print(f"Yapay zekâ izi: {report['score']}/100 ({report['level']})")
+        if report["reasons"]:
+            print("\nNeden:")
+            for r in report["reasons"]:
+                pts = f" [+{r['points']}]" if r["points"] else ""
+                print(f"  - {r['text']}{pts}")
+        elif report["score"] is not None:
+            print("\nNeden: Belirgin bir iz bulunmadı.")
+        print(f"\n{SCORE_NOTE}\n")
         print(f"Kelime Sayısı: {report['word_count']} | Cümle Sayısı: {report['sentence_count']}")
         rh = report["rhythm"]
         if rh["window_cov_median"] is not None:
@@ -318,7 +439,7 @@ def main():
         print(f"'-mAktAdIr' Yoğunluğu (100 kelimede): {report['mektedir_per_100_words']} | Hedef: {lo}-{hi} | {'Uygun' if report['mektedir_in_range'] else 'Hedef dışı'}")
         run_note = f" ({report['repeated_ending_class']})" if report["repeated_ending_class"] else ""
         print(f"Art Arda Aynı Cümle Sonu (en uzun seri): {report['repeated_ending_max_run']}{run_note} | Sınır: {report['repeated_ending_limit']} altı | {'Uyarı' if report['repeated_ending_warning'] else 'Uygun'}")
-        print(f"Toplam Yakalanan AI/TDK Sinyali: {report['total_flags']}")
+        print(f"Kalıp ve Yazım Bulgusu: {report['total_flags']}")
         for item in report["findings"]:
             print(f"  - [{item['rule']}] -> \"{item['match']}\"")
 

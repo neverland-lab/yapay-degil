@@ -98,6 +98,22 @@ globalThis.YD_KURALLAR = {
    "label": "P1 Kof Fiil: '-mAktAdIr' ile şişirilmiş 'ev sahipliği yapmak / katkıda bulunmak'"
   },
   {
+   "re": "(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:sadece|yaln[iıIİ]zca)\\s+[^\\s,.!?]+(?:\\s+[^\\s,.!?]+){0,3}\\s+değ[iıIİ]l,(?!\\s*ayn[iıIİ]\\s+zamanda)",
+   "label": "Tier-2 Yapısal: 'yalnızca X değil, Y de' (aynı zamanda olmadan negatif paralellik)"
+  },
+  {
+   "re": "(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:büyük|öneml[iıIİ]|kr[iıIİ]t[iıIİ]k|hayat[iıIİ])\\s+önem\\s+taş[iıIİ]",
+   "label": "Tier-2 Kalıp: 'büyük önem taşımak' (önemi söyleyip göstermeyen kalıp)"
+  },
+  {
+   "re": "(?<!kr[iıIİ]t[iıIİ]k )(?<!b[iıIİ]r )(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))rol\\s+oyna",
+   "label": "Tier-2 Kalıp: 'rol oynamak' (ne işe yaradığını söylemeyen kalıp)"
+  },
+  {
+   "re": "(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))bel[iıIİ]rg[iıIİ]n\\s+(?:b[iıIİ]r\\s+)?şek[iıIİ]lde",
+   "label": "Tier-2 Kalıp: 'belirgin şekilde' (ne kadar olduğunu söylemeyen zarf)"
+  },
+  {
    "re": "—",
    "label": "P2 Noktalama: Uzun çizgi (em-dash '—') kullanımı (TDK diyalog dışında yasaklar)"
   },
@@ -187,10 +203,52 @@ globalThis.YD_KURALLAR = {
  },
  "windowCovTarget": 0.38,
  "rhythmWarnRegisters": [
-  "blog-deneme",
+  "kurumsal",
   "edebi-anlati",
-  "kurumsal"
+  "blog-deneme"
  ],
  "rhythmWarnDefault": true,
- "band1522Warn": 0.3
+ "band1522Warn": 0.3,
+ "score": {
+  "weights": {
+   "ritim": 55,
+   "bant": 15,
+   "mektedir": 10,
+   "seri": 10,
+   "kalip": 35
+  },
+  "lowRhythmRegisters": [
+   "akademik-resmi",
+   "kamu-kurum",
+   "teknik"
+  ],
+  "lowRhythmFactor": 0.4,
+  "covHuman": 0.45,
+  "covModel": 0.3,
+  "belowHuman": 0.35,
+  "belowModel": 0.85,
+  "bandHuman": 0.25,
+  "bandModel": 0.5,
+  "patternFull": 1.5,
+  "minWindows": 1,
+  "lowPatterns": [
+   "Tier-2 Kalıp: 'rol oynamak'",
+   "Tier-2 Kalıp: 'belirgin şekilde'"
+  ],
+  "levels": [
+   [
+    65,
+    "Yüksek"
+   ],
+   [
+    35,
+    "Orta"
+   ],
+   [
+    0,
+    "Düşük"
+   ]
+  ],
+  "note": "Not: Bu skor henüz etiketli veriyle kalibre edilmedi. Olasılık değil, iz yoğunluğu göstergesidir."
+ }
 };
