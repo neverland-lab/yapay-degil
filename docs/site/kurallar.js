@@ -203,9 +203,9 @@ globalThis.YD_KURALLAR = {
  },
  "windowCovTarget": 0.38,
  "rhythmWarnRegisters": [
-  "kurumsal",
+  "blog-deneme",
   "edebi-anlati",
-  "blog-deneme"
+  "kurumsal"
  ],
  "rhythmWarnDefault": true,
  "band1522Warn": 0.3,

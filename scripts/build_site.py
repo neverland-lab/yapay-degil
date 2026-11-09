@@ -64,7 +64,7 @@ data = {
     "repeatedEndingLimit": d.REPEATED_ENDING_LIMIT,
     "repeatedEndingLimits": d.REPEATED_ENDING_LIMITS,
     "windowCovTarget": d.WINDOW_COV_TARGET,
-    "rhythmWarnRegisters": [r for r in d.RHYTHM_WARN_REGISTERS if r],
+    "rhythmWarnRegisters": sorted(r for r in d.RHYTHM_WARN_REGISTERS if r),
     "rhythmWarnDefault": None in d.RHYTHM_WARN_REGISTERS,
     "band1522Warn": d.BAND_15_22_WARN,
     "score": {
@@ -90,3 +90,20 @@ target.write_bytes(
      f"globalThis.YD_KURALLAR = {body};\n").encode("utf-8")
 )
 print(f"{target.relative_to(ROOT)} yazıldı: {len(data['ignoreCase']) + len(data['caseSensitive'])} kural")
+
+# Önbellek: GitHub Pages dosyaları 10 dakika saklıyor. Tarayıcı yeni index.html'i eski bir betikle açarsa
+# sayfa bozulur. Her betiğin adresine içeriğinin kısa özeti eklenir, dosya değişince adres de değişir.
+import hashlib, re  # noqa: E402
+page = ROOT / "docs" / "index.html"
+html = page.read_bytes().decode("utf-8")
+
+
+def _stamp(m):
+    src = ROOT / "docs" / "site" / m.group(1)
+    return f'src="site/{m.group(1)}?v={hashlib.sha256(src.read_bytes()).hexdigest()[:10]}"'
+
+
+new_html = re.sub(r'src="site/([\w.-]+\.js)(?:\?v=[0-9a-f]+)?"', _stamp, html)
+if new_html != html:
+    page.write_bytes(new_html.encode("utf-8"))
+    print(f"{page.relative_to(ROOT)}: betik adresleri güncellendi")

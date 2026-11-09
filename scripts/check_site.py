@@ -72,6 +72,13 @@ def main():
             if "findings" in diffs:
                 print("   yalnız Python:", [x for x in py_f if x not in js_f])
                 print("   yalnız JS    :", [x for x in js_f if x not in py_f])
+    # index.html'deki betik adreslerinin ?v= özeti güncel mi? (build_site.py yazar, önbellek için)
+    import hashlib, re
+    html = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
+    for name, v in re.findall(r'src="site/([\w.-]+\.js)\?v=([0-9a-f]+)"', html):
+        if hashlib.sha256((site / name).read_bytes()).hexdigest()[:10] != v:
+            bad += 1
+            print(f"ESKİ ADRES: {name}?v={v}. scripts/build_site.py'yi çalıştır.")
     print(f"{len(cases) - bad}/{len(cases)} durum aynı")
     sys.exit(1 if bad else 0)
 
