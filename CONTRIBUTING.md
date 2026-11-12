@@ -35,17 +35,17 @@ Güç değerini sıklık belirler. Yazarlarda on bin kelimede 0,1'den az geçen 
 
 Açıklamaları dil bilgisi terimi kullanmadan yaz. Sayfayı öğrenciler de, esnaf da okuyor: "yüklem", "ulaç", "edilgen" yerine ne demek istediğini gündelik sözle anlat ve bir örnek ver.
 
-Kılavuzda yazan bir yazım kuralı öneriyorsan [TDK Yazım Kılavuzu](https://yazim.tdk.gov.tr/index.html) ya da [Güncel Türkçe Sözlük](https://sozluk.gov.tr/) maddesini göster. Kılavuzda karşılığı olmayan şey `references/yazim-ve-noktalama.md` dosyasına "tercih" olarak girer, "yazım hatası" diye bildirilmez.
+Kılavuzda yazan bir yazım kuralı öneriyorsan [TDK Yazım Kılavuzu](https://yazim.tdk.gov.tr/index.html) ya da [Güncel Türkçe Sözlük](https://sozluk.gov.tr/) maddesini göster. Kılavuzda karşılığı olmayan şey `references/tdk-ve-noktalama.md` dosyasına `[Üslup]` etiketiyle girer, "yazım hatası" diye bildirilmez.
 
 ## Skill metnini değiştirirken
 
-`SKILL.md` ve `references/` kendi kurallarına uyar: kalın etiketli madde yok, uzun çizgi yok, İngilizce terim parantezi yok. Model, okuduğu talimatın üslubunu yazdığı metne taşır. Talimatı yapay zekâ Türkçesiyle yazarsak çıktı da öyle olur.
+`SKILL.md` ve `references/` şu an 1.3.3'teki metindir. 2.0'da bu metni düz yazıyla, kalın etiketli madde ve İngilizce terim parantezi olmadan baştan yazdık. Körlemesine sınamada okur eski metnin onarımlarını seçti, 2.1.0'da ona döndük (`docs/olcumler.md`, "Skill metninin sınanması"). Yani metnin biçimini güzelleştirmek tek başına bir gerekçe değil. Skill metnine dokunan her değişikliği, küçük görünse de, aşağıdaki gibi körlemesine sına.
 
 Bir kuralı değiştiren ya da yeni bir sayı ekleyen değişiklikte dayanağını göster: hangi metinler, nasıl ölçtün. Sayıyı tutturan kural her zaman metni iyileştirmez. Akademik metinde ritmi artıran bir kuralı denedik, sayılar düzeldi ama okur metni daha yapay buldu. Mümkünse değişikliği körlemesine bir okurla da sına: aynı metnin eski ve yeni kuralla onarılmış hâllerini etiketsiz ver, hangisini seçtiğine bak.
 
 ## Bilgi eklememe ilkesi
 
-`evals/ornekler.json` ya da `references/metin-turleri.md` dosyasına örnek eklerken onarılmış metinde kaynakta olmayan sayı, tarih, ad ya da anı olmasın. Miktar ve kesinlik de bilgidir: Kaynak "birçok" diyorsa "yüzlerce", "artırabilir" diyorsa "artırır" yazma. `python3 scripts/denetle.py sonra.md --kaynak once.md` bunu senin yerine denetler.
+`evals/ornekler.json` ya da `references/register-ve-ornekler.md` dosyasına örnek eklerken onarılmış metinde kaynakta olmayan sayı, tarih, ad ya da anı olmasın. Miktar ve kesinlik de bilgidir: Kaynak "birçok" diyorsa "yüzlerce", "artırabilir" diyorsa "artırır" yazma. `python3 scripts/denetle.py sonra.md --kaynak once.md` bunu senin yerine denetler.
 
 Telifli metinlerden alıntı koyma. Depoda yalnızca sayılar ve kendi kurduğumuz örnekler var.
 

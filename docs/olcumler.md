@@ -162,6 +162,8 @@ Sayıyı düzelten talimat metni bozdu. İkinci taslakta onarıcı ritmi yazar d
 
 Sınırlar: sekiz metin, tek onarıcı model, tek okur model, her taslak için tek çalıştırma. Öyküde son turda okur cevap vermedi. Sonuç yön gösterir. Ama yön üç turda da aynıydı: 2.0'ın skill metni onarımda 1.3.3'ü geçemedi. Denetçi, ölçüm ve kalıp sözlüğü bu sınamadan bağımsızdır.
 
+Bu yüzden 2.1.0'da skill metni ve referans dosyaları 1.3.3'teki hâline döndü. Eklenen tek şey, denetçinin nasıl çalıştırılacağını anlatan kısa bir bölüm. O bölüm ayrıca sınanmadı. İki tutarsızlık bilerek duruyor. Skill metni "âdeta", "söz konusu" ve "bu bağlamda"yı hâlâ yasaklı sayıyor, oysa bu belgedeki ölçüm üçünü de aklıyor. Skill'in okuduğu `references/derlem-olcumleri.md` dosyası da 1.3.3'teki sayıları taşıyor: kamu belgelerinde ritmi düşük gösteren eski ölçüm orada, düzeltilmişi burada. Bunları metne taşımak ayrı bir değişiklik ve ayrı bir sınama ister.
+
 ### Sınırlar
 
 Model tarafı hâlâ küçük: 83.000 kelime, 200 metin. Bir kalıbın on bin kelimede 0,4 görünmesi üç dört isabet demektir. Sıklık sayıları yön gösterir.

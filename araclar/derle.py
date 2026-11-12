@@ -21,7 +21,8 @@ sys.path.insert(0, str(KOK / "scripts"))
 import denetle as d  # noqa: E402
 import kurallar as K  # noqa: E402
 
-REFERANSLAR = ["cumle-kurulusu.md", "kaliplar.md", "yazim-ve-noktalama.md", "metin-turleri.md", "olculer.md"]
+REFERANSLAR = ["sentaks-ve-morfoloji.md", "ai-turkcesi-sozlugu.md", "tdk-ve-noktalama.md", "derlem-olcumleri.md",
+               "register-ve-ornekler.md"]
 BETIKLER = ["denetle.py", "kurallar.py"]
 
 # Python'da \w ve \b Unicode harfleri tanır, JavaScript'te tanımaz. İkisi açık yazılır.
@@ -125,7 +126,7 @@ def main():
     html = sayfa.read_text(encoding="utf-8")
 
     def damga(m):
-        ozet = hashlib.sha256((KOK / "docs" / "site" / m.group(1)).read_bytes()).hexdigest()[:10]
+        ozet = hashlib.sha256((KOK / "docs" / "site" / m.group(1)).read_bytes().replace(b"\r\n", b"\n")).hexdigest()[:10]
         return f'src="site/{m.group(1)}?v={ozet}"'
 
     yeni = re.sub(r'src="site/([\w.-]+\.js)(?:\?v=[0-9a-f]+)?"', damga, html)

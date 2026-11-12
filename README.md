@@ -48,7 +48,7 @@ Kitaplarda ne anlatıldığına bakmadık. Bize bir yazarın cümlesini kaç kel
 
 Resmî dil bile böyle. Bir belediye raporunun cümleleri uzundur ama boyları değişir. Modelin yazdığı raporda hepsi aynı boydadır.
 
-Yasakladığımız sözlerin bir kısmı suçsuzmuş. "Âdeta", "söz konusu", "kuşkusuz", "bir şekilde" gibi sözleri uzun süre yapay zekâ izi saydık. Sayınca yazarların bunları modellerden sık kullandığı çıktı, listeden çıkardık. "Ama"dan önceki virgül ve "ki" bağlacı için de aynısı oldu. Gerçekten ayıran sözler başkaymış: "değer katar", "zemin hazırlar", "tam da bu noktada", "bir diğer önemli nokta", "sadece X değil, aynı zamanda Y". Bunlar yazarlarda on bin kelimede bir bile geçmiyor.
+Yasakladığımız sözlerin bir kısmı suçsuzmuş. "Âdeta", "söz konusu", "kuşkusuz", "bir şekilde" gibi sözleri uzun süre yapay zekâ izi saydık. Sayınca yazarların bunları modellerden sık kullandığı çıktı, denetçinin listesinden çıkardık. "Ama"dan önceki virgül ve "ki" bağlacı için de aynısı oldu. Gerçekten ayıran sözler başkaymış: "değer katar", "zemin hazırlar", "tam da bu noktada", "bir diğer önemli nokta", "sadece X değil, aynı zamanda Y". Bunlar yazarlarda on bin kelimede bir bile geçmiyor.
 
 Model cümleyi bir geçiş sözüyle açıyor. Akademik metinde her beş cümlesinden biri "Ayrıca", "Bu doğrultuda", "Sonuç olarak", "Üçüncü olarak" diye başlıyor. Yazarlarda on dört cümleden biri. Yazarlar cümleyi çoğunlukla "Ve", "Ama", "Çünkü" ile ya da hiçbir şeyle açıyor.
 
@@ -64,7 +64,7 @@ Bunu ölçümden ayrı sınıyoruz, çünkü sayıyı düzelten kural metni her 
 
 1.x sürümlerinde skill'le yazılan metin 8 isteğin 8'inde, onarılan metin 8 metnin 7'sinde skill'siz olanın önüne geçti. Son sınamada okur, 1.3.3 ile onarılmış metni kaynağına karşı 16 karşılaştırmanın 16'sında seçti.
 
-2.0'ın yeniden yazılan skill metni ise aynı sınamada 1.3.3'ü geçemedi: okur 14 karşılaştırmanın 10'unda eski sürümün onarımını seçti. Bir ara taslak ritmi yazar düzeyine çıkarıp skoru yarıya indirmişti, okur onu daha da az beğendi. Ayrıntısı [ölçüm belgesinde](docs/olcumler.md#skill-metninin-sınanması). Deneyler küçük, okur da bir model. Sırada insan okurlarla yapacağımız bir deney var.
+2.0'ın yeniden yazılan skill metni ise aynı sınamada 1.3.3'ü geçemedi: okur 14 karşılaştırmanın 10'unda eski sürümün onarımını seçti. Bir ara taslak ritmi yazar düzeyine çıkarıp skoru yarıya indirmişti, okur onu daha da az beğendi. Ayrıntısı [ölçüm belgesinde](docs/olcumler.md#skill-metninin-sınanması). Bu yüzden 2.1.0'da skill metni olarak 1.3.3'e döndük. Denetçi, ölçümler ve deponun düzeni 2.0'dan kaldı. Deneyler küçük, okur da bir model. Sırada insan okurlarla yapacağımız bir deney var.
 
 Her deney işe yaramadı. Akademik metinde ritmi artıran bir kural denedik. Sayılar iyileşti ama okur metni daha yapay buldu, kuralı geri aldık. Gemini'nin fazla devrik cümle kurmasını iki farklı talimatla düzeltmeye çalıştık, ikisi de tutmadı. Bunların hepsi ölçüm dosyasında duruyor.
 
@@ -117,13 +117,13 @@ Kurduktan sonra ne istediğini söylemen yeterli:
 - "Önbellek geçersizleştirme konusunu teknik bir dille, doğal Türkçeyle yaz."
 - "Bu metne dokunma, yalnızca yapay duran yerleri ve yazım hatalarını göster."
 
-Skill metnin türüne göre davranır. Akademik makaledeki "-mektedir"e dokunmaz, blog yazısında onu ayıklar. Kurum içi yazışmanın resmî dilini gündelik dile çekmez. Romanda devrik cümleye izin verir, teknik belgede vermez. Yedi tür tanımlı: blog ve deneme, öykü ve roman, şirket yazısı, ders kitabı ve popüler bilim, teknik belge, akademik yazı, kamu ve kurum içi yazışma.
+Skill metnin türüne göre davranır. Akademik makaledeki "-mektedir"e dokunmaz, blog yazısında onu ayıklar. Kurum içi yazışmanın resmî dilini gündelik dile çekmez. Romanda devrik cümleye izin verir, teknik belgede vermez. Altı tür tanımlı: blog ve deneme, teknik belge, şirket yazısı, akademik ve hukuki yazı, öykü ve roman, kamu ve kurum içi yazışma.
 
 Bir kuralı hiç esnetmez: Onarırken kaynakta olmayan sayı, isim, anı eklemez. "İnsan gibi görünmek" için uydurmaz.
 
 ## Denetçi
 
-Skill'in içinde küçük bir Python betiği var. Model taslağını yazdıktan sonra onu çalıştırır, kod çalıştıramadığı ortamda aynı denetimi elle yapar. Betiği kendin de kullanabilirsin:
+Skill'in içinde küçük bir Python betiği var. Model taslağını bitirince onu son kontrol olarak çalıştırır. Betiği kendin de kullanabilirsin:
 
 ```bash
 python3 scripts/denetle.py metin.md
@@ -141,11 +141,11 @@ Raporun başında 0-100 arası bir "yapay zekâ izi" skoru var, altında da nere
 ```text
 SKILL.md                      Ana talimat
 references/
-  cumle-kurulusu.md           Türkçe cümlenin düzeni, ulaçlar, koşutluk
-  kaliplar.md                 Modelin sevdiği sözler, sıklıklarıyla
-  yazim-ve-noktalama.md       Noktalama ve yazım kuralları
-  metin-turleri.md            Yedi tür ve önce/sonra örnekleri
-  olculer.md                  Türlere göre ölçülmüş değerler
+  sentaks-ve-morfoloji.md     Türkçe cümlenin düzeni, ulaçlar, koşutluk
+  ai-turkcesi-sozlugu.md      Modelin sevdiği sözler
+  tdk-ve-noktalama.md         Noktalama ve yazım kuralları
+  derlem-olcumleri.md         Kuralların dayandığı ölçümler (1.3.3'teki hâliyle)
+  register-ve-ornekler.md     Altı tür ve önce/sonra örnekleri
 scripts/
   denetle.py                  Denetçi
   kurallar.py                 Kurallar, açıklamaları, skor katsayıları
@@ -163,7 +163,7 @@ Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördü
 
 ## Sürümler
 
-Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 2.0.0. 1.x'ten gelenler için: dedektörün adı `detect_tr_ai.py` yerine `denetle.py`, `--register` yerine `--tur` oldu (eski tür adları da çalışıyor), referans dosyalarının adları değişti.
+Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 2.1.0. 1.x'ten gelenler için: dedektörün adı `detect_tr_ai.py` yerine `denetle.py`, `--register` yerine `--tur` oldu (eski tür adları da çalışıyor). Skill metni ve referans dosyaları 1.3.3'tekiyle aynı.
 
 ## Teşekkür ve lisans
 

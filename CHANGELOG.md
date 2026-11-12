@@ -2,6 +2,16 @@
 
 Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar: kuralları ya da kurulum adını değiştiren büyük adımda ilk sayı, yeni kural ya da ölçümde ortadaki sayı, düzeltmede sondaki sayı.
 
+## 2.1.0 (13 Kasım 2026)
+
+Skill metni 1.3.3'e döndü. 2.0'da baştan yazılan metin körlemesine onarım sınamasında eskisini geçememişti. Sınamadan geçen metni geri aldık, 2.0'ın getirdiği altyapı yerinde kaldı.
+
+- `SKILL.md` ve beş referans dosyası 1.3.3'teki hâliyle geri geldi: `sentaks-ve-morfoloji.md`, `ai-turkcesi-sozlugu.md`, `tdk-ve-noktalama.md`, `derlem-olcumleri.md`, `register-ve-ornekler.md`. 2.0'ın referans dosyaları (`cumle-kurulusu.md`, `kaliplar.md`, `yazim-ve-noktalama.md`, `metin-turleri.md`, `olculer.md`) skill'den çıktı, `v2.0.0` etiketinde duruyor.
+- `SKILL.md`'ye tek ekleme yapıldı: sonda denetçinin nasıl çalıştırılacağını anlatan kısa bir bölüm. Denetçi son kontrol olarak kullanılıyor, skor ve ritim sayısı hedef yapılmıyor. Bu bölüm ayrıca sınanmadı.
+- Denetçi (`scripts/denetle.py`, `scripts/kurallar.py`), web sayfası, ölçüm araçları, `docs/olcumler.md` ve derleme düzeni 2.0.0'daki gibi.
+- Bilinen tutarsızlık: Skill metni "âdeta", "söz konusu" ve "bu bağlamda"yı yasaklı sayıyor, denetçi ölçüme dayanarak bunlar için uyarmıyor. `references/derlem-olcumleri.md` 1.3.3'teki sayıları taşıyor, güncel ölçüm `docs/olcumler.md` dosyasında.
+- Testlerde skill metni için "kalın etiketli madde yok" denetimi kaldırıldı, uzun çizgi denetimi duruyor. Web sayfasındaki "Ölçümler" bağlantısı `docs/olcumler.md` dosyasına gidiyor (2.0.0'da silinen bir dosyayı gösteriyordu).
+
 ## 2.0.0 (12 Kasım 2026)
 
 Skill, dedektör ve depo düzeni baştan kuruldu. Kurallar yeniden ölçüldü, ölçümün göstermediği kurallar çıkarıldı.

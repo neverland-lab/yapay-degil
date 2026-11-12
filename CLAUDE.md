@@ -2,7 +2,7 @@
 
 Bu depoda Türkçe metni doğal yazan ya da yapay zekâ izlerini temizleyen `yapay-degil` skill'i var.
 
-- Skill'in kendisi `SKILL.md`, gerektiğinde okuduğu dosyalar `references/` altında.
+- Skill'in kendisi `SKILL.md`, gerektiğinde okuduğu dosyalar `references/` altında. İkisi de 1.3.3'teki metindir, körlemesine sınamadan geçirmeden değiştirme.
 - Denetçi: `python3 scripts/denetle.py <dosya> [--tur ...] [--kaynak ...]`. Kuralları `scripts/kurallar.py` dosyasında.
 - Bir şey değiştirdikten sonra `python3 araclar/derle.py`, ardından `python3 araclar/sina.py`.
 - `dist/`, `skills/yapay-degil/` ve `docs/site/kurallar.js` üretilir, elle düzenlenmez.

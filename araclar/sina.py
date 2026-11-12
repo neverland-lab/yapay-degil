@@ -173,12 +173,12 @@ class Paket(unittest.TestCase):
         self.assertEqual(eklenti["version"], surum)
         self.assertIn(f"## {surum}", (KOK / "CHANGELOG.md").read_text(encoding="utf-8"))
 
-    def test_skill_kendi_yazim_kurallarina_uyar(self):
-        for p in [KOK / "SKILL.md", *(KOK / "references" / r for r in derle.REFERANSLAR if r != "yazim-ve-noktalama.md")]:
+    def test_skill_metninde_uzun_cizgi_yok(self):
+        # Kalın etiketli madde burada sınanmaz: körlemesine sınamayı geçen 1.3.3 metni o biçimde yazılı (docs/olcumler.md).
+        for p in [KOK / "SKILL.md", *(KOK / "references" / r for r in derle.REFERANSLAR)]:
             s = p.read_text(encoding="utf-8")
             self.assertNotIn("—", s, f"{p.name}: uzun çizgi")
             self.assertNotIn("–", s, f"{p.name}: orta çizgi")
-            self.assertIsNone(re.search(r"(?m)^\s*[-*]\s+\*\*[^*\n]+:\*\*", s), f"{p.name}: kalın etiketli madde")
 
     def test_kopyalar_kaynakla_ayni(self):
         paket = KOK / "skills" / "yapay-degil"
@@ -200,7 +200,7 @@ class Paket(unittest.TestCase):
         betikler = re.findall(r'src="site/([\w.-]+\.js)\?v=([0-9a-f]+)"', html)
         self.assertEqual(len(betikler), 3)
         for ad, v in betikler:
-            self.assertEqual(hashlib.sha256((site / ad).read_bytes()).hexdigest()[:10], v, f"{ad} adresi eski")
+            self.assertEqual(hashlib.sha256((site / ad).read_bytes().replace(b"\r\n", b"\n")).hexdigest()[:10], v, f"{ad} adresi eski")
 
 
 NODE = r"""
@@ -221,7 +221,7 @@ class TarayiciSurumu(unittest.TestCase):
         metinler = [o["yapay"] for o in ORNEKLER["onarim"]] + [o["dogal"] for o in ORNEKLER["onarim"]]
         metinler += [o["metin"] for o in ORNEKLER["dogal"] + ORNEKLER["skor"]]
         metinler += [x for k in K.KURALLAR for x in k.get("ornek", [])]
-        metinler.append((KOK / "references" / "metin-turleri.md").read_text(encoding="utf-8"))
+        metinler.append((KOK / "references" / "register-ve-ornekler.md").read_text(encoding="utf-8"))
         durumlar = [{"metin": m, "tur": t} for m in metinler for t in [None, *K.TURLER]]
         site = KOK / "docs" / "site"
         p = subprocess.run(["node", "-e", NODE, str(site / "kurallar.js"), str(site / "denetci.js")],
