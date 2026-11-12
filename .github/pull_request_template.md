@@ -8,6 +8,6 @@
 
 ## Kontrol
 
-- [ ] `python3 scripts/build_dist.py` çalıştırdım, `dist/` ve `skills/` değişiklikleri PR'da
-- [ ] `python3 scripts/run_tests.py` testlerin hepsi geçiyor
-- [ ] Örneklerde kaynakta olmayan bilgi yok, telifli metinden uzun alıntı yok
+- [ ] `python3 araclar/derle.py` çalıştırdım, üretilen dosyalar (`dist/`, `skills/`, `docs/site/kurallar.js`) PR'da
+- [ ] `python3 araclar/sina.py` testlerin hepsi geçiyor
+- [ ] Örneklerde kaynakta olmayan bilgi yok, telifli metinden alıntı yok

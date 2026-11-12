@@ -1,50 +1,54 @@
 # Katkı rehberi
 
-İki yolla katkı verebilirsin. Hata ya da öneriyi [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden, "Hata bildirimi" ya da "İstek ya da öneri" şablonuyla yazabilirsin. Değişikliği kendin yapmak istersen pull request açabilirsin (4. bölüm).
+İki yolla katkı verebilirsin. Hata ya da öneriyi [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden, "Hata bildirimi" ya da "İstek ya da öneri" şablonuyla yazabilirsin. Değişikliği kendin yapmak istersen pull request açabilirsin.
 
-Bu projede "bence bu kelime güzel durmuyor" türünden bir yargı yetmiyor. Bir kalıbı eklemek için onun dil modellerinin Türkçesinde insan yazısından belirgin biçimde sık geçtiğini, İngilizce bir cümle yapısını kopyaladığını ya da bir TDK kuralına aykırı olduğunu gösterebilmek gerekiyor.
+Bu projede "bence bu kelime güzel durmuyor" türünden bir yargı yetmiyor. Bunu kendi hatamızdan öğrendik: "âdeta", "söz konusu", "kuşkusuz" gibi sözleri uzun süre yapay zekâ izi saydık, sayınca yazarların bunları modellerden sık kullandığı çıktı. Bir kalıbı eklemek için onun dil modellerinin Türkçesinde yazarlarınkinden belirgin biçimde sık geçtiğini ya da bir yazım kuralına aykırı olduğunu gösterebilmek gerekiyor.
 
-## 1. Yeni bir kalıp önerirken
+## Depo nasıl kurulu?
 
-Issue açarken şunları yazarsan iş kolaylaşır:
+Elle yazılan dosyalar şunlar:
 
-- Kalıbın kendisi, örneğin *"potansiyelini ortaya çıkarmak"*.
-- Varsa İngilizce kaynağı, örneğin *"unlock the potential"*.
-- Ne kadar ağır olduğu. Sözlükte üç katman var: Tier-1 tek görülmede bile yapay duran kalıplar, sentaks katmanı İngilizce cümle iskeletinin Türkçeye taşınması, Tier-2 ise ancak sık geçince yapay duran bağlaçlar ve TDK yazım hataları.
-- Gerçek bir model çıktısından bir örnek ve aynı cümlenin bilgi kaybı olmadan onarılmış hâli.
-- Kuralın uygulanmaması gereken yerler. Örneğin `-mAktAdIr` akademik ve resmî yazıda korunur.
-- Kuralın türü: `[TDK]`, `[Dil bilgisi]` ya da `[Üslup]`. `[Dil bilgisi]` yalnızca uyulmayınca cümlenin bozulduğu ya da anlamın kaydığı durumlar için kullanılır, dayanağı `references/sentaks-ve-morfoloji.md` başındaki kaynaklarda. Bir kurala `[TDK]` demek için [TDK Yazım Kılavuzu](https://yazim.tdk.gov.tr/index.html) ya da [Güncel Türkçe Sözlük](https://sozluk.gov.tr/) maddesini bağlantısıyla göster. Kılavuzda karşılığı olmayan kural `[Üslup]` olarak girer, dedektör de onu "TDK hatası" diye raporlamaz.
-
-## 2. Dosyaları eşitleme
-
-`SKILL.md` ya da `references/*.md` dosyalarından birini değiştirdiysen commit'ten önce şunları çalıştır:
-
-```bash
-# dist/ altındaki tek dosyayı ve skills/ paketini günceller
-python3 scripts/build_dist.py
-
-# dedektörün çalıştığını gösterir
-python3 scripts/detect_tr_ai.py README.md
+```text
+SKILL.md                  skill'in kendisi
+references/               skill'in gerektiğinde okuduğu beş dosya
+scripts/denetle.py        denetçi (skill'in parçası, kurulumda iner)
+scripts/kurallar.py       denetçinin kuralları, açıklamaları ve skor katsayıları
+docs/                     web sayfası ve ölçüm belgesi (docs/olcumler.md)
+evals/ornekler.json       testlerin kullandığı önce ve sonra örnekleri
+araclar/                  derleme, test ve ölçüm betikleri
 ```
 
-## 3. Bilgi eklememe ilkesi
-
-`evals/evals.json` ya da `references/register-ve-ornekler.md` dosyasına örnek eklerken onarılmış metinde kaynakta olmayan sayı, tarih, özel isim ya da kişisel anekdot olmasın. Miktar ve kesinlik de bilgidir: Kaynak "birçok" diyorsa "yüzlerce", "artırabilir" diyorsa "artırır" yazma. Klişeyi silince somut bir bilgi gerekiyorsa ve kaynakta yoksa `[somut veri: ...]` yer tutucusunu kullan.
-
-## 4. Pull request açma
-
-Depoyu fork'la, değişikliğin için ayrı bir dal aç. Büyük bir değişiklikse önce bir issue açıp konuşalım, emeğin boşa gitmesin.
-
-Bir PR'da tek bir konu olsun. Bir kural, bir kalıp ya da bir düzeltme. Birbirinden bağımsız değişiklikleri ayrı PR'lara böl.
-
-Kuralı değiştiren ya da yeni bir sayı ekleyen PR'da dayanağını göster. Bu skill'deki eşikler gerçek metinlerden ölçüldü (`references/derlem-olcumleri.md`). Yeni bir eşik öneriyorsan hangi metinlerde, nasıl ölçtüğünü yaz. Telifli metinlerden uzun alıntı koyma, sayılar ve kendi kurduğun örnekler yeter.
-
-Göndermeden önce şunları çalıştır:
+`dist/`, `skills/yapay-degil/` ve `docs/site/kurallar.js` elle düzenlenmez, `araclar/derle.py` üretir. Bir şey değiştirdikten sonra:
 
 ```bash
-python3 scripts/build_dist.py
-python3 scripts/run_tests.py
+python3 araclar/derle.py
+python3 araclar/sina.py
 ```
 
-Testlerin hepsi geçmeli. `build_dist.py` `dist/` ve `skills/yapay-degil/` kopyalarını günceller, bu dosyaları da PR'a ekle. Örnek ve test eklerken 3. bölümdeki sadakat ilkesine uy.
+Testlerin hepsi geçmeli. Node.js kuruluysa testler web sayfasındaki denetçinin Python sürümüyle aynı sonucu verdiğini de sınar. Üretilen dosyaları da PR'a ekle.
 
+## Yeni bir kalıp önerirken
+
+Kalıplar `scripts/kurallar.py` dosyasında birer kayıt olarak durur. Bir kayıt şunları ister: kısa bir ad, sınıf, güç, düzenli ifade, okura gösterilecek başlık ve açıklama, bir yanlış ve bir doğru örnek. Testler her kuralın kendi yanlış örneğini yakaladığını, doğru örneğini yakalamadığını sınar.
+
+Güç değerini sıklık belirler. Yazarlarda on bin kelimede 0,1'den az geçen ve modellerde en az beş kat sık olan kalıp 3 alır. Modellerde üç kat ve üstü sık olan 2, yazarlarda da olağan olup ancak yığılınca iz bırakan 1 alır. Elinde bir derlem varsa `araclar/olc.py` ile `araclar/ozet.py` bu tabloyu çıkarır. Yoksa issue'da gerçek model çıktısından birkaç örnek ver, ölçümü biz yaparız.
+
+Açıklamaları dil bilgisi terimi kullanmadan yaz. Sayfayı öğrenciler de, esnaf da okuyor: "yüklem", "ulaç", "edilgen" yerine ne demek istediğini gündelik sözle anlat ve bir örnek ver.
+
+Kılavuzda yazan bir yazım kuralı öneriyorsan [TDK Yazım Kılavuzu](https://yazim.tdk.gov.tr/index.html) ya da [Güncel Türkçe Sözlük](https://sozluk.gov.tr/) maddesini göster. Kılavuzda karşılığı olmayan şey `references/yazim-ve-noktalama.md` dosyasına "tercih" olarak girer, "yazım hatası" diye bildirilmez.
+
+## Skill metnini değiştirirken
+
+`SKILL.md` ve `references/` kendi kurallarına uyar: kalın etiketli madde yok, uzun çizgi yok, İngilizce terim parantezi yok. Model, okuduğu talimatın üslubunu yazdığı metne taşır. Talimatı yapay zekâ Türkçesiyle yazarsak çıktı da öyle olur.
+
+Bir kuralı değiştiren ya da yeni bir sayı ekleyen değişiklikte dayanağını göster: hangi metinler, nasıl ölçtün. Sayıyı tutturan kural her zaman metni iyileştirmez. Akademik metinde ritmi artıran bir kuralı denedik, sayılar düzeldi ama okur metni daha yapay buldu. Mümkünse değişikliği körlemesine bir okurla da sına: aynı metnin eski ve yeni kuralla onarılmış hâllerini etiketsiz ver, hangisini seçtiğine bak.
+
+## Bilgi eklememe ilkesi
+
+`evals/ornekler.json` ya da `references/metin-turleri.md` dosyasına örnek eklerken onarılmış metinde kaynakta olmayan sayı, tarih, ad ya da anı olmasın. Miktar ve kesinlik de bilgidir: Kaynak "birçok" diyorsa "yüzlerce", "artırabilir" diyorsa "artırır" yazma. `python3 scripts/denetle.py sonra.md --kaynak once.md` bunu senin yerine denetler.
+
+Telifli metinlerden alıntı koyma. Depoda yalnızca sayılar ve kendi kurduğumuz örnekler var.
+
+## Pull request açarken
+
+Depoyu fork'la, değişikliğin için ayrı bir dal aç. Büyük bir değişiklikse önce bir issue açıp konuşalım, emeğin boşa gitmesin. Bir PR'da tek bir konu olsun: bir kural, bir kalıp ya da bir düzeltme.

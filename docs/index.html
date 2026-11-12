@@ -246,9 +246,9 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
         <h2>Yapay zekâ izi</h2>
         <div class="skor-ust"><span class="big" id="skor">-</span><span class="cap" id="skor-seviye">/ 100</span></div>
         <div class="skor-cubuk" aria-hidden="true"><i id="skor-dolu"></i></div>
-        <div class="skor-olcek" aria-hidden="true"><span>0 Düşük</span><span>35 Orta</span><span>65 Yüksek</span><span>100</span></div>
+        <div class="skor-olcek" aria-hidden="true"><span>0 Düşük</span><span>50 Orta</span><span>80 Yüksek</span><span>100</span></div>
         <ul id="skor-neden"></ul>
-        <p class="sub">Bu sayı bir olasılık değil. Yazıda yapay zekâya benzeyen ne kadar iz olduğunu gösteriyor, her puanın nereden geldiği yukarıda yazıyor. İnsan yazısı da bazen orta çıkar. Tek başına “bunu yapay zekâ yazdı” demek için kullanma.</p>
+        <p class="sub">Bu sayı yazının yapay zekâ yazısına ne kadar benzediğini gösteriyor, nedenleri yukarıda yazıyor. Kimin yazdığını söylemez: denediğimiz deneme yazarlarının her dört beş yazısından biri de orta çıktı. Tek başına “bunu yapay zekâ yazdı” demek için kullanma.</p>
       </div>
       <div class="sheet tally" aria-live="polite">
         <span class="big" id="toplam">0</span><span class="cap" id="toplam-yazi">yer işaretlendi</span>
@@ -288,8 +288,8 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     </div>
     <div>
       <h2>Sayılar nereden geliyor?</h2>
-      <p>Ritim ve "-mektedir" sınırları doğrudan Türkçe yazılmış 145 metinden ölçüldü. Romanlar, denemeler, mektuplar, makaleler, teknik ve resmî belgeler var, toplam 2,7 milyon kelime. Aynı ölçümler beş dil modelinin yazdıklarına da uygulandı.</p>
-      <p>Metin türü seçince sınırlar o türe göre değişir. Akademik ve resmî yazıda "-mektedir" ve "bu bağlamda" olağandır, orada işaretlenmez.</p>
+      <p>Buradaki her sınır sayılarak bulundu. Doğrudan Türkçe yazılmış romanlar, denemeler, mektuplar, makaleler, teknik ve resmî belgeler ölçüldü, 1,1 milyon kelime. Aynı ölçümler altı dil modelinin yazdığı 200 metne de uygulandı. Hangi söz yazarlarda da sık geçiyorsa listeden çıkarıldı.</p>
+      <p>Metin türü seçince sınırlar o türe göre değişir. Akademik ve resmî yazıda "-mektedir" ve "sonuç olarak" olağandır, orada işaretlenmez.</p>
     </div>
     <div>
       <h2>Onarmak için</h2>
@@ -298,50 +298,37 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
       <p>Claude Code'da <code>/plugin install yapay-degil@yapay-degil</code> da olur. Diğer yollar <a href="https://github.com/neverland-lab/yapay-degil#kurulum">README'de</a>.</p>
     </div>
   </section>
-  <footer>MIT lisanslı. Kurallar depodaki <code>detect_tr_ai.py</code> ile aynı, bu sayfa onun tarayıcı sürümü. Yanlış bir işaret gördüysen <a href="https://github.com/neverland-lab/yapay-degil/issues/new/choose">bildir</a>.</footer>
+  <footer>MIT lisanslı. Kurallar depodaki <code>denetle.py</code> ile aynı, bu sayfa onun tarayıcı sürümü. Yanlış bir işaret gördüysen <a href="https://github.com/neverland-lab/yapay-degil/issues/new/choose">bildir</a>.</footer>
 </div>
 
-<script src="site/kurallar.js?v=5ab9d11c0e"></script>
-<script src="site/denetci.js?v=b82152659f"></script>
-<script src="site/aciklamalar.js?v=4e2ca31677"></script>
-<script src="site/onarim.js?v=0959b6e530"></script>
+<script src="site/kurallar.js?v=5c9474da64"></script>
+<script src="site/denetci.js?v=cffbb8ce80"></script>
+<script src="site/onarim.js?v=f0c35f4f9a"></script>
 <script>
 (function () {
   "use strict";
   const K = globalThis.YD_KURALLAR;
   const $ = (id) => document.getElementById(id);
   const metin = $("metin"), arka = $("arka"), tur = $("tur");
+  const KURAL = new Map(K.kurallar.map((k) => [k.id, k]));
 
   const ORNEK = {
-    kalip: { tur: "blog-deneme", metin: "Günümüzün hızla değişen iş dünyasında, uzaktan çalışma modeli sadece geçici bir trend değil, aynı zamanda kurumsal kültürün temel bir yapı taşı haline gelmiştir — ve bu durumun önemi yadsınamaz. Şirketler tarafından gerçekleştirilen araştırmalar göstermektedir ki, çalışanlara esneklik sağlamak verimlilik üzerinde kritik bir rol oynamaktadır. Bununla birlikte, iletişim kopukluklarını önlemek adına bütüncül bir yaklaşım benimsenmelidir. Sonuç olarak, 2026 yılında başarılı olmak isteyen kurumlar bu dönüşüme ayak uydurmak zorundadır." },
-    gemini: { tur: "blog-deneme", metin: "Modern insanın zamanla kurduğu ilişki, tarihte hiç olmadığı kadar hız ve yenilik ekseninde şekilleniyor. Her sabah yeni bir teknolojik sıçrayışa, değişen normlara ve eskimeye mahkûm tüketim nesnelerine uyanıyoruz. Bu baş döndürücü devinim içinde gelenek kavramı, çoğu zaman ilerlemenin önündeki köhne bir engel, geçmişin tozlu sayfalarına hapsolmuş bir pranga gibi algılanabiliyor. Oysa insanı bütünüyle bugünden ibaret saymak, nehrin yalnızca gözümüzün önünden geçen damlasını su zannedip kaynağını ve yatağını inkâr etmeye benzer. Geleneğin modern hayattaki yeri, geçmişe duyulan romantik bir özlemden ya da katı bir muhafazakârlıktan çok daha derin; varoluşsal bir çıpa ve anlam arayışıdır." },
-    onarim: { tur: "blog-deneme", metin: "Modern insanın zamanla ilişkisini hız ve yenilik belirliyor. Tarihte hiç bu kadar olmamıştı. Her sabah yeni bir teknolojik sıçrayışa, değişen normlara, eskimeye mahkûm eşyalara uyanıyoruz. Bu hızın içinde gelenek çoğu zaman ilerlemenin önünde duran eski bir engel gibi görülebiliyor, geçmişten kalma bir pranga gibi. Ama insanı yalnızca bugünden ibaret saymak, nehrin önümüzden akıp giden damlasını su sanıp kaynağını da yatağını da inkâr etmeye benzer. Geleneğin bugünkü hayattaki yeri daha derin. Geçmişe duyulan romantik bir özlem değil o, katı bir muhafazakârlık da değil: varoluşsal bir çıpa, bir anlam arayışı." },
+    kalip: { tur: "deneme", metin: "Günümüzün hızla değişen iş dünyasında, uzaktan çalışma modeli sadece geçici bir trend değil, aynı zamanda kurumsal kültürün temel bir yapı taşı haline gelmiştir — ve bu durumun önemi yadsınamaz. Şirketler tarafından gerçekleştirilen araştırmalar göstermektedir ki, çalışanlara esneklik sağlamak verimlilik üzerinde kritik bir rol oynamaktadır. Bununla birlikte, iletişim kopukluklarını önlemek adına bütüncül bir yaklaşım benimsenmelidir. Bir diğer önemli nokta ise ekip içi güvenin korunmasıdır. Bu nedenle yöneticilerin düzenli olarak geri bildirim vermesi büyük önem taşımaktadır. Ayrıca, dijital araçların etkin kullanımı sürecin başarısında belirleyici bir rol oynamaktadır. Sonuç olarak, 2026 yılında başarılı olmak isteyen kurumlar bu dönüşüme ayak uydurmak zorundadır. Unutmamak gerekir ki değişim, sadece bir zorunluluk değil, aynı zamanda bir fırsattır." },
+    gemini: { tur: "deneme", metin: "Modern insanın zamanla kurduğu ilişki, tarihte hiç olmadığı kadar hız ve yenilik ekseninde şekilleniyor. Her sabah yeni bir teknolojik sıçrayışa, değişen normlara ve eskimeye mahkûm tüketim nesnelerine uyanıyoruz. Bu baş döndürücü devinim içinde gelenek kavramı, çoğu zaman ilerlemenin önündeki köhne bir engel, geçmişin tozlu sayfalarına hapsolmuş bir pranga gibi algılanabiliyor. Oysa insanı bütünüyle bugünden ibaret saymak, nehrin yalnızca gözümüzün önünden geçen damlasını su zannedip kaynağını ve yatağını inkâr etmeye benzer. Geleneğin modern hayattaki yeri, geçmişe duyulan romantik bir özlemden ya da katı bir muhafazakârlıktan çok daha derin; varoluşsal bir çıpa ve anlam arayışıdır. Gelenek, yalnızca eskiyi korumak değil, aynı zamanda bugünü anlamlandırmaktır. Bu nedenle onu bir yük olarak değil, bir pusula olarak görmek gerekir. Sonuç olarak gelenek, modern insanın köklerini hatırlamasını sağlayan vazgeçilmez bir değerdir." },
+    onarim: { tur: "deneme", metin: "Modern insanın zamanla ilişkisini hız ve yenilik belirliyor. Tarihte hiç bu kadar olmamıştı. Her sabah yeni bir teknolojik sıçrayışa, değişen normlara, eskimeye mahkûm eşyalara uyanıyoruz. Bu hızın içinde gelenek çoğu zaman ilerlemenin önünde duran eski bir engel gibi görülebiliyor, geçmişten kalma bir pranga gibi. Ama insanı yalnızca bugünden ibaret saymak, nehrin önümüzden akıp giden damlasını su sanıp kaynağını da yatağını da inkâr etmeye benzer. Geleneğin bugünkü hayattaki yeri daha derin. Geçmişe duyulan romantik bir özlem değil o, katı bir muhafazakârlık da değil: varoluşsal bir çıpa, bir anlam arayışı. Eskiyi korumakla bitmiyor işi, bugünü anlamlandırmamıza da yarıyor. Onu yük gibi taşımak yerine pusula gibi kullanabiliriz. Köklerimizi hatırlatan da o." },
   };
 
   const GRUPLAR = {
-    kalip: { ad: "Hazır sözler", not: "Yapay zekânın çok kullandığı süslü sözler. Tek başına yanlış değiller. Ama çok olunca yazı makine yazmış gibi okunur." },
+    kalip: { ad: "Hazır sözler", not: "Yapay zekânın çok kullandığı sözler ve yazı düzenleri. Tek başına yanlış değiller. Ama çok olunca yazı makine yazmış gibi okunur." },
     cumle: { ad: "Cümle yapısı", not: "Kelimeler Türkçe ama cümle İngilizceden çevrilmiş gibi kurulmuş. Ya da cümlede küçük bir dil bilgisi hatası var." },
     yazim: { ad: "Yazım ve noktalama", not: "Türkçenin yazım kurallarına uymayan yerler: virgül, çizgi, saat, sayı ve kelime yazımı." },
   };
-  // Yazı türlerinin ekrandaki adları (dedektördeki teknik adların yerine).
-  const TUR_ADI = {
-    "blog-deneme": "Blog, deneme, sosyal medya",
-    "teknik": "Teknik belge, kullanım kılavuzu",
-    "kurumsal": "Şirket yazısı, tanıtım, e-posta",
-    "akademik-resmi": "Akademik, resmî, hukuki",
-    "edebi-anlati": "Öykü, roman",
-    "kamu-kurum": "Kamu ya da kurum içi yazışma",
-  };
-  function grupOf(rule) {
-    if (/^(Tier-1|Tier-2|P0)/.test(rule)) return "kalip";
-    if (/^(P1|P2 Terminoloji)/.test(rule)) return "cumle";
-    return "yazim";
-  }
-  function aciklamaOf(rule) {
-    return globalThis.YD_ACIKLAMA_BUL(rule)[0] || { baslik: rule, neden: "", ornek: null };
-  }
+  const SINIF_GRUBU = { kalip: "kalip", bicim: "kalip", artik: "kalip", cumle: "cumle", yazim: "yazim", noktalama: "yazim" };
+  const grupOf = (b) => SINIF_GRUBU[b.sinif] || "kalip";
+  const aciklamaOf = (b) => { const k = KURAL.get(b.id) || {}; return { baslik: k.baslik || b.id, neden: k.neden || "", ornek: k.ornek || null }; };
 
-  // Ölçek çizgileri: değer, insan ve model aralığı aynı ölçekte.
+  // Ölçek çizgileri: değer, insan ve model aralığı aynı ölçekte. Aralıklar docs/olcumler.md'den.
+  const INSAN_RITIM = [0.41, 0.48], MODEL_RITIM = [0.28, 0.39];
   const fmt = (x, n = 2) => (x === null || x === undefined) ? "–" : x.toFixed(n).replace(".", ",");
   function olcek(val, max, insan, model, hedefMax) {
     const W = 300, X = (v) => 4 + Math.min(Math.max(v, 0), max) / max * (W - 8);
@@ -365,77 +352,72 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     const W = 300, H = 54, gw = W / n, bw = Math.max(gw - 2, 1);
     let s = `<svg class="bars" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Cümle başına kelime sayısı: ${L.join(", ")}">`;
     const y = (v) => H - 2 - (v / mx) * (H - 6);
-    s += `<rect x="0" y="${y(22)}" width="${W}" height="${y(15) - y(22)}" fill="var(--band-model)"/>`;
     L.forEach((v, i) => { s += `<rect x="${i * gw + 1}" y="${y(v)}" width="${bw}" height="${H - 2 - y(v)}" fill="var(--pencil)"/>`; });
     s += `<line x1="0" x2="${W}" y1="${H - 1.5}" y2="${H - 1.5}" stroke="var(--line)"/></svg>`;
     return s;
   }
 
   function olculer(r) {
-    const rh = r.rhythm, out = [];
-    const turAdi = r.register ? TUR_ADI[r.register] : "Genel yazı";
-    out.push(`<div class="m"><div class="m-head"><span class="m-name">Cümlelerin uzunluğu</span><span class="m-val">${r.sentence_count} cümle</span></div>
-      ${cumleCubuklari(r.sentence_lengths)}
-      <div class="m-note">Her çubuk bir cümle. Çubuk ne kadar uzunsa cümle o kadar uzun. İyi bir yazıda kısa ve uzun cümleler karışık olur. Çubukların hepsi aynı boydaysa yazı tekdüze okunur, makine yazmış gibi durur. Gri şerit, yapay zekânın en çok kullandığı orta boy (15-22 kelime).</div></div>`);
+    const o = r.olcu, out = [];
+    const profil = r.tur ? K.turler[r.tur] : K.genelTur;
+    out.push(`<div class="m"><div class="m-head"><span class="m-name">Cümlelerin uzunluğu</span><span class="m-val">${o.cumle} cümle</span></div>
+      ${cumleCubuklari(o.boylar)}
+      <div class="m-note">Her çubuk bir cümle. Çubuk ne kadar uzunsa cümle o kadar uzun. İyi bir yazıda kısa ve uzun cümleler karışık olur. Çubukların hepsi aynı boydaysa yazı tekdüze okunur, makine yazmış gibi durur.</div></div>`);
 
-    const ritimVar = rh.window_cov_median !== null;
-    const bakilmaz = r.register && !K.rhythmWarnRegisters.includes(r.register);
+    const ritimVar = o.ritim !== null;
+    const duz = r.uyarilar.ritim;
     const ritimKarar = !ritimVar ? "Bunu ölçmek için en az beş cümle gerekiyor."
-      : rh.flat_rhythm_warning ? "Cümlelerin boyu birbirine çok benziyor. Bazılarını kısalt, bazılarını birleştir."
-      : bakilmaz ? "Bu yazı türünde cümleler zaten düzenli olur, buna bakılmıyor."
+      : duz ? "Cümlelerin boyu birbirine çok benziyor. Bazılarını kısalt, bazılarını birleştir."
       : "Cümlelerin boyu yeterince karışık.";
     out.push(`<div class="m"><div class="m-head"><span class="m-name">Cümleler ne kadar farklı uzunlukta?</span>
-      <span class="m-val">${ritimVar ? fmt(rh.window_cov_median) + chip(rh.flat_rhythm_warning, bakilmaz ? "bakılmaz" : "sorun yok") : ""}</span></div>
+      <span class="m-val">${ritimVar ? fmt(o.ritim) + chip(duz) : ""}</span></div>
       <div class="m-karar">${ritimKarar}</div>
-      ${ritimVar ? olcek(rh.window_cov_median, 0.8, [0.46, 0.49], [0.28, 0.41]) + `<div class="legend"><span><i style="background:var(--band-human)"></i>Türk yazarlar</span><span><i style="background:var(--band-model)"></i>yapay zekâ</span></div>` : ""}
-      <div class="m-note">Sayı büyüdükçe cümleler daha karışık demek. Hep 12-14 kelimelik cümleler kuran bir yazı 0,06 çıkar. 4 ile 25 kelime arasında gidip gelen bir yazı 0,62 çıkar. Türk yazarlarda bu sayı 0,46-0,49, yapay zekâda 0,28-0,41.</div></div>`);
+      ${ritimVar ? olcek(o.ritim, 0.8, INSAN_RITIM, MODEL_RITIM) + `<div class="legend"><span><i style="background:var(--band-human)"></i>Türk yazarlar</span><span><i style="background:var(--band-model)"></i>yapay zekâ</span></div>` : ""}
+      <div class="m-note">Sayı büyüdükçe cümleler daha karışık demek. Hep 12-14 kelimelik cümleler kuran bir yazı 0,06 çıkar. 4 ile 25 kelime arasında gidip gelen bir yazı 0,62 çıkar. Türk yazarlarda bu sayı ${fmt(INSAN_RITIM[0])}-${fmt(INSAN_RITIM[1])}, yapay zekâda ${fmt(MODEL_RITIM[0])}-${fmt(MODEL_RITIM[1])}.${o.en_duz.length ? " En düz yer: “" + esc(o.en_duz[0].baslangic) + "…” diye başlayan cümle ve ardından gelen dördü (" + o.en_duz[0].boylar.join(", ") + " kelime)." : ""}</div></div>`);
 
-    if (rh.band_15_22_ratio !== null) {
-      const yuzde = Math.round(rh.band_15_22_ratio * 100);
-      out.push(`<div class="m"><div class="m-head"><span class="m-name">Orta boy cümle çok mu?</span>
-        <span class="m-val">%${yuzde}${chip(rh.band_15_22_warning)}</span></div>
-        <div class="m-karar">${rh.band_15_22_warning ? "Cümlelerin çoğu aynı orta boyda. Bazılarını böl." : "Orta boy cümle sayısı normal."}</div>
-        ${olcek(rh.band_15_22_ratio, 0.6, [0.14, 0.25], [0.29, 0.49])}
-        <div class="legend"><span><i style="background:var(--band-human)"></i>Türk yazarlar</span><span><i style="background:var(--band-model)"></i>yapay zekâ</span></div>
-        <div class="m-note">Yapay zekâ cümlelerini en çok 15-22 kelime arasında kurar. Bu yazıdaki cümlelerin yüzde ${yuzde}'si bu boyda. Yazarlarda bu oran yüzde 14-25 civarı.</div></div>`);
+    if (o.gecis !== null) {
+      const y = Math.round(o.gecis * 100), cok = o.gecis > 0.15;
+      out.push(`<div class="m"><div class="m-head"><span class="m-name">Cümleler nasıl başlıyor?</span>
+        <span class="m-val">%${y}${chip(cok)}</span></div>
+        <div class="m-karar">${cok ? "Çok fazla cümle bir geçiş sözüyle başlıyor." : "Sorun yok."}</div>
+        <div class="m-note">Yapay zekâ cümleleri “Ancak”, “Ayrıca”, “Bu nedenle”, “Sonuç olarak”, “Birincisi” gibi sözlerle açmayı sever. Yazarlar çoğu cümleye doğrudan girer. Bu yazıdaki cümlelerin yüzde ${y}'i böyle bir sözle başlıyor.</div></div>`);
     }
 
-    const hi = r.mektedir_target_range[1];
+    const hi = r.mektedir_ust;
     out.push(`<div class="m"><div class="m-head"><span class="m-name">“-mektedir” ile biten kelimeler</span>
-      <span class="m-val">${fmt(r.mektedir_per_100_words, 1)}${chip(r.high_mektedir_warning)}</span></div>
-      <div class="m-karar">${r.high_mektedir_warning ? "Bu yazı türü için çok fazla." : "Sorun yok."}</div>
-      ${olcek(r.mektedir_per_100_words, Math.max(4, hi * 1.6), null, null, hi)}
-      <div class="m-note">“Yapılmaktadır”, “çalışmaktadır” gibi kelimeler. Resmî yazıda normal, başka yerde ağır durur. “Ekip çalışmaktadır” yerine “Ekip çalışıyor” yazabilirsin. Bu yazıda her yüz kelimede ${fmt(r.mektedir_per_100_words, 1)} tane var. Seçili yazı türünde (${esc(turAdi)}) en fazla ${fmt(hi, 1)} olmalı.</div></div>`);
+      <span class="m-val">${fmt(o.mektedir, 1)}${chip(r.uyarilar.mektedir)}</span></div>
+      <div class="m-karar">${r.uyarilar.mektedir ? "Bu yazı türü için çok fazla." : "Sorun yok."}</div>
+      ${olcek(o.mektedir, Math.max(4, hi * 1.6), null, null, hi)}
+      <div class="m-note">“Yapılmaktadır”, “çalışmaktadır” gibi kelimeler. Resmî yazıda normal, başka yerde ağır durur. “Ekip çalışmaktadır” yerine “Ekip çalışıyor” yazabilirsin. Bu yazıda her yüz kelimede ${fmt(o.mektedir, 1)} tane var. Seçili yazı türünde (${esc(profil.ad)}) en fazla ${fmt(hi, 1)} olmalı.</div></div>`);
 
-    const sinifAd = { "-mAktAdIr": "-mektedir", "-mIştIr": "-mıştır", "-DIr": "-dır" };
     out.push(`<div class="m"><div class="m-head"><span class="m-name">Art arda aynı sesle biten cümleler</span>
-      <span class="m-val">${r.repeated_ending_max_run}${chip(r.repeated_ending_warning)}</span></div>
-      <div class="m-note">“Toplantı yapılmıştır. Karar alınmıştır. Rapor hazırlanmıştır.” gibi art arda aynı sesle biten cümleler tekdüze okunur. ${r.repeated_ending_class ? `Bu yazıda en uzun dizi ${r.repeated_ending_max_run} cümle, hepsi “${sinifAd[r.repeated_ending_class]}” ile bitiyor. ` : ""}${r.repeated_ending_limit >= 99 ? "Kamu yazışmasında bu normaldir, işaretlenmez." : `${r.repeated_ending_limit} ve daha uzun diziler işaretlenir.`}</div></div>`);
+      <span class="m-val">${o.seri}${chip(r.uyarilar.seri)}</span></div>
+      <div class="m-note">“Toplantı yapılmıştır. Karar alınmıştır. Rapor hazırlanmıştır.” gibi art arda aynı sesle biten cümleler tekdüze okunur. ${o.seri_ek ? `Bu yazıda en uzun dizi ${o.seri} cümle, hepsi “${o.seri_ek}” ile bitiyor. ` : ""}${r.seri_siniri >= 99 ? "Kamu yazışmasında bu normaldir, işaretlenmez." : `${r.seri_siniri} ve daha uzun diziler işaretlenir.`}</div></div>`);
     return out.join("");
   }
 
   function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
   let son = null, secili = -1, zaman = 0;
-  function boya(text, findings) {
-    const sirali = findings.map((f, i) => ({ ...f, i })).sort((a, b) => a.position - b.position || b.match.length - a.match.length);
+  function boya(text, bulgular) {
+    const sirali = bulgular.map((f, i) => ({ ...f, i })).sort((a, b) => a.konum - b.konum || b.uzunluk - a.uzunluk);
     let html = "", pos = 0;
     for (const f of sirali) {
-      if (f.position < pos) continue;
-      html += esc(text.slice(pos, f.position));
-      html += `<mark class="g-${grupOf(f.rule)}${f.i === secili ? " on" : ""}">${esc(f.match)}</mark>`;
-      pos = f.position + f.match.length;
+      if (f.konum < pos) continue;
+      html += esc(text.slice(pos, f.konum));
+      html += `<mark class="g-${grupOf(f)}${f.i === secili ? " on" : ""}">${esc(text.slice(f.konum, f.konum + f.uzunluk))}</mark>`;
+      pos = f.konum + f.uzunluk;
     }
     html += esc(text.slice(pos)) + "\n ";
     arka.innerHTML = html;
   }
 
   function isaretler(r) {
-    if (!r.findings.length) return `<p class="empty">İşaretlenecek bir yer bulunamadı. Aşağıdaki cümle boylarına da bir bak.</p>`;
+    if (!r.bulgular.length) return `<p class="empty">İşaretlenecek bir yer bulunamadı. Aşağıdaki cümle boylarına da bir bak.</p>`;
     // Grup > kural > yakalanan yerler. Aynı kural birkaç kez yakalanınca açıklama bir kez yazılır.
     const gruplar = { kalip: new Map(), cumle: new Map(), yazim: new Map() };
-    r.findings.forEach((f, i) => {
-      const a = aciklamaOf(f.rule), g = gruplar[grupOf(f.rule)];
+    r.bulgular.forEach((f, i) => {
+      const a = aciklamaOf(f), g = gruplar[grupOf(f)];
       if (!g.has(a.baslik)) g.set(a.baslik, { a, yerler: [] });
       g.get(a.baslik).yerler.push({ f, i });
     });
@@ -445,14 +427,12 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
       const adet = [...kurallar.values()].reduce((s, x) => s + x.yerler.length, 0);
       h += `<div class="fgroup"><h3><span class="swatch g-${k}"></span>${GRUPLAR[k].ad} <span class="chip">${adet}</span></h3><p class="gnote">${GRUPLAR[k].not}</p>`;
       for (const { a, yerler } of kurallar.values()) {
-        yerler.sort((x, y) => x.f.position - y.f.position);
         h += `<div class="kural"><h4>${esc(a.baslik)}</h4>`;
         if (a.neden) h += `<p>${esc(a.neden)}</p>`;
         if (a.ornek) h += `<div class="ornek"><span class="once"><b>Böyle değil</b>${esc(a.ornek[0])}</span><span><b>Böyle</b>${esc(a.ornek[1])}</span></div>`;
         h += `<div class="yerler"><small>Senin yazında:</small>`;
         for (const { f, i } of yerler) {
-          const d = a.duzelt ? a.duzelt(f.match, f.rule) : null;
-          h += `<button type="button" class="f${i === secili ? " on" : ""}" data-i="${i}" title="Metinde göster">${esc(f.match.trim() || f.match)}${d ? ` <em>→ ${esc(d)}</em>` : ""}</button>`;
+          h += `<button type="button" class="f${i === secili ? " on" : ""}" data-i="${i}" title="Metinde göster">${esc(f.eslesme)}${f.oneri ? ` <em>→ ${esc(f.oneri)}</em>` : ""}</button>`;
         }
         h += `</div></div>`;
       }
@@ -461,23 +441,16 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
     return h;
   }
 
-  const SINYAL_AD = {
-    ritim: "Cümle boyları birbirine çok benziyor",
-    bant: "Orta boy cümle çok",
-    mektedir: "“-mektedir” çok",
-    seri: "Art arda aynı sesle biten cümleler",
-    kalip: "Yapay zekânın sık kullandığı kalıplar",
-  };
   function skorGoster(text, r) {
     const bos = !text.trim();
-    $("skor").textContent = bos || r.score === null ? "-" : r.score;
-    $("skor-seviye").textContent = bos ? "/ 100" : r.score === null ? "Yazı kısa" : `/ 100 · ${r.level}`;
-    $("skor-dolu").style.width = bos || r.score === null ? "0" : `${r.score}%`;
+    $("skor").textContent = bos || r.skor === null ? "-" : r.skor;
+    $("skor-seviye").textContent = bos ? "/ 100" : r.skor === null ? "Yazı kısa" : `/ 100 · ${r.seviye}`;
+    $("skor-dolu").style.width = bos || r.skor === null ? "0" : `${r.skor}%`;
     let h = "";
     if (bos) h = `<li><span>Yazını yapıştırınca burada bir puan ve puanın nedenleri çıkacak.</span></li>`;
-    else if (r.score === null) h = `<li><span>Puan vermek için en az beş cümle gerekiyor. Bu yazıda ${r.sentence_count} cümle var.</span></li>`;
-    else if (!r.reasons.length) h = `<li><span>Yapay zekâya benzeyen belirgin bir iz bulunmadı.</span></li>`;
-    else for (const x of r.reasons) h += `<li><em>+${x.points}</em><b>${esc(SINYAL_AD[x.signal] || x.signal)}</b><span>${esc(x.text)}</span></li>`;
+    else if (r.skor === null) h = `<li><span>Puan vermek için en az ${globalThis.YD.EN_AZ_CUMLE} cümle gerekiyor. Bu yazıda ${r.olcu.cumle} cümle var.</span></li>`;
+    else if (!r.gerekceler.length) h = `<li><span>Yapay zekâya benzeyen belirgin bir iz bulunmadı.</span></li>`;
+    else for (const x of r.gerekceler) h += `<li><span>${esc(x.metin)}</span></li>`;
     $("skor-neden").innerHTML = h;
   }
 
@@ -485,16 +458,16 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
 
   function calistir() {
     const text = metin.value;
-    const r = globalThis.YD.analyzeText(text, tur.value || null);
+    const r = globalThis.YD.denetle(text, tur.value || null);
     son = r;
-    if (secili >= r.findings.length) secili = -1;
-    boya(text, r.findings);
+    if (secili >= r.bulgular.length) secili = -1;
+    boya(text, r.bulgular);
     skorGoster(text, r);
-    $("toplam").textContent = r.total_flags;
+    $("toplam").textContent = r.bulgular.length;
     $("toplam-yazi").textContent = "yer işaretlendi";
-    const uyari = [r.rhythm.flat_rhythm_warning, r.rhythm.band_15_22_warning, r.high_mektedir_warning, r.repeated_ending_warning].filter(Boolean).length;
+    const uyari = Object.values(r.uyarilar).filter(Boolean).length;
     $("toplam-alt").textContent = text.trim() ? (uyari ? `Cümle boylarıyla ilgili ${uyari} not var, aşağıda.` : "Cümle boylarında sorun görünmüyor.") : "Soldaki kutuya yazını yapıştır ya da bir örnek dene.";
-    $("sayac").textContent = `${r.word_count} kelime, ${r.sentence_count} cümle`;
+    $("sayac").textContent = `${r.olcu.kelime} kelime, ${r.olcu.cumle} cümle`;
     $("olculer").innerHTML = text.trim() ? olculer(r) : `<p class="empty">Yazını yapıştırınca cümlelerin uzunluğu burada çizilir.</p>`;
     $("isaretler").innerHTML = text.trim() ? isaretler(r) : `<p class="empty">Burada renkli yerlerin listesi çıkacak. Her birinin ne demek olduğu ve nasıl düzeltileceği örnekle yazacak.</p>`;
     onarGuncelle(text, r);
@@ -505,7 +478,7 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
   let sonIstek = "";
   function onarGuncelle(text, r) {
     const bos = !text.trim();
-    sonIstek = bos ? "" : O.istek(text, r, (k) => globalThis.YD_ACIKLAMA_BUL(k)[0]);
+    sonIstek = bos ? "" : O.istek(text, r, (b) => aciklamaOf(b).baslik);
     $("istek").textContent = bos ? "Önce yazını yapıştır." : sonIstek;
     let uzun = false;
     document.querySelectorAll("a.git").forEach((a) => {
@@ -541,8 +514,8 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
   });
   function planla() { clearTimeout(zaman); zaman = setTimeout(calistir, 120); }
 
-  for (const [k, p] of Object.entries(K.registers)) {
-    const o = document.createElement("option"); o.value = k; o.textContent = TUR_ADI[k] || p.label; tur.appendChild(o);
+  for (const [k, p] of Object.entries(K.turler)) {
+    const o = document.createElement("option"); o.value = k; o.textContent = p.ad; tur.appendChild(o);
   }
 
   metin.addEventListener("input", () => { boyut(); secili = -1; planla(); });
@@ -555,11 +528,11 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
   $("isaretler").addEventListener("click", (e) => {
     const b = e.target.closest(".f"); if (!b || !son) return;
     secili = Number(b.dataset.i);
-    const f = son.findings[secili];
-    boya(metin.value, son.findings);
+    const f = son.bulgular[secili];
+    boya(metin.value, son.bulgular);
     document.querySelectorAll(".f.on").forEach((x) => x.classList.remove("on")); b.classList.add("on");
     metin.focus({ preventScroll: true });
-    metin.setSelectionRange(f.position, f.position + f.match.length);
+    metin.setSelectionRange(f.konum, f.konum + f.uzunluk);
     const m = arka.querySelector("mark.on");
     if (m) { const r = m.getBoundingClientRect(); if (r.top < 60 || r.bottom > innerHeight - 20) window.scrollBy({ top: r.top - innerHeight / 3, behavior: "smooth" }); }
   });
@@ -571,7 +544,7 @@ footer { color: var(--muted); font-size: .82rem; padding-block: 0 32px; }
   });
 
   boyut(); calistir();
-  if (document.fonts) document.fonts.ready.then(() => { boyut(); boya(metin.value, son.findings); });
+  if (document.fonts) document.fonts.ready.then(() => { boyut(); boya(metin.value, son.bulgular); });
 })();
 </script>
 </body>

@@ -1,4 +1,182 @@
-# Derlem Ölçümleri: İnsan Türkçesi ve Dil Modeli Türkçesi
+# Ölçümler: yazar Türkçesi ve dil modeli Türkçesi
+
+Skill'deki kuralların ve denetçideki skorun dayandığı ölçümlerin tamamı bu dosyada. İki bölümü var. İlki, 2.0 sürümü için Kasım 2026'da baştan yapılan ölçüm: bugünkü kurallar ve skor buna dayanır. İkincisi, 1.x sürümleri boyunca yapılan ilk ölçümler ve deneyler: devrik cümle, noktalama ayrıntıları, 2016-2019 ile 2026 makalelerinin karşılaştırması ve skill'in etkisini sınayan deneyler orada.
+
+Kitapların ve belgelerin metni telif yüzünden depoda yok. Burada yalnızca toplu sayılar var. Elinde bir derlem olan herkes aynı ölçümü `araclar/olc.py`, `araclar/ozet.py` ve `araclar/ayarla.py` ile yeniden yapabilir.
+
+## 2.0 ölçümü
+
+### Neden yeniden ölçtük?
+
+İlk ölçümlerde üç eksik vardı. Model tarafı küçüktü ve yalnızca iki türü kapsıyordu: beş modelden kırk metin, hepsi öykü ya da deneme. Akademik, teknik, kamu ve şirket yazısında modellerin nasıl yazdığını hiç ölçmemiştik, o türlerdeki kuralları yazarların ölçümünden çıkarımla koymuştuk. İkincisi, kalıp sözlüğü ölçülmemişti: "âdeta" ya da "söz konusu" gibi sözler listeye sezgiyle girmişti. Üçüncüsü, derlemi ölçen betikle denetçi cümleleri ayrı ayrı bölüyordu. Denetçi tek kelimelik cümleleri atıyor, kısaltmalarda ve sıra sayılarında cümleyi yanlış yerden kesiyordu.
+
+2.0'da cümle bölücü baştan yazıldı, derlem ve denetçi aynı kodu kullanıyor. Model derlemi beş katına çıktı ve yedi türe yayıldı. Her kural ve her ölçü iki tarafta ayrı ayrı sayıldı.
+
+### Derlem
+
+Yazar tarafı: 119 metin. Büyük kitaplardan eşit aralıklarla en çok kırk parça alındı, toplam 2.388 parça, 1,09 milyon kelime.
+
+| Tür | Metin | Kelime (örneklem) | İçinde ne var |
+| :--- | :--- | :--- | :--- |
+| Öykü, roman, mektup, günlük | 42 | 578.000 | 20. yüzyıl ve 2000 sonrası romanlar, öyküler, mektup ve günlükler |
+| Deneme, köşe yazısı | 12 | 136.000 | deneme kitapları, beş yazarın köşe yazıları |
+| Açıklayıcı | 5 | 89.000 | Türkçe yazılmış psikoloji kitapları |
+| Akademik | 27 | 172.000 | 8 akademik kitap, 2016-2019 arasında yayımlanmış 19 DergiPark makalesi |
+| Teknik | 19 | 37.000 | meslek modülleri, geliştirici blogları, kılavuzlar |
+| Kamu | 14 | 79.000 | faaliyet raporları, Sayıştay raporları, yönerge, mevzuat |
+
+2026'da yayımlanmış makaleleri yazar ölçüsüne katmadık, çünkü o metinlerde yapay zekâ desteği olup olmadığını bilmiyoruz.
+
+Model tarafı: altı modelden 200 metin, 83.000 kelime. Gemini 4 Argon, Gemini 3.8 Flash, Claude Haiku 5.5 ve Claude Sonnet 5.5 kırk sekizer istek yazdı: sekizi ilk ölçümdeki öykü ve deneme istekleri, kırkı bu ölçüm için eklenen köşe yazısı, teknik, akademik, kamu, şirket yazısı, açıklayıcı metin ve mektup istekleri. GPT-OSS 120B ile Claude Opus 5.5'ten yalnızca ilk ölçümdeki sekizer metin var. İsteklerde üslup yönlendirmesi yoktu, yalnızca konu ve yaklaşık uzunluk verildi. Claude modellerine skill'i kullanmamaları açıkça söylendi.
+
+Bütün metinler yaklaşık dört yüz kelimelik parçalara bölünüp parça parça ölçüldü. Sekiz cümleden kısa parçalar atıldı.
+
+### Türlere göre ölçüler
+
+Her hücrede önce yazarların, sonra modellerin değeri var. Ritim ve cümle boyu parça ortancalarının ortancası, ötekiler parça ortalamasıdır.
+
+| | Öykü, roman | Deneme, köşe | Açıklayıcı | Teknik | Akademik | Kamu |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Ritim | 0,48 / 0,40 | 0,48 / 0,33 | 0,41 / 0,33 | 0,46 / 0,33 | 0,46 / 0,27 | 0,46 / 0,27 |
+| Ortanca cümle (kelime) | 8 / 11 | 10 / 14 | 14 / 13 | 12 / 15 | 18,5 / 22 | 22 / 20 |
+| Altı kelime ve altı cümle | %37 / %26 | %29 / %11 | %14 / %8 | %17 / %7 | %11 / %2 | %4 / %2 |
+| 28 kelime ve üstü cümle | %7 / %2 | %11 / %3 | %10 / %2 | %11 / %8 | %25 / %20 | %38 / %24 |
+| Geçiş sözüyle başlayan cümle | %1 / %2 | %2 / %7 | %6 / %12 | %5 / %12 | %7 / %20 | %6 / %13 |
+| Soru (bin kelimede) | 8,1 / 3,1 | 8,2 / 1,4 | 2,3 / 1,4 | 3,1 / 0,6 | 0,8 / 0 | 0 / 0 |
+| Ünlem (bin kelimede) | 6,1 / 0,1 | 6,1 / 0,3 | 0,3 / 0 | 0,6 / 0 | 0,4 / 0 | 0 / 0 |
+| Üç nokta (bin kelimede) | 5,7 / 0,5 | 10,3 / 0,5 | 1,9 / 0 | 2,1 / 0 | 0,4 / 0 | 0,1 / 0 |
+| İki nokta (bin kelimede) | 4,6 / 1,8 | 6,4 / 1,7 | 6,3 / 1,8 | 16,8 / 2,9 | 5,1 / 0,3 | 2,8 / 0,4 |
+| Noktalı virgül (bin kelimede, ortalama) | 4,3 / 6,9 | 5,5 / 5,9 | 6,0 / 3,5 | 0 / 3,9 | 5,1 / 2,6 | 6,4 / 1,5 |
+| Noktalı virgül (bin kelimede, ortanca) | 1,9 / 4,9 | 0 / 4,9 | 4,7 / 4,5 | 0 / 2,4 | 2,9 / 2,3 | 5,0 / 0 |
+| "… değil, …" (bin kelimede) | 0,7 / 1,2 | 1,1 / 3,8 | 0,9 / 3,4 | 0,1 / 0,6 | 0,4 / 1,8 | 0,1 / 1,0 |
+| "A, B ve C" (bin kelimede) | 3,7 / 2,7 | 4,8 / 8,2 | 6,8 / 9,5 | 3,5 / 7,9 | 6,5 / 14,8 | 12,5 / 16,1 |
+| `-mektedir` (yüz kelimede) | 0 / 0 | 0,1 / 0,1 | 0,3 / 0,1 | 0,3 / 0 | 0,8 / 1,5 | 1,1 / 1,7 |
+
+Ritim, art arda gelen her beş cümlede cümle boyunun değişim katsayısıdır, parça içindeki ortancası alınır. Yazarlarda parçaların dörtte biri öyküde 0,43'ün, akademik metinde 0,39'un, açıklayıcı metinde 0,34'ün altında kalıyor. Modellerde parçaların dörtte üçü öyküde 0,44'ün, denemede 0,37'nin, akademik metinde 0,30'un altında. Modellerin şirket yazısında ritmi 0,30. Bu tür için yazar derlemimiz yok.
+
+Model model ritim ortancaları: Gemini Flash 0,27, GPT-OSS 0,30, Gemini 4 0,31, Claude Haiku 0,34, Claude Sonnet 0,35, Claude Opus 0,38.
+
+İlk ölçümlerden farklı çıkan iki şey var. Kamu belgelerinde ritmi düşük sanıyorduk, çünkü eski bölücü uzun cümleleri yanlış kesiyordu. Yeni ölçümde kamu yazarlarının ritmi öteki türlerle aynı (0,46), modelin yazdığı kamu metni ise en düz olanı (0,27). İkincisi uzun cümle: "modeller cümleleri 15-22 kelimeye yığar" gözlemi denemede doğru ama akademik ve kamu metninde modeller de uzun cümle kuruyor. Orada eksik olan kısa cümle.
+
+### Kural kural: yazarlarda ve modellerde
+
+On bin kelimede isabet. Güç sütunu denetçideki değerdir: 3 yazarlarda neredeyse hiç yok, 2 modellerde belirgin sık, 1 yığılınca anlam taşır.
+
+| Kural | Yazar | Model | Güç |
+| :--- | :--- | :--- | :--- |
+| değer kat, fark yarat, ivme kazan | 0,04 | 0,97 | 3 |
+| hızla değişen dünya, dijital çağda | 0,01 | 0,60 | 3 |
+| sadece X değil, aynı zamanda Y | 0,08 | 1,33 | 3 |
+| tam da bu noktada | 0,03 | 0,73 | 3 |
+| zemin hazırla | 0,04 | 0,73 | 3 |
+| bir X değil, bir Y | 0,08 | 0,85 | 3 |
+| çığır açan, dönüm noktası | 0,06 | 0,73 | 3 |
+| göz ardı edilmemeli | 0,03 | 0,36 | 3 |
+| yadsınamaz | 0,05 | 0,36 | 3 |
+| geniş bir yelpaze | 0,02 | 0,24 | 3 |
+| derinlemesine | 0,11 | 1,21 | 2 |
+| listede biçim karışması | 0,11 | 1,09 | 2 |
+| büyük önem taşı | 0,16 | 1,09 | 2 |
+| bir diğer | 0,44 | 2,54 | 2 |
+| sonuç olarak, kısacası, özetle | 0,31 | 1,57 | 2 |
+| olanak tanı, imkân sağla | 0,37 | 1,69 | 2 |
+| köprü kur | 0,05 | 0,36 | 2 |
+| kapı arala | 0,05 | 0,36 | 2 |
+| her geçen gün | 0,12 | 0,60 | 2 |
+| bütüncül yaklaşım, sinerji | 0,14 | 0,48 | 2 |
+| yalnızca X değil, Y de | 0,91 | 4,59 | 1 |
+| anlamına gel | 0,70 | 2,18 | 1 |
+| -nın ötesinde | 0,60 | 1,69 | 1 |
+| unutmamak gerekir | 0,24 | 0,73 | 1 |
+| bu noktada | 0,17 | 0,48 | 1 |
+| önemli bir rol oyna | 0,27 | 0,60 | 1 |
+| bu yolculuk | 0,49 | 0,97 | 1 |
+| bununla birlikte, öte yandan | 0,96 | 1,45 | 1 |
+
+Denetçiden çıkardıklarımız, çünkü yazarlarda modellerdeki kadar ya da daha sık:
+
+| Söz | Yazar | Model |
+| :--- | :--- | :--- |
+| âdeta | 1,58 | 0,76 |
+| ... bir şekilde | 3,71 | 1,77 |
+| kuşkusuz, şüphesiz | 1,03 | 0,63 |
+| söz konusu, bu bağlamda | 0,85 | 0,38 |
+| -e sahip olmak | 1,71 | 1,89 |
+| rol oynamak (sıfatsız) | 0,27 | 0,25 |
+| eşsiz, benzersiz | 0,63 | 0,25 |
+| gelin ... bakalım | 0,16 | 0 |
+| cümle başında Günümüzde | 0,18 | 0 |
+| ışık tutmak | 0,14 | 0 |
+
+"Gelin ... bakalım" yazarlarda yalnızca teknik metinde geçiyor (on bin kelimede 3,5): Türkçe yazan geliştiriciler okurla böyle konuşuyor.
+
+Bazı kurallar ölçtüğümüz modellerde hiç tetiklenmedi: içi boş fiille "tarafından", "göstermektedir ki", "kusursuz bir şekilde", "potansiyelini ortaya çıkar", çeviri reklam sözleri, cümle ortasında uzun çizgi. Bunlar eski modellerin ve çeviri metinlerin bilinen izleri olduğu için denetçide kaldı, ama skorda güçlü kanıt sayılmıyorlar. Uzun çizgi yazar tarafında on bin kelimede 4,7 kez çıktı. Hemen hepsi kitaplardaki paragraf içi konuşma çizgisi.
+
+Yazım hatasını yazarlar modellerden çok yapıyor: on bin kelimede 5'e karşı 1. Bir kısmı eski kitapların o günkü yazımı, bir kısmı tarama hatası. Yazım hatası yapay zekâ izi değil, skora girmiyor.
+
+### Cümle açılışları
+
+Bin cümlede. Yazarlarda sıfıra yakın, modellerde belirgin: Sonuç olarak (4,2), Son olarak (4,2), Üçüncü olarak (3,3), Bu doğrultuda (3,0), Şimdi ise (2,7), Bunun yerine, Bu sayede, Bu yazıda, Bir diğer (2,4), Önemli olan, Dördüncü olarak, Bu bölümde (2,1), Buna karşın, Bu çerçevede (1,8), Öncelikle, İlk olarak, İkinci olarak, Aynı şekilde, Bugün ise (1,5).
+
+İki tarafta da geçen ama modellerde sık olanlar (yazar / model): Yine de 1,7 / 7,5, Bu durum 1,4 / 5,4, Bu nedenle 2,7 / 9,2, Böylece 3,9 / 10,1, Oysa 7,0 / 13,7, Ancak 12,5 / 23,2, Ayrıca 8,4 / 14,3.
+
+Ayırt etmeyenler: Örneğin, Özellikle, Dolayısıyla, Üstelik, Belki, Artık, İşte, Peki. Bunları geçiş sözü listesinden çıkardık.
+
+### Skor
+
+Denetçinin skoru üç metin ailesi için ayrı kurulmuş birer lojistik regresyondur: serbest (öykü, roman, deneme), bilgi (açıklayıcı, teknik, şirket yazısı) ve resmî (akademik, kamu). Girdiler: ritim, tekdüze pencere oranı, 15-22 kelimelik cümle oranı, kısa ve uzun cümle oranı, geçiş sözüyle başlayan cümle oranı, soru sıklığı, üçlü sıralama, "değil," karşıtlığı, "Bu" ile başlayan cümle oranı ve üç güç düzeyindeki kalıp yoğunluğu. Beklenen yönün tersine katsayı alan girdi atılır. Yazar ve model parçaları eşit ağırlıkla sayıldı, yani skor iki tarafın eşit sıklıkta geldiği varsayımıyla okunur.
+
+Başarıyı dosya bazında beş katlı çapraz sınamayla ölçtük: bir kitabın ya da bir model metninin parçaları hem öğrenme hem sınama tarafına düşmedi.
+
+| Aile | AUC | Yazar parçası 50+ | Yazar parçası 80+ | Model parçası 50+ | Model parçası 80+ |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Serbest | 0,92 | öykü %13, deneme %23 | öykü %3, deneme %10 | %84 | %66 |
+| Bilgi | 0,89 | teknik %3, açıklayıcı %22 | teknik %1, açıklayıcı %7 | %78 | %59 |
+| Resmî | 0,98 | akademik %6, kamu %8 | akademik %3, kamu %5 | %91 | %81 |
+
+En ağır girdiler: serbest ailede uzun cümle azlığı, ritim ve soru azlığı. Bilgi ailesinde tekdüze pencere oranı, geçiş sözleri ve güçlü kalıplar. Resmî ailede tekdüze pencere oranı, ritim, geçiş sözleri ve üçlü sıralama.
+
+Düzeyler: 0-49 düşük, 50-79 orta, 80 ve üstü yüksek. 1.3.3'teki elle seçilmiş ağırlıkların yerini bu katsayılar aldı.
+
+### Skill metninin sınanması
+
+Ölçüm neyin ayırt ettiğini söyler, bir talimatın metni iyileştirip iyileştirmediğini söylemez. Bunu ayrıca sınadık ve sonuç 2.0'ın skill metni lehine çıkmadı. Olduğu gibi yazıyoruz.
+
+Düzen: Derlemden sekiz model metni seçtik (iki deneme, şirket bülteni, popüler bilim, akademik, kamu, teknik, öykü; Gemini, Flash, GPT-OSS, Haiku, Sonnet ve Opus yazmıştı). Aynı onarıcıya (Claude Sonnet 5.5) bir kez 1.3.3 skill'iyle, bir kez 2.0 taslağıyla onarttık. Çıktıları denetçiyle ölçtük, sonra etiketsiz ve iki sırayla Gemini 4'e okuttuk: "Hangisi bu türde yazan iyi bir yazarın elinden çıkmış gibi?"
+
+| Tur | 2.0 taslağında ne vardı | Ritim (kaynak 0,34) | Skor (kaynak 68) | Okurun seçimi |
+| :--- | :--- | :--- | :--- | :--- |
+| 1.3.3 | | 0,33 | 73 | kaynağa karşı 16'da 16 |
+| 2.0, ikinci taslak | Denetçi döngüsü: düz yer kalmayana kadar böl, birleştir | 0,43 | 33 | 1.3.3'e karşı 16'da 4 |
+| 2.0, üçüncü taslak | Ritim için cümle sınırına dokunma, tutarlılığı koru | 0,34 | 63 | 1.3.3'e karşı 14'te 4 |
+
+İlk taslak ayrıca denendi: onarıcı uzun cümleleri bölüp metni kaynaktan daha düz yaptı (ritim 0,33), bu yüzden okutulmadı.
+
+Üç şey öğrendik.
+
+Sayıyı düzelten talimat metni bozdu. İkinci taslakta onarıcı ritmi yazar düzeyine çıkardı ve skoru yarıya indirdi, ama okur on altı karşılaştırmanın on ikisinde eski sürümü seçti. Gerekçeleri hep aynıydı: virgülle ve noktalı virgülle yapıştırılmış cümleler, yarıda kesilmiş yargılar ("Bu, ... içindir."), aynı metinde karışan kipler. Aynı şeyi 1.x'te akademik metinde görmüştük. Ritim bir tanı ölçüsü, onarımda hedef yapılınca onarıcı ölçüyü kandırıyor.
+
+1.3.3 sağlam bir taban. Okur kaynağa karşı onu on altıda on altı seçti. Sonnet o sürümle metne az dokunuyor ama dokunduğu yerler isabetli: çeviri kokan sözcükler, noktalı virgül yapıştırmaları, sözlükte olmayan deyimler.
+
+2.0'ın sadeleşen metni bu küçük düzeltmelerin bir kısmını kaçırdı. Üçüncü taslakta okurun 2.0 aleyhine saydıkları çoğunlukla kaynakta olup düzeltilmeyen şeylerdi: noktalı virgüller, "üretimde" (canlı ortamda), "katkı sunulmaktadır", "adına". Bunlardan noktalı virgül bizim ölçüm hatamızdı (ortalamaya bakıp "iz sayılmaz" demiştik, ortancada fark açık) ve düzeltildi. Ötekiler sınanmadı.
+
+Sınırlar: sekiz metin, tek onarıcı model, tek okur model, her taslak için tek çalıştırma. Öyküde son turda okur cevap vermedi. Sonuç yön gösterir. Ama yön üç turda da aynıydı: 2.0'ın skill metni onarımda 1.3.3'ü geçemedi. Denetçi, ölçüm ve kalıp sözlüğü bu sınamadan bağımsızdır.
+
+### Sınırlar
+
+Model tarafı hâlâ küçük: 83.000 kelime, 200 metin. Bir kalıbın on bin kelimede 0,4 görünmesi üç dört isabet demektir. Sıklık sayıları yön gösterir.
+
+Modeller tek bir sağlayıcı ailesinden değil ama bütün modeller de değil. ChatGPT'nin ticari modelleri derlemde yok. Uzun çizgi gibi o modellerle bilinen izleri bu yüzden ölçemedik.
+
+Model metinlerinin hepsi "şu konuda şunu yaz" isteğine verilmiş ilk cevaptır. Üzerinden insan eli geçmiş, kısaltılmış ya da başka bir dilden çevrilmiş metinlerde skorun nasıl davrandığını ölçmedik.
+
+Yazar tarafının bir kısmı taranmış kitaptır. Noktalaması düşmüş satırlar uzun cümle gibi sayılabilir. 120 kelimeyi aşan "cümleleri" ölçümden attık ama daha kısa artıklar kalmış olabilir, bu da uzun cümle oranını yazarlar lehine bir miktar şişirir.
+
+Skor bir parçanın model yazısına benzeyip benzemediğini söyler, kimin yazdığını söylemez. Deneme yazarlarının her dört beş parçasından biri "orta" çıkıyor. Bir öğrencinin ödevi ya da bir yazarın yazısı hakkında hüküm vermek için kullanılmamalı.
+
+## İlk ölçümler (1.x sürümleri)
+
+Bu bölüm 1.0-1.3 sürümleri boyunca yazıldı ve olduğu gibi duruyor. Buradaki ritim ve cümle boyu sayıları eski cümle bölücüyle ölçüldü, yukarıdakilerle birkaç yüzde puanı ayrışabilir. Kalıplarla ilgili yargıların yerini yukarıdaki tablo aldı. Devrik cümle, noktalama ayrıntıları, makale karşılaştırması ve deneyler için hâlâ tek kaynak burası. Metinde geçen "skill" 1.x sürümleridir, dosya adları o günkü adlardır.
 
 Skill'in ritim, noktalama ve devrik kurallarındaki sayılar bu dosyadan gelir. Ölçümleri Kasım 2026'da yaptık. Derlem birkaç turda büyüdü: Önce 24 roman ve deneme kitabıyla beş modelin metinleri ölçüldü, sonra akademik kitaplar, DergiPark makaleleri, kurum belgeleri, teknik metinler, çağdaş romanlar, psikoloji kitapları, köşe yazıları ve mektuplar eklendi. İnsan tarafı 145 metin, yaklaşık 2,7 milyon kelime. Kitapların metni telif yüzünden depoda yok, burada yalnızca toplu sayılar var.
 

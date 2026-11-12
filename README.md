@@ -1,6 +1,6 @@
 # yapay-degil
 
-Yapay zekâya Türkçe yazdırınca bir şey hep tuhaf durur. Kelimeler Türkçedir ama cümleler İngilizceden çevrilmiş gibidir. Her paragraf "Günümüzde" diye açılır, "Sonuç olarak" diye kapanır, aradaki cümlelerin hepsi aynı boydadır. Bu depo o tuhaflığı gideren bir skill. Claude, Cursor, Gemini CLI gibi yapay zekâ araçlarında çalışır, metni sıfırdan doğal Türkçeyle yazdırır ya da elindeki metni onarır.
+Yapay zekâya Türkçe yazdırınca bir şey hep tuhaf durur. Kelimeler Türkçedir ama cümleler İngilizceden çevrilmiş gibidir. Cümlelerin hepsi aynı boydadır, paragraf bir duyuruyla açılır, "Sonuç olarak" diye kapanır. Bu depo o tuhaflığı gideren bir skill. Claude, Cursor, Gemini CLI gibi yapay zekâ araçlarında çalışır, metni sıfırdan doğal Türkçeyle yazdırır ya da elindeki metni onarır.
 
 [![License: MIT](https://img.shields.io/badge/lisans-MIT-blue.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-v1.0-blue)](https://agentskills.io/specification)
@@ -8,7 +8,7 @@ Yapay zekâya Türkçe yazdırınca bir şey hep tuhaf durur. Kelimeler Türkçe
 
 Kurmadan denemek istersen [tarayıcıdaki denetçiye](https://neverland-lab.github.io/yapay-degil/) metin yapıştırabilirsin. Yapay duran yerleri işaretler, nedenini örnekle anlatır. Metin bilgisayarından çıkmaz.
 
-*Turkish AI-text humanizer for Claude and other agents. Its rules are calibrated on 2.7 million words of Turkish writing: novels, essays, columns, letters, papers, technical and official documents.*
+*Turkish AI-text humanizer for Claude and other agents. Its rules are measured, not guessed: 1.1 million words of Turkish writing compared side by side with 200 texts from six language models.*
 
 ## Önce bir örnek
 
@@ -29,44 +29,44 @@ Asıl fark, cümlelerin boyuna bakınca görünüyor:
   <img src="docs/img/cumle-boylari-light.svg" width="720" alt="Cümle başına kelime sayısı. Gemini Flash: 14, 14, 22, 20, 23 (ritim değişkenliği 0,21). Skill'le onarım: 8, 5, 12, 19, 20, 6, 18 (ritim değişkenliği 0,46).">
 </picture>
 
-Model her cümleyi aynı kalıba döküyor. Yazarlar kısa cümleyle uzun cümleyi yan yana kullanır, ölçtüğümüz Türk yazarlarda bu değişkenlik 0,46-0,49. Okur cümleleri saymaz ama bu tekdüzeliği hisseder.
-
-Bir itirafımız var: Bu örneği hazırlarken ilk onarımımız ritmi düzeltmedi, daha da düzleştirdi. Cümleler 15, 12, 18, 17, 15 kelimeye dizilmişti. Bunu depodaki küçük dedektör betiği yakaladı, biz değil. Cümleleri yeniden kurduk, sonuç yukarıda.
+Model her cümleyi aynı kalıba döküyor. Yazarlar kısa cümleyle uzun cümleyi yan yana kullanır. Okur cümleleri saymaz ama bu tekdüzeliği hisseder.
 
 ## Kuralları nereden bulduk?
 
-Skill'in ilk hâlinde "insanlar 18-22 kelimelik cümlelere sıkışmaz", "on cümlede bir kısa cümle kur" gibi kurallar vardı. Kulağa doğru geliyordu ama hiçbirinin dayanağı yoktu. Biz de saydık.
+Saydık. Doğrudan Türkçe yazılmış kitap, makale ve belge topladık: Sait Faik'ten Oğuz Atay'a eski romanlar ve öyküler, Hakan Günday'dan Ayfer Tunç'a 2000 sonrası romanlar, denemeler, köşe yazıları, mektuplar ve günlükler, psikoloji kitapları, DergiPark makaleleri, teknik belgeler, Sayıştay ve belediye raporları. Çeviri kitapları bilerek dışarıda bıraktık, çünkü çeviri Türkçesi tam da temizlemeye çalıştığımız izleri taşıyor. Sonra altı dil modeline (Gemini 4, Gemini Flash, GPT-OSS, Claude Haiku, Sonnet ve Opus) aynı türlerde iki yüz metin yazdırdık ve iki tarafı aynı ölçümlerden geçirdik.
 
-Doğrudan Türkçe yazılmış 145 metin topladık, toplam 2,7 milyon kelime. Sait Faik'ten Oğuz Atay'a eski romanlar ve öyküler, Hakan Günday'dan Ayfer Tunç'a, Burhan Sönmez'e 2000 sonrası romanlar ilk sırada. Yanlarında denemeler, köşe yazıları, Sabahattin Ali'nin mektupları, Atay'ın günlüğü, Cüceloğlu'ndan Geçtan'a psikoloji kitapları duruyor. Bilim ve devlet dili için de DergiPark'tan 44 makale, 19 teknik belge, Sayıştay raporları ve belediye faaliyet raporları aldık. Çeviri kitapları bilerek dışarıda bıraktık, çünkü çeviri Türkçesi tam da temizlemeye çalıştığımız izleri taşıyor. Aynı yazma isteklerini beş dil modeline de verdik (Gemini 4, Gemini Flash, GPT-OSS, Claude Sonnet, Claude Opus) ve modellerin yazdıklarını insan metinleriyle aynı ölçümlerden geçirdik.
-
-Kitaplarda ne anlatıldığına bakmadık. Bize bir yazarın cümlesini kaç kelimeyle kurduğu, ne sıklıkla soru sorduğu, yüklemi ne zaman sona bıraktığı lazımdı. Skill'in içinde hiçbir kitaptan tek bir cümle yok. Depoda yalnızca sayılar var, örnek cümleleri biz kurduk. Hepsi [`references/derlem-olcumleri.md`](references/derlem-olcumleri.md) dosyasında.
+Kitaplarda ne anlatıldığına bakmadık. Bize bir yazarın cümlesini kaç kelimeyle kurduğu, ne sıklıkla soru sorduğu, cümleyi hangi sözle açtığı lazımdı. Depoda hiçbir kitaptan tek bir cümle yok, yalnızca sayılar var. Örnek cümleleri biz kurduk. Sayıların tamamı [`docs/olcumler.md`](docs/olcumler.md) dosyasında.
 
 Çıkanların bir kısmı beklediğimiz gibi değildi.
 
-İnsanı modelden asıl ayıran ritim çıktı. Metni art arda beşer cümlelik parçalara bölüp her parçada cümle boylarının ne kadar değiştiğine baktık. Bu değişkenlik yazarlarda 0,46-0,49, modellerde 0,28-0,41. Üstelik modeller tek tip de değil. Gemini ve GPT cümleleri orta boyda topluyor. Claude ise yazarlardan bile kısa yazıyor ama onun cümleleri de hep aynı boyda. "Kısa cümle ekle" önerisi bu yüzden Claude'a hiç yaramıyordu.
+İnsanı modelden asıl ayıran ritim çıktı, hem de her türde. Art arda gelen beş cümlenin boyu ne kadar değişiyor diye baktık. Bu değişkenlik yazarlarda 0,41 ile 0,48 arasında, modellerde 0,27 ile 0,40.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/ritim-dark.svg">
-  <img src="docs/img/ritim-light.svg" width="720" alt="Ritim değişkenliği ortancaları. Türk yazarlar: roman ve öykü 0,47 (35 kitap), deneme, köşe yazısı ve mektup 0,46 (17 kitap). Modeller (8'er metin): Gemini 4 0,33, Gemini Flash 0,31, GPT-OSS 0,31, Claude Sonnet 0,36, Claude Opus 0,38.">
-</picture>
+| | Öykü, roman | Deneme | Açıklayıcı | Teknik | Akademik | Kamu |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Yazarlar | 0,48 | 0,48 | 0,41 | 0,46 | 0,46 | 0,46 |
+| Modeller | 0,40 | 0,33 | 0,33 | 0,33 | 0,27 | 0,27 |
 
-Yazdıklarımızın bir kısmı da insan yazısını bozuyormuş. Skill "ama"dan önceki virgülü İngilizce alışkanlığı sayıp siliyordu. Saydık: Türk yazarlar "ama"ların dörtte birinin önüne virgül koyuyor, modeller daha az. "Ki" bağlacını da şüpheli sayıyorduk, oysa yazarlar onu modellerden sık kullanıyor: demek ki, öyle ki, kaldı ki. İki kuralı da kaldırdık.
+Resmî dil bile böyle. Bir belediye raporunun cümleleri uzundur ama boyları değişir. Modelin yazdığı raporda hepsi aynı boydadır.
 
-Devrik cümleyi dönem değil yazar belirliyor. 2000 sonrası romanlarda oran %4 ile %37 arasında değişiyor. Aynı yazarın eski ve yeni kitabını karşılaştırınca da yön tutarsız çıkıyor: Pamuk'ta ve Toptaş'ta artıyor, Mungan'da azalıyor.
+Yasakladığımız sözlerin bir kısmı suçsuzmuş. "Âdeta", "söz konusu", "kuşkusuz", "bir şekilde" gibi sözleri uzun süre yapay zekâ izi saydık. Sayınca yazarların bunları modellerden sık kullandığı çıktı, listeden çıkardık. "Ama"dan önceki virgül ve "ki" bağlacı için de aynısı oldu. Gerçekten ayıran sözler başkaymış: "değer katar", "zemin hazırlar", "tam da bu noktada", "bir diğer önemli nokta", "sadece X değil, aynı zamanda Y". Bunlar yazarlarda on bin kelimede bir bile geçmiyor.
+
+Model cümleyi bir geçiş sözüyle açıyor. Akademik metinde her beş cümlesinden biri "Ayrıca", "Bu doğrultuda", "Sonuç olarak", "Üçüncü olarak" diye başlıyor. Yazarlarda on dört cümleden biri. Yazarlar cümleyi çoğunlukla "Ve", "Ama", "Çünkü" ile ya da hiçbir şeyle açıyor.
+
+Model soru sormuyor. Deneme ve öyküde yazarların bin kelimesinde sekiz soru işareti var, modelde bir ile üç arası. Ünlem ve üç nokta da öyle.
 
 Kurum dilinin uzun cümleleri ve art arda "-mıştır"la biten paragrafları yapay zekâdan önce de vardı. İBB'nin 2018-2020 faaliyet raporlarıyla 2023-2024 raporları aynı aralıkta çıktı. Skill bu yüzden kamu yazışmasında o dile dokunmuyor.
 
-Ders kitabı ve popüler bilim yazısının ritmi romandan daha düzenli. Bu kitaplarda cümle boyu değişkenliği 0,38-0,48 arasında. Skill orada edebî ritmi zorlamıyor.
+Devrik cümleyi dönem değil yazar belirliyor. 2000 sonrası romanlarda oran %4 ile %37 arasında değişiyor, aynı yazarın iki kitabında bile yön tutmuyor.
 
-Bir de yan bulgumuz var. 2026'da yayımlanan makaleler 2016-2019'dakilerden farklı yazılıyor: cümle sonunda "-dır" kullanımı yarıya inmiş, aynı ekle biten seriler uzamış. Yapay zekânın izi olabilir ama örneklem küçük, şimdilik gözlem olarak duruyor.
+## İşe yarıyor mu?
 
-## Model mi eğittiniz?
+Bunu ölçümden ayrı sınıyoruz, çünkü sayıyı düzelten kural metni her zaman iyileştirmiyor. Düzenimiz şu: Aynı metinleri iki ayrı talimatla onartıyoruz, etiketlerini silip karışık sırayla başka bir modele (Gemini) okutuyoruz. Okur hangisinin hangisi olduğunu bilmiyor.
 
-Hayır, bilerek eğitmedik. Skill bir talimat dosyası. Model, metni yazarken ya da onarırken bu talimatlara bakıyor. Biz talimatlardaki her sayıyı ölçülmüş bir değere bağladık ve her değişikliği denedik.
+1.x sürümlerinde skill'le yazılan metin 8 isteğin 8'inde, onarılan metin 8 metnin 7'sinde skill'siz olanın önüne geçti. Son sınamada okur, 1.3.3 ile onarılmış metni kaynağına karşı 16 karşılaştırmanın 16'sında seçti.
 
-Deneme düzenimiz şöyle: Aynı istekleri skill'li ve skill'siz yazdırıyoruz, çıkan metinleri ölçüyoruz, sonra etiketlerini silip karışık sırayla başka bir modele (Gemini) okutuyoruz. Okur hangisinin skill'li olduğunu bilmiyor. Sıfırdan yazımda skill'le yazılan metin 8 isteğin 8'inde daha doğal bulundu. Onarımda 8 metnin 7'sinde onarılmış sürüm, modelin ilk yazdığı metnin önüne geçti. Deneyler küçük, okur da bir model. Sayılar yön gösteriyor, kesin hüküm vermiyor. Sırada insan okurlarla yapacağımız bir deney var.
+2.0'ın yeniden yazılan skill metni ise aynı sınamada 1.3.3'ü geçemedi: okur 14 karşılaştırmanın 10'unda eski sürümün onarımını seçti. Bir ara taslak ritmi yazar düzeyine çıkarıp skoru yarıya indirmişti, okur onu daha da az beğendi. Ayrıntısı [ölçüm belgesinde](docs/olcumler.md#skill-metninin-sınanması). Deneyler küçük, okur da bir model. Sırada insan okurlarla yapacağımız bir deney var.
 
-Her deney işe yaramadı. Akademik metinde ritmi artıran bir kural denedik. Sayılar iyileşti ama okur metni daha yapay buldu, kuralı geri aldık. Gemini'nin fazla devrik cümle kurmasını iki farklı talimatla düzeltmeye çalıştık, ikisi de tutmadı. Bunların hepsi ölçüm dosyasında "denendi, eklenmedi" diye duruyor.
+Her deney işe yaramadı. Akademik metinde ritmi artıran bir kural denedik. Sayılar iyileşti ama okur metni daha yapay buldu, kuralı geri aldık. Gemini'nin fazla devrik cümle kurmasını iki farklı talimatla düzeltmeye çalıştık, ikisi de tutmadı. Bunların hepsi ölçüm dosyasında duruyor.
 
 ## Kurulum
 
@@ -115,55 +115,58 @@ Kurduktan sonra ne istediğini söylemen yeterli:
 
 - "Şu blog yazısını insanlaştır: ..."
 - "Önbellek geçersizleştirme konusunu teknik bir dille, doğal Türkçeyle yaz."
-- "Bu metne dokunma, yalnızca yapay duran yerleri ve TDK hatalarını göster."
+- "Bu metne dokunma, yalnızca yapay duran yerleri ve yazım hatalarını göster."
 
-Skill metnin türüne göre davranır. Akademik makaledeki "-mektedir"e dokunmaz, blog yazısında onu ayıklar. Kurum içi yazışmanın resmî dilini gündelik dile çekmez. Romanda devrik cümleye izin verir, teknik belgede vermez. Altı metin türü tanımlı: blog ve deneme, teknik, kurumsal, akademik, edebî, kamu ve kurum içi yazışma.
+Skill metnin türüne göre davranır. Akademik makaledeki "-mektedir"e dokunmaz, blog yazısında onu ayıklar. Kurum içi yazışmanın resmî dilini gündelik dile çekmez. Romanda devrik cümleye izin verir, teknik belgede vermez. Yedi tür tanımlı: blog ve deneme, öykü ve roman, şirket yazısı, ders kitabı ve popüler bilim, teknik belge, akademik yazı, kamu ve kurum içi yazışma.
 
-Bir kuralı hiç esnetmez: Onarırken kaynakta olmayan sayı, isim, anekdot eklemez. "İnsan gibi görünmek" için uydurmaz.
+Bir kuralı hiç esnetmez: Onarırken kaynakta olmayan sayı, isim, anı eklemez. "İnsan gibi görünmek" için uydurmaz.
 
-## Dedektör
+## Denetçi
 
-Skill'in yanında küçük bir Python betiği var. Metni okuyup kalıpları, TDK hatalarını, cümle ritmini ve "-mektedir" yoğunluğunu raporlar. Ek kütüphane istemez, internete bağlanmaz. Aynı dedektör [web sayfasında](https://neverland-lab.github.io/yapay-degil/) tarayıcıda da çalışıyor, kurallar ortak.
+Skill'in içinde küçük bir Python betiği var. Model taslağını yazdıktan sonra onu çalıştırır, kod çalıştıramadığı ortamda aynı denetimi elle yapar. Betiği kendin de kullanabilirsin:
 
 ```bash
-python3 scripts/detect_tr_ai.py metin.md
-python3 scripts/detect_tr_ai.py makale.md --register akademik-resmi
-python3 scripts/detect_tr_ai.py yazi.md --register kamu-kurum
-python3 scripts/detect_tr_ai.py metin.md --json
+python3 scripts/denetle.py metin.md
+python3 scripts/denetle.py makale.md --tur akademik
+python3 scripts/denetle.py onarilmis.md --kaynak ilk-hali.md
+python3 scripts/denetle.py metin.md --json
 ```
 
-Raporun en üstünde 0-100 arası bir "yapay zekâ izi" skoru var, altında da puanın nereden geldiği yazıyor: ritim ne kadar düz, orta boy cümle ne kadar çok, hangi kalıp kaç kez geçti. Skor bir olasılık değil, ağırlıkları şimdilik elle seçtim. Derlemi 400 kelimelik parçalara bölüp ölçtüm: Romanlarda parçaların %3-6'sı "Orta" çıkıyor, denemelerde %23, açıklayıcı psikoloji kitaplarında %26. Akademik, teknik ve kurum metinlerinde bu oran %1'in altında, çünkü bu türlerde ritim düşük ağırlıkla sayılıyor. Model metinlerinde "Orta" ya da üstü oranı denemede %85, edebî metinde %40. Yani skor tek başına "bunu yapay zekâ yazdı" demek için yetmez. Etiketli veriyle ayarlandıktan sonra gerçek bir yüzdeye çevrilecek. Beş cümleden kısa metinde skor üretilmez.
+Cümle boylarını sayar ve düz kalan yerleri cümle numarasıyla gösterir. Kalıpları ve yazım hatalarını listeler, kesin düzeltmesi olanların doğrusunu yazar. `--kaynak` verirsen iki metni karşılaştırır: kaynaktaki sayılar ve adlar çıktıda duruyor mu, çıktıya yeni bir sayı ya da ad girmiş mi, "olabilir", "bazı", "gibi" türünden ihtiyat sözleri azalmış mı. Ek kütüphane istemez, dosya yazmaz, internete bağlanmaz. Aynı denetçi [web sayfasında](https://neverland-lab.github.io/yapay-degil/) tarayıcıda da çalışıyor, kurallar ortak.
 
-Dedektör yalnızca yüzeye bakar. Cümle kuruluşunu düzeltmek modelin işi, dedektör sonuca bakıp "burada ritim düz" ya da "burada beş cümle aynı ekle bitiyor" der. Uyarılarını insan metinleri üzerinde sınadık: Derlemin tamamını dedektörden geçirdik ve insan yazısına sık sık yanlış alarm veren kuralları gevşettik. Eşiklerin kaynağı yine ölçüm dosyasında.
+Raporun başında 0-100 arası bir "yapay zekâ izi" skoru var, altında da nereden geldiği yazıyor. Skor derlemden hesaplandı ve hiç görmediği kitaplarla sınandı. Seksen ve üstü alan parçalar: model metinlerinin %59-81'i, yazar metinlerinin %1-10'u. Elli ve üstünde ise deneme yazarlarının dört beş parçasından biri de var. Yani skor tek başına "bunu yapay zekâ yazdı" demeye yetmez ve bir öğrencinin ödevi hakkında hüküm vermek için kullanılmamalı. İşe yaradığı yer, bir onarımın metni gerçekten değiştirip değiştirmediğini görmek. Sekiz cümleden kısa metinde skor üretilmez.
 
 ## İçinde ne var?
 
 ```text
-SKILL.md                      Ana talimat: çalışma adımları, metin türleri, öz denetim
+SKILL.md                      Ana talimat
 references/
-  derlem-olcumleri.md         Derlem ölçümleri, deney sonuçları
-  sentaks-ve-morfoloji.md     Türkçe cümle kuruluşu: öge dizilimi, ulaçlar, koşutluk
-  ai-turkcesi-sozlugu.md      Yapay zekâ Türkçesi kalıpları
-  tdk-ve-noktalama.md         Noktalama ve yazım kuralları, kaynaklarıyla
-  register-ve-ornekler.md     Metin türleri ve önce/sonra örnekleri
-scripts/                      Dedektör, testler, paketleme
-docs/                         Tarayıcı denetçisi (web sayfası), araştırma notları
+  cumle-kurulusu.md           Türkçe cümlenin düzeni, ulaçlar, koşutluk
+  kaliplar.md                 Modelin sevdiği sözler, sıklıklarıyla
+  yazim-ve-noktalama.md       Noktalama ve yazım kuralları
+  metin-turleri.md            Yedi tür ve önce/sonra örnekleri
+  olculer.md                  Türlere göre ölçülmüş değerler
+scripts/
+  denetle.py                  Denetçi
+  kurallar.py                 Kurallar, açıklamaları, skor katsayıları
+docs/                         Web sayfası ve ölçüm belgesi
 dist/                         Web arayüzleri için tek dosya
-skills/yapay-degil/           Kurulumda inen paket (betik içermez)
+skills/yapay-degil/           Kurulumda inen paket
+araclar/                      Derleme, test ve ölçüm betikleri
 ```
 
-Betikler hakkında: `detect_tr_ai.py` ve `run_tests.py` dosya yazmaz. `build_dist.py` yalnızca depo içinde çalışır: `dist/` dosyasını yeniden yazar, `skills/yapay-degil/references/` klasörünü silip yeniden kopyalar. Silme bu tek klasörle sınırlı, başka bir yol ya da sembolik bağlantı görürse durur. `npx skills` ya da `gh skill` ile kurulumda yalnızca `skills/yapay-degil/` iner, orada betik yoktur. `build_site.py` web sayfasının kural dosyasını (`docs/site/kurallar.js`) dedektörden üretir. `check_site.py` dosya yazmaz, Node.js ile sayfanın dedektörle aynı sonucu verdiğini sınar.
+`npx skills` ya da `gh skill` ile kurulumda yalnızca `skills/yapay-degil/` iner: `SKILL.md`, `references/` ve iki betik. `dist/`, `skills/` ve web sayfasının kural dosyası elle düzenlenmez, `araclar/derle.py` üretir. Bu betik yalnızca depo içine yazar.
 
 ## Öneri ve hata bildirimi
 
-Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördüysen [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden yaz. Hata ve öneri için iki kısa şablon var. Değişikliği kendin yapmak istersen pull request de açabilirsin, nasıl yapılacağı [CONTRIBUTING.md](CONTRIBUTING.md) dosyasında.
+Skill yanlış bir düzeltme yaptıysa ya da yapay duran yeni bir kalıp gördüysen [Issues](https://github.com/neverland-lab/yapay-degil/issues/new/choose) bölümünden yaz. Değişikliği kendin yapmak istersen pull request de açabilirsin, nasıl yapılacağı [CONTRIBUTING.md](CONTRIBUTING.md) dosyasında.
 
 ## Sürümler
 
-Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 1.3.3.
+Her sürümde neyin değiştiği [CHANGELOG.md](CHANGELOG.md) dosyasında. Şu anki sürüm 2.0.0. 1.x'ten gelenler için: dedektörün adı `detect_tr_ai.py` yerine `denetle.py`, `--register` yerine `--tur` oldu (eski tür adları da çalışıyor), referans dosyalarının adları değişti.
 
 ## Teşekkür ve lisans
 
-Bu proje [Yüce Zerey'in turkish-anti-ai-skill](https://github.com/yucezerey/turkish-anti-ai-skill) deposundan doğdu. Üç katmanlı yapı, metin türü tablosu ve dedektörün ilk hâli oradan geliyor. Derlem ölçümleri, ölçülmüş eşikler, koşutluk kuralları, kamu yazışması türü ve deneyler bu depoya eklendi. TDK kuralıyla üslup tercihini ayıran düzeltmelerimiz Kasım 2026'da ana depoya da birleştirildi.
+Bu proje [Yüce Zerey'in turkish-anti-ai-skill](https://github.com/yucezerey/turkish-anti-ai-skill) deposundan doğdu. Metni katman katman onarma fikri, metin türü tablosu ve dedektörün ilk hâli oradan geliyor. Derlem ölçümleri, ölçülmüş kalıp sözlüğü, koşutluk kuralları, kamu yazışması türü, skor ve deneyler bu depoya eklendi.
 
 [MIT lisansı](LICENSE) ile dağıtılıyor.

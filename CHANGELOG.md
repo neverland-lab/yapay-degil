@@ -2,6 +2,43 @@
 
 Her sürümde neyin değiştiği burada yazar. Sürüm numaraları şöyle artar: kuralları ya da kurulum adını değiştiren büyük adımda ilk sayı, yeni kural ya da ölçümde ortadaki sayı, düzeltmede sondaki sayı.
 
+## 2.0.0 (12 Kasım 2026)
+
+Skill, dedektör ve depo düzeni baştan kuruldu. Kurallar yeniden ölçüldü, ölçümün göstermediği kurallar çıkarıldı.
+
+Bilinen durum: Yeniden yazılan skill metni körlemesine onarım sınamasında 1.3.3'ü geçemedi (14 karşılaştırmanın 10'unda okur eski sürümü seçti). Ayrıntı `docs/olcumler.md`, "Skill metninin sınanması". Denetçi, ölçüm ve kalıp sözlüğü bu sınamadan bağımsız.
+
+Skill metni:
+
+- `SKILL.md` baştan yazıldı ve kısaldı (24 bin karakterden 17 bine). Artık kendi kurallarına uyuyor: kalın etiketli madde, İngilizce terim parantezi, "Tier-1" ve "P0" gibi etiketler yok.
+- Sıra değişti. Önce ritim ve yazının kuruluşu, sonra karşıtlık ve üçleme kalıpları, sonra cümle iskeleti, en son sözler ve yazım. Eski sürüm kelime listesini öne koyuyordu, ölçümde en zayıf ayırıcı o çıktı.
+- Yedi metin türü var. "Ders kitabı ve popüler bilim" ayrı bir tür oldu. Her tür için neye dokunulacağı ve neyin yerinde bırakılacağı tek tabloda.
+- Ritim için cümle sınırıyla oynamak onarımda yasaklandı, yerine tutarlılık kuralları (kip, ek, hitap) geldi. İki sınamada da ritmi zorlayan talimat okurun gözünde metni bozdu.
+- Model taslağını denetçiyle sınıyor. Denetçi skill'in parçası oldu ve kurulumda iniyor. Kod çalıştıramayan ortamda aynı denetim elle yapılıyor.
+- Referans dosyaları yeniden yazıldı ve adları değişti: `cumle-kurulusu.md`, `kaliplar.md`, `yazim-ve-noktalama.md`, `metin-turleri.md`, `olculer.md`. Uzun ölçüm anlatısı skill'den çıkıp `docs/olcumler.md` dosyasına taşındı, skill'de yalnızca kısa bir ölçü tablosu kaldı. Tek dosyalık sürüm 116 bin karakterden 70 bine indi.
+
+Ölçüm:
+
+- Model derlemi beş katına çıktı ve yedi türe yayıldı: altı modelden 200 metin. Akademik, teknik, kamu, şirket yazısı ve açıklayıcı metinde modeller ilk kez ölçüldü.
+- Kalıp sözlüğü ilk kez ölçüldü. "Âdeta", "söz konusu", "bu bağlamda", "kuşkusuz", "bir şekilde", "rol oynamak", "gelin ... bakalım" yazarlarda modellerdeki kadar ya da daha sık çıktı ve listeden çıkarıldı. Yerlerine ölçümde ayırt edici çıkanlar girdi: "değer katmak", "zemin hazırlamak", "tam da bu noktada", "bir diğer", "olanak tanımak", "göz ardı edilmemeli", "bir X değil, bir Y".
+- Ritim farkının her türde olduğu görüldü. Kamu belgelerinde yazarların ritmi öteki türlerle aynı çıktı (0,46). Eski sürümdeki "kamu metninde ritim düşüktür" yargısı eski cümle bölücünün hatasıydı.
+- Yeni ölçüler: geçiş sözüyle başlayan cümle oranı, kısa ve uzun cümle oranı, "değil," karşıtlığı, üçlü sıralama.
+
+Denetçi:
+
+- `scripts/detect_tr_ai.py` gitti, yerine `scripts/denetle.py` geldi. Kurallar ayrı bir veri dosyasında (`scripts/kurallar.py`), her kuralın açıklaması ve örneği de orada. Web sayfası açıklamaları oradan alıyor.
+- Cümle bölücü baştan yazıldı: kısaltma, sıra sayısı, tırnak içi soru ve üç noktada cümleyi bölmüyor, tek kelimelik cümleleri sayıyor, başlık, liste ve konuşma satırlarını ritme katmıyor. Kod blokları taranmıyor.
+- `--kaynak` seçeneği eklendi: onarılmış metni kaynağıyla karşılaştırıp kaybolan ve eklenen sayıları, adları, azalan ihtiyat sözlerini gösteriyor.
+- Rapor düz kalan yerleri cümle numarası ve cümle boylarıyla gösteriyor. Kesin düzeltmesi olan yazım bulgularında doğrusu yazıyor.
+- Skor artık elle seçilmiş ağırlıklarla değil, derlemden hesaplanan lojistik regresyonla veriliyor ve dosya bazında çapraz sınamayla ölçüldü (AUC 0,89-0,98). Düzeyler 0-49 düşük, 50-79 orta, 80 ve üstü yüksek. Sekiz cümleden kısa metinde skor yok.
+- `--register` yerine `--tur`. Eski tür adları (`blog-deneme`, `akademik-resmi`, `kamu-kurum` vb.) çalışmaya devam ediyor. `--json` çıktısının alan adları değişti.
+
+Depo:
+
+- Derleme tek betikte: `araclar/derle.py`. Testler `araclar/sina.py` (29 test). Her kural kendi örneğiyle sınanıyor, web sayfasındaki denetçi Python sürümüyle karşılaştırılıyor.
+- Ölçüm araçları depoya girdi (`araclar/olc.py`, `ozet.py`, `ayarla.py`). Kendi derlemi olan aynı ölçümü ve skor ayarını yeniden yapabilir.
+- Eski araştırma ve test raporları (`docs/ARASTIRMA_VE_MIMARI_RAPORU.md`, `docs/TEST_VE_DOGRULAMA_RAPORU.txt`) kaldırıldı, içerikleri `docs/olcumler.md` ve testlerle karşılanıyor.
+
 ## 1.3.3 (9 Kasım 2026)
 
 Skill metni değişmedi, değişiklikler dedektörde ve web sayfasında.

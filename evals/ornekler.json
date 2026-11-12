@@ -1,0 +1,87 @@
+{
+  "aciklama": "araclar/sina.py bu dosyayı kullanır. onarim: yapay metinde bulgu çıkmalı, doğal hâlinde çıkmamalı ve bilgi korunmalı. dogal: hiç bulgu çıkmamalı. skor: beklenen düzey tutmalı. Metinlerin hepsini biz yazdık, hiçbiri bir kitaptan alınmadı.",
+  "onarim": [
+    {
+      "id": "blog",
+      "tur": "deneme",
+      "yapay": "Günümüzün hızla değişen iş dünyasında, uzaktan çalışma modeli sadece geçici bir trend değil, aynı zamanda kurumsal kültürün temel bir yapı taşı haline gelmiştir — ve bu durumun önemi yadsınamaz. Şirketler tarafından gerçekleştirilen araştırmalar göstermektedir ki, çalışanlara esneklik sağlamak verimlilik üzerinde kritik bir rol oynamaktadır. Bununla birlikte, iletişim kopukluklarını önlemek adına bütüncül bir yaklaşım benimsenmelidir. Sonuç olarak, 2026 yılında başarılı olmak isteyen kurumlar bu dönüşüme ayak uydurmak zorundadır.",
+      "dogal": "Uzaktan çalışma artık şirket kültürünün kalıcı bir parçası. Şirketlerin yaptığı araştırmalar da aynı şeyi söylüyor: Çalışanlara esneklik tanıdığınızda verimlilik artıyor. İşin zor kısmı iletişimi koparmamak, bunun için işin bütününe bakmak gerekiyor. 2026'da başarılı olmak isteyen kurumlar bu değişime ayak uydurmak zorunda.",
+      "en_az_bulgu": 8,
+      "korunacak": ["2026", "zorunda"]
+    },
+    {
+      "id": "teknik",
+      "tur": "teknik",
+      "yapay": "Bir önbellek (cache'ı) anahtarının süresi saat 14:30'da dolduğunda, aynı anda gelen bir çok istek veritabanına yönlendirilir ve bu durum sistemde bir darboğaz yaratmaktadır. Bu sorun özellikle yüksek trafikli uç noktalarda ve SQL'da kritik bir öneme sahiptir, ancak Redis dağıtık kilidi ile kusursuz bir şekilde çözülebilir. Bir diğer önemli nokta, JSON'de veri boyutunun 64 KB sınırını aşmamasıdır.",
+      "dogal": "Bir cache anahtarının süresi saat 14.30'da dolunca aynı anda gelen birçok istek veritabanına yönelip darboğaz oluşturur. Bu sorun özellikle yüksek trafikli endpoint'lerde ve SQL'de önem kazanır, ancak Redis dağıtık kilidiyle çözülebilir. JSON'da veri boyutu 64 KB sınırını aşmamalıdır.",
+      "en_az_bulgu": 7,
+      "korunacak": ["14.30", "64 KB", "birçok", "çözülebilir"]
+    },
+    {
+      "id": "akademik",
+      "tur": "akademik",
+      "yapay": "Türkiye'de 2020-2024 yılları arasında yenilenebilir enerji yatırımları sadece artış göstermekle kalmamış, aynı zamanda enerji arz güvenliğinde de çığır açan bir dönüm noktası olmuştur. Enerji Bakanlığı tarafından paylaşılan verilere göre, güneş enerjisi kurulu gücü %112.5 oranında büyümüştür. Bu gelişme, sektörün dinamik yapısının en büyük kanıtıdır ve yeni yatırımlara zemin hazırlamaktadır.",
+      "dogal": "Türkiye'de 2020-2024 yılları arasında yenilenebilir enerji yatırımları artmış, bu artış enerji arz güvenliğini de etkilemiştir. Enerji Bakanlığının verilerine göre güneş enerjisi kurulu gücü bu dönemde %112,5 büyümüştür. Bu büyüme yeni yatırımları da kolaylaştırmaktadır.",
+      "en_az_bulgu": 5,
+      "korunacak": ["2020-2024", "%112,5", "Enerji Bakanlığı"]
+    },
+    {
+      "id": "kurumsal",
+      "tur": "kurumsal",
+      "yapay": "Yeni panelimiz, işletmenizi bir üst seviyeye taşıyarak ekibinizin potansiyelini ortaya çıkarmanıza olanak tanır. Geniş bir yelpazede sunulan raporlar, karar süreçlerinize değer katar. Platformumuz sadece bir araç değil, aynı zamanda büyüme yolculuğunuzda güvenilir bir ortaktır. Kurulum ekibimiz tarafından 3 iş günü içinde gerçekleştirilmektedir.",
+      "dogal": "Yeni panelde raporların hepsi tek ekranda. Hangi raporu açarsanız açın, kararınızı verirken bakacağınız sayılar önünüzde olur. Kurulumu ekibimiz 3 iş günü içinde yapar.",
+      "en_az_bulgu": 6,
+      "korunacak": ["3 iş günü"]
+    },
+    {
+      "id": "kamu",
+      "tur": "kamu",
+      "yapay": "Dijitalleşen çağımızda gençlerin ekran karşısında geçirdiği süre her geçen gün artmaktadır. İşte tam da bu noktada, sorunun erken fark edilmesi hayati bir önem taşımaktadır. Uyku düzeninin bozulması, ders başarısında düşüş, ve yüz yüze iletişimden kaçınma gibi belirtiler erken uyarı işaretleridir. 2024 yılında 1.250 aileye danışmanlık hizmeti verilmiştir.",
+      "dogal": "Gençlerin ekran karşısında geçirdiği süre giderek artmaktadır. Bu nedenle sorunun erken fark edilmesi gerekmektedir. Gencin uyku düzeninin bozulması, ders başarısının düşmesi ve yüz yüze iletişimden kaçınması gibi belirtiler erken uyarı işaretleridir. 2024 yılında 1.250 aileye danışmanlık hizmeti verilmiştir.",
+      "en_az_bulgu": 4,
+      "korunacak": ["1.250", "2024", "gibi belirtiler", "verilmiştir"]
+    }
+  ],
+  "dogal": [
+    {
+      "id": "deneme",
+      "tur": "deneme",
+      "metin": "Dedemin bahçesinde bir ceviz ağacı vardı. Kimin diktiğini bilen yoktu. Yazın altına bir kilim serilir, öğle sıcağı orada geçirilirdi, çünkü evin içi fırın gibi olurdu. Ben o kilimin üstünde okumayı öğrendim. Harfleri değil ama, beklemeyi: Babaannem çayı getirene kadar kıpırdamadan oturmak, sonra bardağı iki elimle tutup üflemek gerekirdi. Şimdi düşünüyorum da sabır dediğimiz şey belki yalnızca birinin çay getirmesini beklemektir. Ağaç geçen kış kesildi. Yerine ne dikeceğimizi hâlâ konuşuyoruz."
+    },
+    {
+      "id": "teknik",
+      "tur": "teknik",
+      "metin": "Sorgu yavaşsa önce planına bakın. `EXPLAIN ANALYZE` çıktısında sıralı tarama görüyorsanız ve tablo büyükse eksik bir indeks vardır. İndeksi `WHERE` koşulundaki sütuna kurun, sonra sorguyu yeniden çalıştırıp süreyi karşılaştırın. Her sütuna indeks eklemeyin: Yazma işlemleri yavaşlar, disk de dolar. Bizim sipariş tablosunda tek bir indeks sorgu süresini 4,2 saniyeden 30 milisaniyeye indirdi."
+    },
+    {
+      "id": "akademik",
+      "tur": "akademik",
+      "metin": "Kırdan kente göç, 1950'lerden itibaren Türkiye'de aile yapısını dönüştüren başlıca etkenlerden biri olmuştur. Bu dönüşümü yalnızca hane büyüklüğündeki küçülmeyle açıklamak yeterli değildir. Kente gelen aileler akrabalık ağlarını uzun süre korumuş, aynı mahallede oturmayı ve aynı iş kolunda çalışmayı sürdürmüştür. Dolayısıyla çekirdek aileye geçiş, sayılarda göründüğünden daha yavaş gerçekleşmiştir. Çalışmada bu savı sınamak üzere üç ilde 412 haneyle görüşülmüştür."
+    },
+    {
+      "id": "konusma",
+      "tur": "anlati",
+      "metin": "— Geldin mi?\n— Geldim, dedi adam. Paltosunu çıkarmadı.\nSoba çoktan sönmüştü. Kadın masadaki bardağı aldı, yerine koydu, yine aldı. Dışarıda biri kepenk indiriyordu."
+    }
+  ],
+  "skor": [
+    {
+      "id": "kisa-metin",
+      "tur": "deneme",
+      "beklenen": "yok",
+      "metin": "Bugün hava güzeldi. Biraz yürüdüm, sonra eve döndüm."
+    },
+    {
+      "id": "model-deneme",
+      "tur": "deneme",
+      "beklenen": "yuksek",
+      "metin": "Şehir hayatı, modern insanın en büyük çelişkilerinden birini barındırır ve bu çelişki her geçen gün derinleşmektedir. Milyonlarca insanın bir arada yaşadığı bu devasa yapılar, aynı zamanda yalnızlığın en yoğun hissedildiği mekânlar hâline gelmiştir. Sabah saatlerinde metroya binen kalabalıklar, birbirlerinin yüzüne bakmadan telefon ekranlarına gömülmektedir. Bu durum, sadece bireysel bir tercih değil, aynı zamanda kentsel yaşamın dayattığı bir zorunluluktur. Ancak yalnızlık, yalnızca olumsuz bir deneyim olarak değerlendirilmemelidir ve farklı açılardan ele alınmalıdır. Bir diğer önemli nokta ise teknolojinin bu süreçte oynadığı belirleyici roldür ve göz ardı edilmemelidir. Sosyal medya platformları, insanları birbirine bağlama vaadiyle ortaya çıkmış ancak yüzeysel ilişkilere zemin hazırlamıştır. Bu nedenle gerçek bağlar kurmak, günümüz dünyasında her zamankinden daha büyük önem taşımaktadır. Sonuç olarak şehirlerde yalnızlık, bireysel ve toplumsal düzeyde ele alınması gereken çok boyutlu bir olgudur. Unutmamak gerekir ki bu sorunun çözümü, hepimizin ortak sorumluluğudur ve birlikte hareket etmeyi gerektirir."
+    },
+    {
+      "id": "insan-deneme",
+      "tur": "deneme",
+      "beklenen": "dusuk",
+      "metin": "Otobüste yanıma bir kadın oturdu. Elinde file, filede soğan. Nereden bindiğini görmedim, çünkü camdan dışarı bakıyor, sabah evde unuttuğum şemsiyeyi düşünüyordum. Kadın soğanları dizlerinin arasına yerleştirdi. Sonra hiç tanımadığı birine, yani bana, gelininin ne kadar savruk olduğunu anlatmaya başladı. Dinledim mi? Dinledim. Kırk dakika boyunca başımı salladım, arada bir \"öyle mi\" dedim, bir ara gerçekten merak edip sordum da: Peki oğlan ne diyor bu işe? Oğlan bir şey demiyormuş. İnerken filesini kapıya kadar taşıdım. Teşekkür etmedi, ama dönüp \"sen de şemsiyesiz çıkma bir daha\" dedi. Nereden bildi, hâlâ çözemedim."
+    }
+  ]
+}

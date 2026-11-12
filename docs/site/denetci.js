@@ -1,254 +1,303 @@
-// denetci.js - scripts/detect_tr_ai.py'nin tarayıcı karşılığı. Kurallar kurallar.js'ten gelir.
-// Sonuçlar Python sürümüyle aynı olmalı: scripts/check_site.py ikisini karşılaştırır.
+// denetci.js - scripts/denetle.py'nin tarayıcı karşılığı. Kurallar kurallar.js'ten gelir (araclar/derle.py üretir).
+// İki sürüm aynı sonucu vermeli: araclar/sina.py ikisini karşılaştırır. Burada bir şey değişirse orada da değişir.
 (function (root) {
   "use strict";
   const K = root.YD_KURALLAR;
-  const WORD = /[\p{L}\p{N}_]+/gu;
+  const KALIN = "aıou", INCE = "eiöü", SERT = "fstkçşhp";
+  const KELIME = /[\p{L}\p{N}]+(?:['’.\-][\p{L}\p{N}]+)*/gu;
+  const CUMLE_SONU = /([.!?…]+)(["”’»)\]*_]*)(\s+|$)/gu;
+  const PENCERE = 5, COV_ESIK = 0.38, EN_AZ_CUMLE = 8;
+  const SEVIYELER = [[80, "Yüksek"], [50, "Orta"], [0, "Düşük"]];
 
-  // Python round(x, 2) ile aynı sonuç. toFixed sayının ikilik tabandaki tam değerini yuvarlar, Python da öyle.
-  // Ayrıldıkları tek yer gerçek yarımlar (0,125 gibi, yani x*8 tek sayıyken): Python çifte, toFixed yukarı yuvarlar.
-  function pyRound(x) {
-    const e = x * 8;
-    if (Number.isInteger(e) && e % 2 === 1) {
-      const r = Math.floor(x * 100);
-      return (r % 2 === 0 ? r : r + 1) / 100;
-    }
-    return Number(x.toFixed(2));
+  const kucult = (s) => s.replace(/I/g, "ı").replace(/İ/g, "i").toLowerCase();
+  const kucukMu = (c) => c !== c.toUpperCase() && c === c.toLowerCase();
+  const buyukMu = (c) => c !== c.toLowerCase() && c === c.toUpperCase();
+  const kelimeler = (s) => s.match(KELIME) || [];
+  const boy = (s) => kelimeler(s).length;
+  const yuvarla = (x, n) => Math.round(x * 10 ** n) / 10 ** n;
+
+  function maskele(metin) {
+    return metin.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, (m) => m.replace(/[^\n]/g, " "))
+      .replace(/`[^`\n]+`|https?:\/\/\S+|www\.\S+/g, (m) => m.replace(/\S/g, "x"));
   }
 
-  const compiled = {
-    ic: K.ignoreCase.map((r) => ({ re: new RegExp(r.re, "giu"), label: r.label })),
-    cs: K.caseSensitive.map((r) => ({ re: new RegExp(r.re, "gu"), label: r.label })),
-  };
-
-  const UNITS = { 1: "bir", 2: "iki", 3: "üç", 4: "dört", 5: "beş", 6: "altı", 7: "yedi", 8: "sekiz", 9: "dokuz" };
-  const TENS = { 1: "on", 2: "yirmi", 3: "otuz", 4: "kırk", 5: "elli" };
-  const BACK = "aıou", FRONT = "eiöü", HARD = "fstkçşhp";
-
-  function lastWordOfNumber(n) {
-    if (n === 0) return "sıfır";
-    return n % 10 ? UNITS[n % 10] : TENS[Math.floor(n / 10)];
+  function satirTuru(satirlar, i) {
+    const s = satirlar[i].trim();
+    if (!s) return "bos";
+    if (/^#{1,6}\s/u.test(s) || /^[=\-*_]{3,}$/u.test(s)) return "baslik";
+    if ("—–".includes(s[0]) || (/^-\s?[^\P{L}"“]/u.test(s) && !/^-\s\p{L}/u.test(s))) return "konusma";
+    if (/^(?:[-*+•]|\d+[.)])\s/u.test(s)) return "madde";
+    if (">|".includes(s[0])) return "diger";
+    if (!/[.!?…:;,"”’)\]]$/u.test(s) && s.split(/\s+/u).length <= 10) {
+      const onceki = i ? satirlar[i - 1].trim() : "";
+      const sonraki = i + 1 < satirlar.length ? satirlar[i + 1].trim() : "";
+      const onceTamam = !onceki || /[.!?…:"”’)\]]$/u.test(onceki) || onceki.startsWith("#");
+      const sonraTamam = !sonraki || !kucukMu(sonraki[0]);
+      if (onceTamam && sonraTamam) return "baslik";
+    }
+    return "duz";
   }
 
-  function expectedTimeSuffix(hour, minute, ablative) {
-    const word = lastWordOfNumber(minute ? minute : hour);
-    let lastVowel = "";
-    for (let i = word.length - 1; i >= 0; i--) {
-      if ((BACK + FRONT).includes(word[i])) { lastVowel = word[i]; break; }
+  function bloklar(metin) {
+    const satirlar = metin.split("\n"), out = [];
+    let buf = [];
+    for (let i = 0; i < satirlar.length; i++) {
+      if (satirTuru(satirlar, i) === "duz") buf.push(satirlar[i].trim());
+      else if (buf.length) { out.push(buf.join(" ")); buf = []; }
     }
-    const vowel = BACK.includes(lastVowel) ? "a" : "e";
-    const consonant = HARD.includes(word[word.length - 1]) ? "t" : "d";
-    return consonant + vowel + (ablative ? "n" : "");
-  }
-
-  function timeSuffixFindings(text) {
-    const out = [];
-    const re = /(?<![\p{L}\p{N}_])(\d{1,2})\.(\d{2})'(d[ae]n?|t[ae]n?)(?![\p{L}\p{N}_])/gu;
-    for (const m of text.matchAll(re)) {
-      const hour = parseInt(m[1], 10), minute = parseInt(m[2], 10), suffix = m[3];
-      if (hour > 24 || minute > 59) continue;
-      const expected = expectedTimeSuffix(hour, minute, suffix.endsWith("n"));
-      if (suffix !== expected) {
-        out.push({
-          rule: `P2 TDK Saat Eki Hatası: Ek, saatin okunuşuna uymalı ('${m[1]}.${m[2]}'${expected}')`,
-          match: m[0], position: m.index,
-        });
-      }
-    }
+    if (buf.length) out.push(buf.join(" "));
     return out;
   }
 
-  function splitWords(s) {
-    const t = s.trim();
-    return t ? t.split(/\s+/u) : [];
-  }
-
-  function splitSentences(text) {
-    let p = text.replace(/(\d)\.(\d)/gu, "$1<DOT>$2");
-    p = p.replace(/(?<![\p{L}\p{N}_])(Node|Vue|Next|Nuxt)\.js/giu, "$1<DOT>js");
-    return p.split(/[.!?]+(?:\s+|$)/u)
-      .filter((s) => splitWords(s).length > 1)
-      .map((s) => s.split("<DOT>").join(".").trim());
-  }
-
-  function endingClass(sentence) {
-    const words = sentence.match(WORD);
-    if (!words) return "diger";
-    const last = words[words.length - 1].toLowerCase();
-    if (/m[ae]kt[ae]d[ıi]r$/u.test(last)) return "-mAktAdIr";
-    if (/m[ıiuü]şt[ıiuü]r$/u.test(last)) return "-mIştIr";
-    if (/[dt][ıiuü]r$/u.test(last)) return "-DIr";
-    return "diger";
-  }
-
-  function maxRun(sentences) {
-    let best = 0, bestClass = null, run = 0, prev = null;
-    for (const s of sentences) {
-      const c = endingClass(s);
-      if (c !== "diger" && c === prev) run += 1;
-      else if (c !== "diger") run = 1;
-      else run = 0;
-      prev = c;
-      if (run > best) { best = run; bestClass = c; }
+  function cumleler(blok) {
+    const out = [];
+    let bas = 0;
+    for (const m of blok.matchAll(CUMLE_SONU)) {
+      const son = m.index + m[0].length;
+      const kalan = blok.slice(son, son + 1);
+      if (kalan && (kucukMu(kalan) || ",;:".includes(kalan))) continue;
+      if (m[1] === ".") {
+        const onceki = blok.slice(bas, m.index).match(/(\p{L}+)$/u);
+        if (onceki) {
+          const k = kucult(onceki[1]);
+          if (K.kisaltma.includes(k) || (k.length === 1 && buyukMu(onceki[1]))) continue;
+          if (K.kisaltmaSonda.includes(k) && !(kalan && buyukMu(kalan))) continue;
+        }
+      }
+      const parca = blok.slice(bas, m.index + m[1].length + m[2].length).trim();
+      if (kelimeler(parca).length) out.push(parca);
+      bas = son;
     }
-    return [best, bestClass];
+    const kuyruk = blok.slice(bas).trim();
+    if (kelimeler(kuyruk).length) out.push(kuyruk);
+    return out;
   }
 
-  function rhythmProfile(text, warn, window = 5) {
-    const lengths = [];
-    for (const par of text.split("\n")) {
-      if (!par.trim() || /^\s*(#|[-*>|]|\d+\.)/u.test(par)) continue;
-      for (const s of splitSentences(par)) lengths.push(splitWords(s).length);
+  function ortanca(xs) {
+    if (!xs.length) return null;
+    const s = [...xs].sort((a, b) => a - b), n = s.length;
+    return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
+  }
+  function cov(xs) {
+    const ort = xs.reduce((a, b) => a + b, 0) / xs.length;
+    return ort ? Math.sqrt(xs.reduce((a, x) => a + (x - ort) ** 2, 0) / xs.length) / ort : 0;
+  }
+  function sonEk(cumle) {
+    const ks = kelimeler(cumle);
+    if (!ks.length) return "";
+    const w = kucult(ks[ks.length - 1]);
+    if (/m[ae]kt[ae]d[ıi]r(?:l[ae]r)?$/u.test(w)) return "-mektedir";
+    if (/m[ıiuü]şt[ıiuü]r(?:l[ae]r)?$/u.test(w)) return "-miştir";
+    if (/[dt][ıiuü]r(?:l[ae]r)?$/u.test(w) && w.length > 4) return "-dir";
+    return "";
+  }
+
+  const GECIS_RE = new RegExp(K.gecisRe, "u");
+  const UCLU_RE = /\p{L}+,\s+(?:\p{L}+\s+){0,2}\p{L}+\s+ve\s+\p{L}+/gu;
+  const say = (re, s) => (s.match(re) || []).length;
+
+  function olc(metin) {
+    const bl = bloklar(metin);
+    let cum = bl.flatMap(cumleler).filter((c) => boy(c) <= 120);
+    const boylar = cum.map(boy);
+    const duz = bl.join(" ");
+    const kelime = kelimeler(metin).length;
+    const duzKelime = Math.max(kelimeler(duz).length, 1);
+    const n = boylar.length;
+    const covlar = [];
+    for (let i = 0; i < Math.max(n - PENCERE + 1, 0); i++) covlar.push(cov(boylar.slice(i, i + PENCERE)));
+    const pencereler = covlar.map((c, i) => [c, i]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const kucuk = cum.map(kucult);
+    let seri = 0, seriEk = "", kosu = 0, onceki = "";
+    for (const c of cum) {
+      const ek = sonEk(c);
+      kosu = ek && ek === onceki ? kosu + 1 : (ek ? 1 : 0);
+      onceki = ek;
+      if (kosu > seri) { seri = kosu; seriEk = ek; }
     }
-    const covs = [];
-    for (let i = 0; i < Math.max(lengths.length - window + 1, 0); i++) {
-      const w = lengths.slice(i, i + window);
-      const mean = w.reduce((a, b) => a + b, 0) / window;
-      if (mean) covs.push(Math.sqrt(w.reduce((a, x) => a + (x - mean) ** 2, 0) / window) / mean);
-    }
-    covs.sort((a, b) => a - b);
-    const median = covs.length ? pyRound(covs[Math.floor(covs.length / 2)], 2) : null;
-    const band = lengths.length ? pyRound(lengths.filter((n) => n >= 15 && n <= 22).length / lengths.length, 2) : null;
+    const binde = (re) => yuvarla(say(re, duz) / duzKelime * 1000, 2);
+    const oran = (x) => (n ? yuvarla(x / n, 3) : null);
+    const kd = kucult(duz);
     return {
-      window_count: covs.length,
-      window_cov_median: median,
-      window_cov_below_target_ratio: covs.length ? pyRound(covs.filter((c) => c < K.windowCovTarget).length / covs.length, 2) : null,
-      band_15_22_ratio: band,
-      flat_rhythm_warning: warn && covs.length > 0 && median < K.windowCovTarget,
-      band_15_22_warning: warn && band !== null && lengths.length >= 8 && band > K.band1522Warn,
+      kelime, cumle: n, boylar,
+      ortanca_boy: ortanca(boylar),
+      ritim: covlar.length ? yuvarla(ortanca(covlar), 3) : null,
+      duz_pencere: covlar.length ? yuvarla(covlar.filter((c) => c < COV_ESIK).length / covlar.length, 3) : null,
+      orta_boy: oran(boylar.filter((b) => b >= 15 && b <= 22).length),
+      kisa: oran(boylar.filter((b) => b <= 6).length),
+      uzun: oran(boylar.filter((b) => b >= 28).length),
+      gecis: oran(kucuk.filter((c) => GECIS_RE.test(c)).length),
+      bu_basi: oran(kucuk.filter((c) => /^bu(?![\p{L}\p{N}_])/u.test(c)).length),
+      soru: binde(/\?/g), unlem: binde(/!/g), uc_nokta: binde(/\.\.\.|…/g),
+      iki_nokta: binde(/:(?=\s)/g), noktali_virgul: binde(/;/g),
+      uclu: yuvarla(say(UCLU_RE, kd) / duzKelime * 1000, 2),
+      degil_virgul: yuvarla(say(/(?<![\p{L}\p{N}_])değil[,;]/gu, kd) / duzKelime * 1000, 2),
+      mektedir: yuvarla(say(/[\p{L}\p{N}_]+m[ae]kt[ae]d[ıi]r(?![\p{L}\p{N}_])/gu, kucult(metin)) / Math.max(kelime, 1) * 100, 2),
+      son_dir: oran(cum.filter((c) => sonEk(c) === "-dir").length),
+      son_mistir: oran(cum.filter((c) => sonEk(c) === "-miştir").length),
+      seri, seri_ek: seriEk,
+      en_duz: pencereler.slice(0, 3).filter(([c]) => c < COV_ESIK).map(([, i]) => ({
+        ilk_cumle: i + 1, boylar: boylar.slice(i, i + PENCERE), baslangic: cum[i].split(/\s+/u).slice(0, 6).join(" "),
+      })),
     };
   }
 
-  function analyzeText(text, register) {
-    const key = register || null;
-    const profile = key ? K.registers[key] : K.defaultProfile;
-    const findings = [];
-    for (const { re, label } of compiled.ic) {
-      const skip = Object.entries(K.registerSkip).some(([k, regs]) => label.startsWith(k) && regs.includes(key));
-      if (skip) continue;
+  const derlenmis = K.kurallar.map((k) => ({ k, re: k.re ? new RegExp(k.re, "gu" + (k.m ? "m" : "")) : null }));
+  const YAZIM = Object.entries(K.yazim).sort((a, b) => b[0].length - a[0].length);
+
+  function sonSozcuk(n) {
+    const birler = { 1: "bir", 2: "iki", 3: "üç", 4: "dört", 5: "beş", 6: "altı", 7: "yedi", 8: "sekiz", 9: "dokuz" };
+    const onlar = { 1: "on", 2: "yirmi", 3: "otuz", 4: "kırk", 5: "elli" };
+    if (n === 0) return "sıfır";
+    return n % 10 ? birler[n % 10] : onlar[Math.floor(n / 10)];
+  }
+  function saatEki(saat, dakika, ayrilma) {
+    const s = sonSozcuk(dakika ? dakika : saat);
+    let sonUnlu = "";
+    for (let i = s.length - 1; i >= 0; i--) if ((KALIN + INCE).includes(s[i])) { sonUnlu = s[i]; break; }
+    return (SERT.includes(s[s.length - 1]) ? "t" : "d") + (KALIN.includes(sonUnlu) ? "a" : "e") + (ayrilma ? "n" : "");
+  }
+  const kacis = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ /g, "\\s+");
+
+  function duzeltme(k, eslesme) {
+    if (k.id === "yazim") {
+      const kk = kucult(eslesme);
+      for (const [yanlis, dogru] of YAZIM) {
+        const m = kk.match(new RegExp("^" + kacis(yanlis), "u"));
+        if (m) {
+          let yeni = dogru + eslesme.slice(m[0].length);
+          if (buyukMu(eslesme[0])) yeni = (yeni[0] === "i" ? "İ" : yeni[0].toUpperCase()) + yeni.slice(1);
+          return yeni;
+        }
+      }
+      return null;
+    }
+    if (k.duzelt) return eslesme.replace(new RegExp(k.duzelt[0], "gu"), k.duzelt[1]);
+    return null;
+  }
+
+  function bul(metin, tur) {
+    const kucuk = kucult(metin), aday = [];
+    derlenmis.forEach(({ k, re }, sira) => {
+      if (!re || (k.atla || []).includes(tur)) return;
       re.lastIndex = 0;
-      for (const m of text.matchAll(re)) {
-        if (m[0] === "—" && !text.slice(text.lastIndexOf("\n", m.index - 1) + 1, m.index).trim()) continue;
-        findings.push({ rule: label, match: m[0], position: m.index });
+      for (const m of (k.asil ? metin : kucuk).matchAll(re)) {
+        if (m[0].length) aday.push([-k.guc, sira, m.index, m.index + m[0].length, k, null]);
+      }
+    });
+    for (const m of kucuk.matchAll(/(?<![\p{L}\p{N}_.])(\d{1,2})\.(\d{2})'([dt][ae]n?)(?![\p{L}\p{N}_])/gu)) {
+      const saat = parseInt(m[1], 10), dakika = parseInt(m[2], 10);
+      if (saat <= 24 && dakika <= 59) {
+        const beklenen = saatEki(saat, dakika, m[3].endsWith("n"));
+        if (m[3] !== beklenen) {
+          aday.push([-1, 999, m.index, m.index + m[0].length, { id: "saat-eki", sinif: "yazim", guc: 1 }, `${m[1]}.${m[2]}'${beklenen}`]);
+        }
       }
     }
-    for (const { re, label } of compiled.cs) {
-      for (const m of text.matchAll(re)) findings.push({ rule: label, match: m[0], position: m.index });
+    aday.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
+    const dolu = [], out = [];
+    for (const [, , bas, son, k, hazir] of aday) {
+      if (dolu.some(([b, s]) => bas < s && b < son)) continue;
+      dolu.push([bas, son]);
+      const ham = metin.slice(bas, son);
+      const b = { id: k.id, sinif: k.sinif, guc: k.guc, eslesme: ham.trim(), konum: bas, uzunluk: son - bas };
+      const oneri = hazir || duzeltme(k, ham);
+      if (oneri && oneri !== ham) b.oneri = oneri.trim();
+      out.push(b);
     }
-    findings.push(...timeSuffixFindings(text));
+    out.sort((a, b) => a.konum - b.konum);
+    return out;
+  }
 
-    const words = text.match(WORD) || [];
-    const wordCount = Math.max(words.length, 1);
-    const mek = (text.match(/[\p{L}\p{N}_]+m[ae]kt[ae]d[ıiIİ]r(?![\p{L}\p{N}_])/giu) || []).length;
-    const mekPer100 = pyRound((mek / wordCount) * 100, 2);
-
-    const sentences = splitSentences(text);
-    const lens = sentences.map((s) => splitWords(s).length);
-    let cov = 0.5;
-    if (lens.length >= 3) {
-      const mean = lens.reduce((a, b) => a + b, 0) / lens.length;
-      const variance = lens.reduce((a, x) => a + (x - mean) ** 2, 0) / lens.length;
-      cov = mean > 0 ? pyRound(Math.sqrt(variance) / mean, 2) : 0.0;
-    }
-    const [runLen, runClass] = maxRun(sentences);
-    const runLimit = (key && K.repeatedEndingLimits[key]) || K.repeatedEndingLimit;
-    const warnRhythm = key ? K.rhythmWarnRegisters.includes(key) : K.rhythmWarnDefault;
-
-    const report = {
-      register: key,
-      register_label: profile.label,
-      mektedir_target_range: [profile.mektedir_min, profile.mektedir_max],
-      mektedir_in_range: profile.mektedir_min <= mekPer100 && mekPer100 <= profile.mektedir_max,
-      repeated_ending_max_run: runLen,
-      repeated_ending_class: runClass,
-      repeated_ending_limit: runLimit,
-      repeated_ending_warning: runLen >= runLimit,
-      word_count: words.length,
-      sentence_count: sentences.length,
-      sentence_lengths: lens,
-      sentence_length_cov: cov,
-      rhythm: rhythmProfile(text, warnRhythm),
-      mektedir_per_100_words: mekPer100,
-      high_mektedir_warning: mekPer100 > profile.mektedir_max,
-      total_flags: findings.length,
-      findings,
+  function ozellikler(o, bulgular) {
+    const yuz = Math.max(o.kelime, 1) / 100;
+    const sayim = (guc, siniflar) => bulgular.filter((b) => b.guc === guc && siniflar.includes(b.sinif)).length;
+    return {
+      ritim: o.ritim, duz_pencere: o.duz_pencere, orta_boy: o.orta_boy, kisa: o.kisa, uzun: o.uzun, gecis: o.gecis,
+      soru: Math.min(o.soru, 30), iki_nokta: Math.min(o.iki_nokta, 30), noktali_virgul: Math.min(o.noktali_virgul, 30),
+      uclu: Math.min(o.uclu, 20), degil_virgul: Math.min(o.degil_virgul, 15), bu_basi: o.bu_basi,
+      guclu_kalip: Math.min(sayim(3, ["kalip", "cumle", "noktalama", "artik"]) / yuz, 3),
+      orta_kalip: Math.min(sayim(2, ["kalip", "cumle", "bicim"]) / yuz, 3),
+      zayif_kalip: Math.min(sayim(1, ["kalip", "cumle"]) / yuz, 4),
     };
-    return Object.assign(report, scoreReport(report));
   }
 
-  // Yapay zekâ izi skoru: detect_tr_ai.py'deki score_report'un aynısı. Olasılık değil, iz yoğunluğu.
-  // Python round(x) gerçek yarımlarda çifte yuvarlar (2,5 -> 2), Math.round yukarı. Bu fark burada giderilir.
-  function pyRound0(x) {
-    const f = Math.floor(x);
-    if (x - f === 0.5) return f % 2 === 0 ? f : f + 1;
-    return Math.round(x);
-  }
-  const ramp = (x, lo, hi) => Math.min(Math.max((x - lo) / (hi - lo), 0), 1);
-  const tr = (x) => pyRound(x).toFixed(2).replace(".", ",");
-  function ruleName(rule) {
-    const m = rule.match(/'([^']+)'/u);
-    return m ? m[1] : rule.split(":")[0];
-  }
-  function patternWeight(rule) {
-    if (K.score.lowPatterns.some((p) => rule.startsWith(p))) return 0.5;
-    if (rule.startsWith("Tier-1") || rule.startsWith("P0")) return 1.0;
-    if (rule.startsWith("Tier-2") || rule.startsWith("P1")) return 0.75;
-    return 0.25;                                       // P2: noktalama, TDK, terim
-  }
+  const tr = (x, n = 2) => x.toFixed(n).replace(".", ",");
+  const yuzde = (x) => Math.round((x || 0) * 100);
 
-  function scoreReport(r) {
-    const S = K.score, W = S.weights, rh = r.rhythm;
-    if (rh.window_count < S.minWindows) {
-      return { score: null, level: "Yetersiz metin", reasons: [{ signal: "yetersiz", points: 0,
-        text: `Yetersiz metin, skor üretilmedi: ritim için en az 5 cümle gerekiyor, bu metinde ${r.sentence_count}.` }] };
-    }
-    const low = S.lowRhythmRegisters.includes(r.register);
-    const rfac = low ? S.lowRhythmFactor : 1.0;
-    const reasons = [];
-    const add = (signal, points, text) => {
-      points = pyRound0(points);
-      if (points > 0) reasons.push({ signal, points, text });
+  function gerekce(ad, o, bulgular) {
+    const liste = (guc) => {
+      const adlar = new Map();
+      for (const b of bulgular) {
+        if (b.guc === guc && ["kalip", "cumle", "bicim", "noktalama", "artik"].includes(b.sinif)) {
+          const k = b.eslesme.toLowerCase();
+          adlar.set(k, (adlar.get(k) || 0) + 1);
+        }
+      }
+      return [...adlar].slice(0, 6).map(([k, v]) => `“${k}”` + (v > 1 ? ` (${v} kez)` : "")).join(", ");
     };
-
-    const med = rh.window_cov_median, below = rh.window_cov_below_target_ratio;
-    const sRhythm = 0.6 * ramp(med, S.covHuman, S.covModel) + 0.4 * ramp(below, S.belowHuman, S.belowModel);
-    const note = low ? " Bu metin türünde ritim düşük ağırlıkla sayıldı." : "";
-    add("ritim", W.ritim * rfac * sRhythm,
-      `Cümle ritmi çok düzenli: ${tr(med)} (insan metinlerinde 0,46-0,49, model metinlerinde 0,28-0,41). ` +
-      `Eşiğin (${tr(K.windowCovTarget)}) altında kalan 5 cümlelik pencere oranı: %${pyRound0(below * 100)}.${note}`);
-
-    const band = rh.band_15_22_ratio;
-    add("bant", W.bant * rfac * ramp(band, S.bandHuman, S.bandModel),
-      `15-22 kelimelik cümle oranı: %${pyRound0(band * 100)} (insanda %14-25, uzun cümleli modellerde %29-49).`);
-
-    const hi = r.mektedir_target_range[1], per100 = r.mektedir_per_100_words;
-    if (per100 > hi) {
-      add("mektedir", W.mektedir * ramp(per100, hi, 2 * hi),
-        `'-mAktAdIr' yoğunluğu 100 kelimede ${tr(per100)}, bu metin türü için üst sınır ${tr(hi)}.`);
-    }
-    if (r.repeated_ending_warning) {
-      add("seri", W.seri,
-        `Art arda ${r.repeated_ending_max_run} cümle aynı ekle (${r.repeated_ending_class}) bitiyor, sınır ${r.repeated_ending_limit}.`);
-    }
-
-    let weighted = 0;
-    const counts = new Map();
-    for (const f of r.findings) {
-      weighted += patternWeight(f.rule);
-      counts.set(f.rule, (counts.get(f.rule) || 0) + 1);
-    }
-    const density = weighted / Math.max(r.word_count, 1) * 100;
-    if (counts.size) {
-      const parts = [...counts].map(([rule, n]) => `'${ruleName(rule)}' (${n} kez)`);
-      add("kalip", W.kalip * Math.min(density / S.patternFull, 1.0),
-        `Kalıp bulguları (100 kelimede ağırlıklı ${tr(density)}): ${parts.join(", ")}.`);
-    }
-
-    const total = Math.min(reasons.reduce((a, x) => a + x.points, 0), 100);
-    const level = S.levels.find(([floor]) => total >= floor)[1];
-    reasons.sort((a, b) => b.points - a.points);
-    return { score: total, level, reasons };
+    const m = {
+      ritim: `Cümle boyları birbirine yakın: art arda beş cümlede değişkenlik ${tr(o.ritim || 0)} (yazarlarda 0,45 dolayı).`,
+      duz_pencere: `Beşer cümlelik parçaların %${yuzde(o.duz_pencere)}'i tekdüze.`,
+      orta_boy: `Cümlelerin %${yuzde(o.orta_boy)}'i 15-22 kelime arasında toplanmış.`,
+      kisa: `Kısa cümle az: altı kelime ve altındakiler %${yuzde(o.kisa)}.`,
+      uzun: `Uzun cümle az: 28 kelime ve üstündekiler %${yuzde(o.uzun)}.`,
+      gecis: `Cümlelerin %${yuzde(o.gecis)}'i “Ancak”, “Ayrıca”, “Bu nedenle” gibi bir geçiş sözüyle başlıyor.`,
+      soru: `Soru cümlesi az: bin kelimede ${tr(o.soru, 1)}.`,
+      iki_nokta: `İki nokta kullanımı: bin kelimede ${tr(o.iki_nokta, 1)}.`,
+      noktali_virgul: `Noktalı virgül sık: bin kelimede ${tr(o.noktali_virgul, 1)}.`,
+      uclu: `“A, B ve C” biçiminde üçlü sıralama sık: bin kelimede ${tr(o.uclu, 1)}.`,
+      degil_virgul: `“… değil, …” karşıtlığı sık: bin kelimede ${tr(o.degil_virgul, 1)}.`,
+      bu_basi: `Cümlelerin %${yuzde(o.bu_basi)}'i “Bu” ile başlıyor.`,
+      guclu_kalip: "Yazarlarda neredeyse hiç görülmeyen kalıplar: " + liste(3) + ".",
+      orta_kalip: "Modellerin sık kullandığı kalıplar: " + liste(2) + ".",
+      zayif_kalip: "Tek tek olağan ama burada yoğun sözler: " + liste(1) + ".",
+    };
+    return m[ad] || ad;
   }
 
-  root.YD = { analyzeText, splitSentences };
+  function skorla(o, bulgular, tur) {
+    if (o.cumle < EN_AZ_CUMLE || !K.skor) {
+      const neden = K.skor ? `Skor için en az ${EN_AZ_CUMLE} cümlelik düz yazı gerekiyor, bu metinde ${o.cumle} cümle var.` : "Skor henüz ayarlanmadı.";
+      return { skor: null, seviye: "Skor yok", gerekceler: [{ ozellik: "yetersiz", pay: 0, metin: neden }] };
+    }
+    const aile = K.skor.tur_ailesi[tur === null ? "null" : tur] || K.skor.tur_ailesi.null;
+    const model = K.skor.aileler[aile];
+    const oz = ozellikler(o, bulgular);
+    let z = model.sabit;
+    const paylar = [];
+    for (const [ad, w] of Object.entries(model.katsayi)) {
+      const [ort, sap] = model.olcek[ad];
+      const katki = w * ((oz[ad] || 0) - ort) / sap;
+      z += katki;
+      paylar.push([katki, ad]);
+    }
+    const skor = Math.round(100 / (1 + Math.exp(-z)));
+    const seviye = SEVIYELER.find(([taban]) => skor >= taban)[1];
+    paylar.sort((a, b) => b[0] - a[0] || (a[1] < b[1] ? 1 : -1));
+    const esik = (ad) => (ad === "soru" ? (aile === "serbest" ? 0.15 : 99) : (ad === "kisa" || ad === "uzun") ? 0.5 : 0.15);
+    const gerekceler = paylar.filter(([k, ad]) => k > esik(ad)).slice(0, 5)
+      .map(([k, ad]) => ({ ozellik: ad, pay: yuvarla(k, 2), metin: gerekce(ad, o, bulgular) }));
+    return { skor, seviye, gerekceler };
+  }
+
+  function denetle(metin, tur) {
+    tur = tur || null;
+    const profil = tur ? K.turler[tur] : K.genelTur;
+    const m = maskele(metin);
+    const o = olc(m);
+    const bulgular = bul(m, tur);
+    const rapor = {
+      tur, tur_adi: profil.ad, olcu: o, bulgular,
+      uyarilar: {
+        ritim: Boolean(o.ritim !== null && o.cumle >= EN_AZ_CUMLE && o.ritim < profil.ritim),
+        mektedir: o.mektedir > profil.mektedir_ust && o.mektedir * o.kelime >= 250,
+        seri: o.seri >= profil.seri,
+      },
+      mektedir_ust: profil.mektedir_ust, seri_siniri: profil.seri,
+    };
+    return Object.assign(rapor, skorla(o, bulgular, tur));
+  }
+
+  root.YD = { denetle, cumleler, bloklar, EN_AZ_CUMLE };
 })(globalThis);

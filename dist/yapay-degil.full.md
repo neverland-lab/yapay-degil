@@ -3,892 +3,782 @@ name: yapay-degil
 description: Türkçe metni insan eliyle yazılmış gibi doğal yazar veya onarır. Kullanıcı Türkçe bir metin için "insanileştir", "humanize et", "AI hissiyatını sil" veya "doğal Türkçeye çevir" dediğinde, metinde çeviri kokusu ya da TDK hatası denetimi istediğinde, Türkçe blog, makale, kurumsal yazı, sosyal medya içeriği veya teknik doküman yazarken kullan.
 license: MIT
 metadata:
-  author: yucezerey, neverland-lab
-  version: "1.3.3"
+  author: neverland-lab, yucezerey
+  version: "2.0.0"
 ---
 
-# yapay-degil (Doğal Türkçe ve Anti-Slop Mimari Kılavuzu)
+# yapay-degil
 
-Bu yetenek, Büyük Dil Modellerinin (LLM) İngilizce ağırlıklı eğitim verisi ve RLHF süreçleri yüzünden ürettiği "Yapay Zekâ Türkçesini" (kelimeleri Türkçe ama cümle iskeleti İngilizce olan, mekanik, şişirilmiş ve tekdüze metinleri) doğal, nefes alan ve TDK kurallarına tam uyumlu insan Türkçesine dönüştürür.
+Dil modelinin yazdığı Türkçe çoğu zaman yanlış değildir, ama okur birkaç cümlede bunu bir insanın yazmadığını anlar. Kelimeler Türkçedir, cümlenin iskeleti İngilizcedir. Cümleler hep aynı boydadır. Paragraf bir duyuruyla açılır, bir özetle kapanır. Araya da hiçbir şey söylemeyen sözler girer: "önemli bir rol oynar", "sadece bir araç değil, aynı zamanda bir fırsat".
 
-Detaylı dilbilimi kuralları ve sözlük tabloları için bu dizindeki referans dosyalarını oku:
+Bu skill o izleri tanımanı ve Türkçeyi bir yazarın kuracağı gibi kurmanı sağlar. Buradaki ölçülerin hepsi sayılarak bulundu: Türkçe yazılmış 145 kitap, makale ve belgeyle dil modellerinin aynı türlerde yazdığı metinler yan yana ölçüldü. Sayılar `references/olculer.md` dosyasında.
 
-- `references/sentaks-ve-morfoloji.md`: Türkçe cümlenin geometrisi (öge dizilimi, bilgi yapısı, gömme derinliği), sola dallanma, ulaç sistemi, vurgu yuvası, `-DIr` ile `-mAktAdIr` ayrımı, zamir düşürme, adlaştırma zincirleri, kof yardımcı fiil dönüşümleri ve koşutluk (ortak öge, liste biçim birliği, yapay simetri).
-- `references/ai-turkcesi-sozlugu.md`: Tier-1 (kesin AI ifşaları), Tier-2 (bürokratik bağlaçlar) ve Tier-3 (SaaS/pazarlama çeviri kalıpları) sözlüğü.
-- `references/tdk-ve-noktalama.md`: 5 mutlak noktalama yasağı, TDK birleşik/ayrı kelimeler ve yabancı teknik terimlerin Türkçe okunuşa göre ek uyumu.
-- `references/derlem-olcumleri.md`: Türkçe yazılmış 145 metinden (roman, deneme, köşe yazısı, mektup, akademik kitap ve makale, psikoloji, teknik ve kamu belgesi) ve beş dil modelinin metinlerinden ölçülmüş cümle uzunluğu, ritim, noktalama ve devrik oranları. Ritim ve noktalama kurallarının dayanağı.
-- `references/register-ve-ornekler.md`: 6 register × 9 üslup boyutu matrisi (kamu ve kurum içi yazışma profili dâhil) ve uçtan uca Before/After dönüşüm çiftleri.
+Üç iş yaparsın. Onarımda verilen metni, söylediği hiçbir şeyi değiştirmeden doğal Türkçeye çevirirsin. Yazımda bir konudan ya da taslaktan yeni metin yazarsın. Denetimde metne dokunmazsın: yapay duran yerleri ve yazım hatalarını alıntılayarak gösterir, her birinin nedenini söylersin. Kullanıcı hangisini istediğini çoğu zaman açıkça söyler. Söylemediyse ve elinde bir metin varsa onarım istiyordur.
 
-## Temel İlkeler
+## Bilgiye dokunma
 
-1. **Kelime Değiştirmek Yetmez, Cümle Mimarisini Yeniden Kur:** Türkçe sondan eklemeli (agglutinative) ve sola dallanan (left-branching) bir dildir. İngilizcenin sağa dallanan SVO iskeletini koruyarak yalnızca eşanlamlı kelime değiştirmek AI etkisini silmez. Önce cümle mimarisini onar.
-2. **Olgusal Sadakat Kilidi (Anti-Fabrication Lock):** Onarım (`rewrite`) modunda kaynak metinde bulunmayan hiçbir sayı, tarih, özel isim, kişisel anekdot veya nedensellik bağı uydurma. "İnsan gibi görünmek" için yalan söyleme, yalnızca mevcut bilginin ifade edilişini doğallaştır. Bir klişeyi silince yerine somut bilgi gerekiyorsa ve bu bilgi kaynakta yoksa onu uydurma. Ya klişeyi sadeleştirip olduğu kadarını söyle ya da köşeli yer tutucu bırak (`[somut veri: kaç belge?]`) ve kullanıcıya sor. Referans dosyalarındaki örnekler bu biçimi kullanır. Sayı, miktar ve kesinlik derecesi de bilgidir. "Birçok" yerine "yüzlerce", "artırabilir" yerine "artırır" yazmak da uydurmadır.
-3. **Register (Bağlam) Dozajı:** Her metin aynı tonda yazılmaz. Akademik makalede `-mAktAdIr` eki doğalken, blog veya kurumsal bültende yapay durur. İşleme başlamadan önce metnin register'ını belirle.
-4. **Sınırları Olan Kurallar:** Sınırı olmayan her kural yeni bir yapay tike dönüşür. Devrik cümle, söylem parçacığı (`işte`, `zaten`, `hani`) veya kısa cümle kullanımını kotaya bağlama ve silme testinden geçmeyen hiçbir üslup aracını metinde tutma.
+Onarımda değişen yalnızca söyleyiştir. Kaynakta olmayan sayı, tarih, ad, örnek, anı ya da neden-sonuç bağı ekleme. "İnsan gibi" görünsün diye uydurulan her ayrıntı bir yalandır ve kullanıcı o metnin altına kendi adını yazacak.
 
-## Çalışma Modları
+Kesinlik de bilgidir. "Birçok" yerine "yüzlerce", "artırabilir" yerine "artırır", "gibi belirtiler" yerine kapalı bir liste yazarsan kaynağın söylemediği bir şeyi söylemiş olursun. `gibi`, `bazı`, `çoğu`, `yaklaşık`, `yeniden`, `hâlâ` ve `-ebil-` gibi küçük sözler anlam taşır, onları koru.
 
-Kullanıcı isteğine göre aşağıdaki üç moddan birini seç:
+Bir klişeyi silince yerinde boşluk kalıyorsa ve dolduracak bilgi kaynakta yoksa iki yolun var: cümleyi olduğu kadarıyla sade söyle ya da köşeli ayraçla yer tut (`[kaç belge?]`) ve kullanıcıya sor. Üçüncü yol, yani boşluğu kendin doldurmak, yok.
 
-- **Onarım Modu (`rewrite` - Varsayılan):** Mevcut bir Türkçe metni veya çeviriyi alır, olgusal sadakati %100 koruyarak AI kalıplarını temizler ve cümle mimarisini Türkçeleştirir.
-- **Üretim Modu (`write`):** Verilen bir konu veya taslaktan sıfırdan Türkçe metin üretir. Kompozisyon ve cümle kararlarını ilk cümleden itibaren İngilizce düşünmeden, doğrudan Türkçe kurar.
-- **Denetim Modu (`audit`):** Metni yeniden yazmaz. Metindeki P0 (Kesin AI İfşası), P1 (Yapısal Çeviri Kokusu) ve P2 (Ritim/Noktalama Kusuru) sinyallerini alıntılayarak raporlar.
+Kaynakta bozuk ya da iki türlü anlaşılan bir cümle varsa en yakın okumayı yaz ve bunu metnin altında kullanıcıya söyle. Sessizce düzeltme, sessizce de bırakma.
 
-## Adım Adım İş Akışı (Mark -> Draft -> Audit -> Deletion Test)
+Cümlelerin sınırını değiştirmek bilgiye dokunmak değildir. Bir cümleyi ikiye bölebilir, ikisini birleştirebilir, sırasını değiştirebilirsin. Yeter ki bir şey eklenmesin, bir şey de kaybolmasın.
 
-### Adım 1: Register ve Üslup Kalibrasyonu
+## Önce metnin türüne bak
 
-Kullanıcı kendi yazısından örnek verdiyse (few-shot referans), cümle uzunluğu, bağlaç tercihi ve ton açısından kullanıcının örneğini en üst kural kabul et. Örnek yoksa metni şu 6 register'dan birine ata (`references/register-ve-ornekler.md`):
+Aynı düzeltme bir türde metni iyileştirir, ötekinde bozar. Başlamadan önce metnin hangi türe girdiğine karar ver. Kullanıcı kendi yazısından örnek verdiyse o örnek aşağıdaki her şeyin üstündedir.
 
-| Register | Kompozisyon Müdahalesi | Cümle Mimarisi | `-DIr` / `-mAktAdIr` | Devrik Cümle ve Parçacık |
-| :--- | :--- | :--- | :--- | :--- |
-| **Blog / Deneme / Sosyal Medya** | Tam (Sahne ile başla, ilan etme) | Tam (Ulaç, özne düşürme, `-mIş`) | `-mAktAdIr` sil, ad cümlesinde `-DIr` seyrek | Serbest (yazarlarda cümlelerin yaklaşık onda biri devrik) |
-| **Teknik Doküman / Mühendislik** | Orta (Doğrudan probleme gir) | Tam (Sola dallanma, ulaç, net yüklem) | `-mAktAdIr` yerine `-Ar/-Ir` veya `-(I)yor`, tanım cümlesinde `-DIr` korunur | Devrik yok, parçacık çok az |
-| **Kurumsal / Şirket İletişimi / SaaS** | Orta (Tezi ilk cümlede söyle) | Tam (Kurumun kendi eylemini etkene çevir, kof fiili at) | `-mAktAdIr` yalnızca resmî duyuruda, `-DIr` tanımda | Devrik yok, doğal ve doğrudan |
-| **Akademik / Resmî / Hukuki** | Kapalı (Belge iskeletini koru) | Sola dallanma, ulaç ve vurgu yuvası | Korunur (100 kelimede yaklaşık 0,5-2,5, makalelerde ortanca 1). Art arda üç dört cümlenin aynı ekle bitmesi olağandır, yediyi geçen seriyi geniş zaman ya da `-DI` ile kır | Kesinlikle yasak |
-| **Edebî / Anlatı** | Tam (Ritim ve imge odaklı) | Tam (Nefes uzunluğu varyasyonu yüksek) | `-mAktAdIr` sil, `-DIr` anlatı akışında seyrek | Anlatı ritmine göre doğal |
-| **Kamu / Kurum İçi Yazışma** | Kapalı (Konu, gerekçe ve sonuç düzenini koru) | Kurum dilini koru (adlaştırma, edilgen, sıfat-fiil). Yalnızca koşutluk, ortak öge ve özne hatalarını onar | Korunur. Faaliyet raporunda art arda `-mIştIr` ile biten cümleler olağandır, seyreltme | Devrik ve parçacık yok |
-
-### Adım 2: Üç Katmanlı Dönüşüm
-
-#### Katman 1: Kompozisyon ve Retorik Kalıplar (P0 Sinyalleri)
-
-- **Sahneleme Yerine Doğrudan Söyle:** "Bu yazıda X konusunu ele alacağız", "Günümüzün hızla değişen dünyasında" gibi sahneleme girişlerini silip konunun kendisine gir.
-- **Negatif Paralellikleri Kaldır:** "Sadece X değil, aynı zamanda Y", "Bu bir A değil, bir B'dir" ve "X ile değil, Y ile" gibi negatif paralellik kalıplarını olumlu ve net bir yargıya dönüştür (detaylar: `references/ai-turkcesi-sozlugu.md`). Sınır: Olumsuz yarı yaygın bir görüşü ya da okurun beklentisini reddediyorsa bir iddia taşır, silinmez (*"Yalnızlık şehrin kusuru değil, bizim alışkanlığımız."*). Silinecek olan, hiçbir görüşü reddetmeyen süs kalıbıdır (*"Bu sadece bir araç değil, aynı zamanda bir felsefe."*).
-- **Tek Satırlık Dramatik Kapanışları ve Özet Kuyruklarını Sil:** Paragraf sonlarındaki "İşte asıl fark burada ortaya çıkıyor.", "Sonuç olarak X'in önemi yadsınamaz." gibi ders veren kapanışları kes. Sınır: Kurmacada son cümle olayın, mekânın ya da sonucun parçasıysa silinmez. Silinecek olan yalnızca okura ders veren ya da söyleneni özetleyen kuyruktur.
-- **Üçlü Liste (Rule of Three) Otomatizmini Kır:** Fikirleri sürekli üçlü sıfat veya üçlü örnek grupları ("hızlı, güvenilir ve ölçeklenebilir") hâlinde dizme. Gerçekten kaç öge varsa o kadarını sırala.
-- **Kalın Etiketli Madde İmlerini (`**Başlık:** Açıklama`) Çöz:** Gerekmedikçe her paragrafı madde imine çevirme. Liste şartsa kalın etiket + iki nokta şablonu yerine yalın cümle kur.
-
-#### Katman 2: Türkçe Cümle Mimarisi ve Sentaks (P1 Sinyalleri)
-
-Detaylı kurallar ve örnekler için `references/sentaks-ve-morfoloji.md` dosyasını oku:
-
-- **Öge Dizilimi ve Bilgi Yapısı:** Türkçe baş sonda bir dildir. Cümle başına bilinen konuyu, yüklemin hemen önüne yeni ya da vurgulanan bilgiyi koy. Belirtisiz nesneyi yüklemden ayırma (*"Ahmet'e rapor gönderdim"*). İngilizce yarık cümleyi (*"Bunu mümkün kılan şey X'ti"*) odağı yüklem önüne alarak çöz (*"Bunu X mümkün kıldı"*).
-- **Sola Dallanma (Left-Branching):** Niteleyicileri ve yan cümleleri baş ismin arkasına ya da `ki` ile cümle sonuna takma, sıfat-fiillerle (`-(y)An`, `-DIk`, `-(y)AcAk`) ismin önüne al (*"Bir sistem kurduk, bu sistem verileri tarıyor"* -> *"Verileri tarayan bir sistem kurduk"*). Ama bir adın önüne ikiden fazla iç içe yan cümle yığma, o durumda cümleyi böl.
-- **Refleks `ve` Yerine Ulaç (Zarf-Fiil) Sistemi:** Sıralı eylemleri mekanik `ve` veya `ve sonra` ile bağlamak yerine Türkçenin ulaç eklerini (`-(y)Ip`, `-(y)IncA`, `-DIkçA`, `-(y)ArAk`, `-mAdAn`) kullan (*"Veriyi çektik ve işledik"* -> *"Veriyi çekip işledik"*). Ulaçlı yan cümlenin söylenmeyen öznesi ana cümlenin öznesi sayılır. Özneler farklıysa ulaç kullanma. `-(y)Ip` zıtlık bildirmez: *"Sesini duyuyoruz ama adını bilmiyoruz"* cümlesini *"Sesini duyup adını bilmiyoruz"* yapma, karşıtlık kaybolur ve olumsuzluk iki eyleme yayılabilir. Zıtlık için *ama* ya da `-(y)ken` kullan.
-- **`-mAktAdIr` ile `-DIr`'ı Ayrı Ele Al:** `-mAktAdIr` akademik ve resmî register dışında `-(I)yor` ya da `-Ar/-Ir` olur (*"kolaylık sağlamaktadır"* -> *"işini kolaylaştırıyor"*). Ad cümlesindeki `-DIr` tanım ve sınıflandırmada korunur (*"Redis bir anahtar-değer veri tabanıdır"*), anlatı akışında seyreltilir. Sıralı yüklemlerde eki yalnızca sonuncuya getir (*"hızlıdır ve güvenilirdir"* -> *"hızlı ve güvenilirdir"*).
-- **Vurgu Yuvasını (Yüklem Önü) Kullan:** Türkçede vurgu kalın yazıyla veya *"Tam da bu noktada"* dolgusuyla değil, vurgulanacak ögeyi yüklemin hemen önüne çekerek verilir (*"Dün İzmir'e ben gittim"* vs. *"Ben İzmir'e dün gittim"*). Yüklemden sonraya yalnızca bağlamdan bilinen öge alınabilir.
-- **Zamir Düşürme (Pro-Drop), `"Bir"` Yoğunluğu ve `"Kendi"`:** Yüklemdeki kişi eki özneyi zaten taşıyorsa `ben, sen, o, biz` zamirlerini düşür, çünkü açık zamir karşıtlık bildirir. `bir` tek başına hata değildir (*"derin bir iz bıraktı"*). Önce kalıplaşmış birleşik eylemlerin içindekini at (*"büyük bir önem taşıyor"* -> *"büyük önem taşıyor"*), bir cümlede birden fazla *sıfat + bir + soyut ad* varsa seyrelt. `own` çevirisi olan gereksiz `"kendi"` zamirini sil.
-- **Edilgen Çatı (`tarafından`), Adlaştırma ve Kof Yardımcı Fiiller:** `tarafından` Türkçenin kendi yapısıdır (*"Köprü Mimar Sinan tarafından yapıldı"*). Yalnızca eyleyen yazarın kendisi ya da kurumu olduğunda (*"Ekibimiz tarafından gerçekleştirilmiştir"* -> *"Ekibimiz yaptı"*) veya kof eylemle birlikte geldiğinde etkene çevir. *"-mAsI gerekmektedir / sağlanmalıdır"* zincirlerini doğrudan çekimle çöz (*"yedeklenmesinin sağlanması gerekmektedir"* -> *"yedeklenmeli"*). *"Gerçekleştirmek, sağlamak, sahip olmak"* öbeklerini seyrelt. `katkıda bulunmak` yerleşik bir deyimdir, sözlükte yer almayan `katkı sunmak` ile değiştirme.
-- **Koşutluk (Cümlenin Simetrisi):** `ve` ile iki yükleme bağlanan ortak öge her yüklemin hâline ve çatısına uymalı (*"geri bildirimleri inceliyor ve yer veriyoruz"* -> *"geri bildirimleri inceliyor ve bunlara yer veriyoruz"*). Listedeki ögeleri aynı biçimde kur (`-mAk` ile `-mAsI` ad-eylemlerini ve ad öbeklerini karıştırma). `ne ... ne` ile yüklemi olumsuz çekimleme. Anlamın gerektirmediği ayna karşıtlık ve aynı kalıba dökülmüş üçlülerle slogan kurma, süsü atıp somut iddiayı söyle.
-- **Kanıtsallık Kipi (`-mIş`):** Dolaylı öğrenilen, log kaydından okunan veya sonradan fark edilen durumlarda gündelik ve blog register'ında Türkçenin kanıtsallık kipini (`-mIş`) kullan (*"Sunucu gece yeniden başlamış"*). Resmî rapor ve tutanakta kayıtla kesinleşmiş olgu için `-DI` olağandır.
-
-#### Katman 3: TDK Yazım Kılavuzu, Noktalama ve Terminoloji (P2 Sinyalleri)
-
-Detaylı kurallar için `references/tdk-ve-noktalama.md` dosyasını oku:
-
-- **Noktalama ve Bağlaç Kuralları:** `[TDK]` etiketli kurallar TDK Yazım Kılavuzu'na dayanır ve her register'da geçerlidir. `[Üslup]` etiketli kurallar çeviri kokusunu azaltan tercihlerdir ve register'a göre esnetilebilir.
-  1. `[TDK]` **Uzun çizgi (em-dash)** yalnızca satır başında konuşma çizgisi olarak kullanılır. Ara söz için virgül ya da TDK'nın ara söz kuralındaki bitişik kısa çizgiyi kullan (*"Küçük bir sürü -dört inekle birkaç koyun- yolun ağzında durmuştu."*). Çoğu zaman en doğal çözüm cümleyi ikiye bölmektir.
-  2. `[TDK]` Sayı ve tarih aralıklarında orta çizgi (en-dash) değil **kısa çizgi (`-`)** kullan (`09.30-10.30`, `2024-2026`).
-  3. `[TDK]` **`ve`, `veya`, `yahut`, `ya ... ya`** bağlaçlarından önce ve sonra virgül konmaz. `[Üslup]` `ama`, `fakat`, `lakin` için TDK'da virgül kuralı yoktur. Türk yazarlar `ama`ların dörtte birinde önüne virgül koyar (derlemde %19-32), modeller %18. Bu yüzden `ama` öncesi virgül yapay zekâ izi değildir: Kaynakta varsa silme, yoksa ekleme.
-  4. `[Üslup]` İç virgülü olmayan iki bağımsız cümleyi İngilizce tarzı **noktalı virgül köprüsüyle** yapıştırma, noktayla ayır. `[TDK]` Noktalı virgülün kılavuzdaki kullanımları doğrudur ve özellikle akademik/hukuki metinde korunur: virgülle ayrılmış tür veya takımları ayırmak, ögeleri arasında virgül bulunan sıralı cümleleri ayırmak.
-  5. `[TDK]` Kitap, bildiri ve makalede ana başlık tamamen büyük harfle, alt başlıklar her kelimenin ilk harfi büyük olarak yazılır. Bu düzende `ve`, `ile`, `ya`, `veya`, `yahut`, `ki`, `da`, `de` ve `mı/mi` soru eki küçük kalır (`Suç ve Ceza`). Hata, bunları büyük yazmaktır (`Yapay Zekâ Ve Gelecek`). `[Üslup]` Blog, teknik belge ve kurumsal metinde ara başlığı tümce düzeninde yazmak daha doğal durur.
-- **Teknik Terimleri Zorla Çevirme, Okunuşuna Göre Ek Getir:** Sektörde yerleşik Türkçe karşılığı olmayan teknik terimleri (`endpoint`, `deploy`, `middleware`, `queue`, `cache`, `idempotent`) *"uç nokta, olay güdümlü, ara katman"* diye zorla çevirme. `[TDK]` Kısaltmalara gelen ekler kesmeyle ayrılır ve okunuşa uyar (`TDK'nin`, `TV'ye`). `[Üslup]` Yabancı cins isimlere kesmeyle ek getirmek TDK'da düzenlenmemiş ama yerleşik bir yazım geleneğidir. Bu durumda da ek yazılışa göre değil, **Türkçe okunuşa (fonetiğe)** göre gelir: `cache'i` (keş), `queue'yu` (kü), `SQL'i` (es-kü-el), `JSON'ı` (ceyson).
-- **TDK Bağlaç ve Birleşik Kelime Denetimi:** Bulunma durumu eki `-da/-de` (bitişik) ile bağlaç olan `da/de`'yi (ayrı), ilgi/sıfat eki `-ki` ile bağlaç olan `ki`'yi (`belki`, `çünkü`, `hâlbuki`, `mademki`, `meğerki`, `oysaki`, `sanki` kalıplaşmış bitişikler hariç ayrı) ve `birçok`, `birkaç`, `hiçbir`, `herhangi bir`, `pek çok`, `art arda`, `yanı sıra` yazımlarını denetle.
-
-### Adım 3: Öz Denetim (Self-Audit) ve Cümle Ritmi (Burstiness) Kontrolü
-
-Taslağı oluşturduktan sonra kullanıcıya sunmadan önce şu kontrolleri yap:
-
-- **Cümle Ritmi (derlemle ölçülmüş, `references/derlem-olcumleri.md`):** Art arda gelen 5 cümlelik pencerelerde cümle uzunluğu değişim katsayısının (CoV) ortancası Türk yazarlarda 0,46-0,49 (kurmaca, deneme ve akademik metinde), dil modellerinde 0,28-0,41. Modellerin iki ayrı tekdüzelik tipi var:
-  - *Uzun ve tekdüze:* Cümleler 15-22 kelime bandında toplanır. Bu bantta insan kurmacasında cümlelerin %14'ü, insan denemesinde %23'ü, akademik metinde %25'i, bu tip model metinlerinde %29-49'u bulunur. Akademik metinde bu bant tek başına yapay zekâ işareti değildir.
-  - *Kısa ve tekdüze:* Her cümle 5-8 kelimedir. Kısa ama hepsi aynı boyda olduğu için ritim yine düzdür.
-  Ölçüt kısa cümle sayısı değil, **değişkenliktir.** Her paragrafta cümlelerin kelime sayısını gerçekten say, tahminle yetinme (yöntem ve örnek: `references/register-ve-ornekler.md`, Örnek 5). Üç cümle art arda birbirine yakın uzunluktaysa (aralarında 3-4 kelimeden az fark varsa) birini böl ya da ikisini ulaçla tek cümlede birleştir. Aynı paragrafta 3-5 kelimelik bir cümle ile 20 kelimeyi aşan bir cümle yan yana durabilir. Ritmi kaynakta olmayan cümle ekleyerek değil, var olan cümleleri bölüp birleştirerek kur. Bu kontrol onarım (`rewrite`) modunda da geçerlidir: Cümle sınırlarını değiştirmek sadakate aykırı değildir, yeter ki bilgi eklenmesin ya da çıkarılmasın. Deneylerde onarıcı model kaynak cümlelerin sınırlarına dokunmadığında ritim hiç düzelmedi. Bölerken yeni ifade ya da imge icat etme: Ritim için yeniden kurulan cümleler deneylerde yeni hatalar üretti (*"sanki ... gibiydi"* anlam tekrarı, *"onun biraz daha yumuşağı"* gibi bozuk tamlama). Yeniden kurduğun her cümleyi dil bilgisi açısından ayrıca oku. Kurum içi ve teknik metinlerde bu kontrol gevşetilir. Akademik ve açıklayıcı metinde (ders kitabı, popüler bilim) yazarların pencere değişkenliği 0,38-0,48 arasındadır. Burada edebî hedefi zorlama, belirgin bir tekdüzelik yoksa cümle sınırlarına dokunma.
-- **Noktalama Çeşitliliği (kurmaca, blog, deneme):** Türk yazarların kurmaca anlatısında 1000 kelimede yaklaşık 13 soru, 7 ünlem, 9 üç nokta ve 7 iki nokta bulunur. Denemede de soru ve iki nokta olağandır (yaklaşık 3 ve 6). Köşe yazısında, dolayısıyla blog ve sosyal medya metninde, oranlar daha yüksektir: 1000 kelimede yaklaşık 11 soru, 9 üç nokta ve 7 iki nokta. Dil modelleri anlatıda bunları neredeyse hiç kullanmaz, düz bildirme cümlesine sıkışır. Kaynakta bir soru, şaşkınlık, yarım kalan düşünce ya da açıklama ilişkisi varsa onu kendi noktalamasıyla ver. Kaynakta olmayan bir soruyu ya da duyguyu ekleme. Noktalı virgülü tamamen silme: Yazarlar 1000 kelimede ortanca yaklaşık 2 noktalı virgül kullanır, Gemini ve GPT tipi modeller 7-18. Hedef silmek değil, azaltmaktır: 1000 kelimede 3'ü, yani 300-400 kelimelik bir metinde bir iki noktalı virgülü geçme. Açıklayıcı metinde (ders kitabı, popüler bilim) yazarlar 1000 kelimede 3-7 noktalı virgül kullanır. Onarım modunda insanın koyduğu noktalı virgülü bu sınır yüzünden silme.
-- **Devrik Cümle Dozu (ölçülmüş):** İnsan anlatı cümlelerinin yaklaşık %9,5'i, deneme cümlelerinin %7'si devriktir (sezgisel ölçüm), model metinlerinde %1-8. Yazarlarda yüklemden sonra gelen kısım %83 oranında 1-2 kelimedir: zamir (*beni, ona*), işaret sözü (*bu*), özel ad ya da *belki, zaten, hiç* gibi bir zarf. Yüklemden sonraya uzun bir öge ya da yeni bilgi atma. Oran yazara göre çok değişir (derlemde %2 ile %36 arası, ortanca %8 civarı). Atay ve Ağaoğlu gibi üslubu belirgin yazarlarda %20'nin üstüne çıkar. Üslup özellikle bunu gerektirmiyorsa her paragrafa devrik koymak yeni bir tike dönüşür. Kullanıcının kendi örneği yoksa on cümlede birden fazla devrik kurma: Deneyde bir model bu kuralı görünce cümlelerinin %29'unu devrik yaptı. Teknik, kurumsal ve kurum içi register'da devrik kullanılmaz.
-- **Tier-1 Yasaklı Kelime Taraması:** Metinde `âdeta` (`adeta`), `yadsınamaz`, `kritik bir rol oynamaktadır`, `derinlemesine`, `yelpaze`, `dönüm noktası`, `bununla birlikte`, `öte yandan`, `söz konusu`, `bu bağlamda` kalıplarının kalmadığından emin ol (`references/ai-turkcesi-sozlugu.md`).
-- **Koşutluk Kontrolü:** `ve` ile birleştirdiğin her iki yüklemi tek tek oku. Ortak öge ikisine de hâl, çatı ve anlam bakımından uyuyor mu? Ulaçlı yan cümlenin söylenmeyen öznesi ana cümlenin öznesiyle aynı mı?
-- **Olgusal Sadakat Kontrolü:** Kaynak metindeki tüm sayılar, tarihler, teknik terimler ve iddialar korundu mu? Kaynakta olmayan bir sayı, yer adı, kişi, sıfat veya abartı eklendi mi? Artış/azalış yönü, olumsuzluk ve ihtiyat (`-ebilir`, `görünüyor`) aynı kaldı mı? Örnekleme ve kapsam sözcükleri (`gibi`, `vb.`, `bazı`, `çoğu`), tekrar ve süreklilik sözcükleri (`yeniden`, `hâlâ`) ve yeterlilik eki (`-(y)Abil-`) korundu mu? *"... gibi belirtiler"* ifadesini kapalı bir listeye çevirmek de kesinlik uydurmaktır. Ritim hedefini tutturmak için kaynakta olmayan kısa bir cümle eklendiyse sil.
-
-### Adım 4: Silme Testi (Deletion Test) ve Çıktı Teslimi
-
-- Metne eklediğin her söylem parçacığını (`işte`, `zaten`, `tabii`), devrik cümleyi veya bağlacı test et: Kaldırdığında anlamdan veya tondan hiçbir şey eksilmiyorsa o ögeyi sil.
-- Kullanıcı özellikle değişiklik raporu istemediyse ("neleri değiştirdin?" veya `audit` modu dışında) **yalnızca temizlenmiş/yazılmış metni** döndür ve başına "Elbette, metnin doğal Türkçeye çevrilmiş hâli aşağıdadır:" gibi sohbet artıkları ekleme.
-
-## Sık Yapılan Hatalar (Gotchas)
-
-- **Aşırı Düzeltme (Overcorrection) Tuzağı:** Doğal bir Türkçe metinde geçen her `"bir"` kelimesini, her `tarafından`ı veya her devrik cümleyi hata sanma. `"Sen satışa bak"`, `"Site kurmak"`, `"Linki gönder"` gibi doğal ve yerleşik kullanımlara dokunma.
-- **Kesik Cümle Tiki:** "İnsani ritim" için her cümleyi 5-8 kelimeyle kurma. Claude tipi modeller kurmacada zaten insan yazarlardan kısa yazar (ortanca 6-7 kelime, yazarlarda 8). Sorun cümlelerin uzunluğu değil, hepsinin aynı boyda olmasıdır. Kısa cümleleri ulaçla birleştirip arada uzun bir cümle kur.
-- **Cümle Başı Geçiş Sözü Tiki:** Modeller denemede cümleleri *Oysa*, *Ancak*, *Sonuç olarak* ile açar. Bazı modellerde *Öte yandan* ve *Bununla birlikte* de sıktır (1000 cümlede 15-60 kez). Türk yazarlarda cümle başında en sık *Ama*, *Çünkü*, *Ve*, *Sonra* görülür. Geçiş sözünü ya sil ya da daha gündelik bir karşılığını kullan.
-- **Aşırı Sola Dallanma Tuzağı:** İngilizce iskeleti onarırken her bilgiyi tek bir adın önüne sıfat-fiillerle yığma. Okurun yükleme varmadan aklında tutması gereken iç içe yan cümle sayısı ikiyi geçiyorsa cümleyi böl.
-- **Kurum Dili Tuzağı:** Kamu ve kurum içi yazışmada adlaştırma, edilgen çatı ve `-mAktAdIr` yapay zekâ izi değil, beklenen biçimdir. Bu register'da onları temizleyip metni gündelik dile çekme, yalnızca gerçek kusurları onar (`references/register-ve-ornekler.md`, 6. profil).
-- **Öz Türkçecilik Tuzağı:** Bu yetenek yabancı kökenli kelimeleri yasaklayan bir "arı dil" aracı değildir. Günlük ve mesleki Türkçede yaşayan kelimeleri (`performans`, `strateji`, `sistem`, `detay`) zorlama karşılıklarla değiştirme.
-- **Sahte Samimiyet:** Kurumsal veya teknik bir metni insanlaştırmak adına metne *"Kahvenizi alın ve arkanıza yaslanın"*, *"Hepimiz oradaydık"* gibi çeviri blog klişeleri ekleme.
-- **İkame Kelime Tiki (Replacement Tic) Tuzağı:** "Kritik bir rol oynar" veya "kusursuz bir şekilde" gibi yapay ifadeleri silerken her cümleye refleks olarak "doğrudan", "aslında" veya "ciddi ölçüde" ekleme. Çoğu zaman zarfı tamamen atıp fiili yalnız bırakmak en doğal sonucu verir.
-- **Kılık Değiştirmiş Negatif Paralellik Tuzağı:** "Sadece X değil, aynı zamanda Y" kalıbını temizlerken yerine "X ile değil, Y ile" veya "geçici bir X değil, kalıcı bir Y" gibi başka bir negatif paralellik kurma. Olumsuz yarı bir görüşü reddetmiyorsa tamamen atıp ne olduğunu söyle.
-
-
-<!-- KAYNAK: references/sentaks-ve-morfoloji.md -->
-
-# Türkçe Cümle Mimarisi (Sentaks) ve Morfoloji Kılavuzu
-
-İngilizce eğitimli dil modellerinin Türkçe çıktılarındaki temel sorun kelime dağarcığı değil, **cümle iskeletinin İngilizce (sağa dallanan SVO) kalmasıdır**. Bu kılavuz önce Türkçe cümlenin geometrisini, sonra çeviri kokan yapıları bu geometriye göre onarmanın kurallarını anlatır.
-
-**Etiketler:**
-- `[Dil bilgisi]`: Uyulmazsa cümle bozulur ya da anlam kayar. Dil bilgisi kaynaklarında tanımlı bir yapıya dayanır.
-- `[Üslup]`: Uyulmazsa cümle yanlış olmaz ama çeviri kokar ya da ağırlaşır. Register'a göre esner.
-
-**Gösterim:** Büyük harfler ünlü uyumu ya da ünsüz değişimiyle farklı biçimlere giren sesleri gösterir: `A` = a/e, `I` = ı/i/u/ü, `D` = d/t, `C` = c/ç. Ayraç içindeki `(y)`, ünlüyle biten kök ve gövdelerde araya giren kaynaştırma ünsüzüdür (`oku-y-up`, `gel-ip`).
-
-**Dayanak:** Göksel ve Kerslake, *Turkish: A Comprehensive Grammar* (Routledge, 2005). Erguvanlı-Taylan, *The Function of Word Order in Turkish Grammar* (University of California Press, 1984). Yazım ve noktalama için TDK Yazım Kılavuzu.
-
-## 0. Türkçe Cümlenin Geometrisi
-
-Türkçe **baş sonda** (head-final) bir dildir: Öbeklerde belirleyen önce, belirlenen sonra gelir. İngilizce ise sıfat tamlaması ve `-'s` iyelik yapısı dışında çoğu öbekte (eylem öbeği, edat öbeği, yan cümle) bunun tersini yapar.
-
-| Yapı | Türkçe dizilim | İngilizce dizilim |
+| Tür | Dokun | Dokunma |
 | :--- | :--- | :--- |
-| Cümle | tümleçler + yüklem (*Raporu gönderdim.*) | özne + yüklem + nesne (*I sent the report.*) |
-| Ad tamlaması | tamlayan + tamlanan (*sunucunun belleği*) | *the memory of the server* |
-| Niteleme | niteleyici yan cümle + ad (*dün kurduğumuz sunucu*) | *the server that we set up yesterday* |
-| Edat öbeği | ad + son çekim edatı (*toplantıdan sonra*) | *after the meeting* |
-| Yan cümle | yan cümle + ana yüklem (*Gecikeceğini söyledi.*) | *He said that he would be late.* |
+| Blog, deneme, köşe yazısı | Her şeye: kuruluş, cümle, ritim, kalıplar. `-mektedir` gider. | Yazarın kendi sesi, yerindeki `işte`, `zaten`, `hani` |
+| Öykü, roman | Ritim, kalıplar, ders veren kapanış | Olay, imge, olayın parçası olan son cümle |
+| Şirket yazısı, tanıtım | Vaat sözleri, dolambaçlı edilgen, kalıplar | Ürün ve marka adları, "siz" hitabı |
+| Ders kitabı, popüler bilim | Kalıplar, sıralama dizilişi | Tanımdaki `-dir`, noktalı virgül, düzenli cümle boyu |
+| Teknik belge | `-mektedir`, zorlama çeviri terim, kalıplar | Kod, komut, yerleşik İngilizce terim, tanımdaki `-dir` |
+| Akademik, hukuki | Kalıplar, sıralama dizilişi, yazım | Belge düzeni, atıf, `-mektedir`, cümle sınırları, `söz konusu` |
+| Kamu ve kurum içi yazışma | Yalnızca gerçek kusur: koşutluk, yazım, slogan başlık, dolgu | Adlaştırma, edilgen, kip, cümle sınırları, `-mıştır` serileri, kurum terimleri |
 
-Türkçe cümlenin ağırlık merkezi sondadır. Okur cümleyi soldan sağa kurar ve anlam yüklemle kapanır. İngilizce iskelet ise ana yüklemi erkenden verip ayrıntıyı sağa ekler. Bu kılavuzdaki kuralların hepsi bu farktan doğar.
+Son iki satır en sık yapılan hatanın yeridir. Resmî dilin ağırlığı yapay zekâ izi değildir, o dil yapay zekâdan önce de öyleydi. Kurum içi bir notu blog diline çekersen metni bozmuş olursun. Türlerin ayrıntısı ve baştan sona örnekler `references/metin-turleri.md` dosyasında.
 
-### 0.1 Öge Dizilimi ve Bilgi Yapısı `[Dil bilgisi]`
+## Yapay duran ne?
 
-Türkçede öge sırası serbest görünür ama her konumun bir görevi vardır:
+Önem sırasıyla beş şey. Sıra önemli: Kelime değiştirmek en kolayıdır ve en az işe yarayanıdır. Kuruluşu düzeltmeden kalıpları ayıklarsan metin yine yapay okunur.
 
-| Konum | Görevi | Örnek |
+### 1. Ritim
+
+Ölçtüğümüz her türde modelleri yazarlardan ayıran ilk şey bu çıktı. Yazar kısa cümleyle uzun cümleyi yan yana kullanır: altı kelime, sonra yirmi iki, sonra on bir, sonra dört. Model her cümleyi aynı kalıba döker. Kimi model hepsini on beş yirmi kelimeye, kimi hepsini yedi sekiz kelimeye dizer. İkisi de düzdür. Model iki uçtan da kaçar: denemede uzun cümle kurmaz (yazarların yüz cümlesinden on biri yirmi sekiz kelimeyi geçer, modelin üçü), akademik metinde kısa cümle kurmaz.
+
+Yazarken bunu baştan gözet: cümlelerin boyu içeriğe göre değişsin, kısa söylenecek şeyi kısa, uzun anlatılacak şeyi uzun yaz.
+
+Onarırken iş değişir, çünkü ritim en kolay bozulan şeydir. İki kez denedik. Onarıcı uzun cümleleri bölünce metin kaynaktan daha düz çıktı, çünkü her şey orta boya indi. Cümle boyu değişsin diye cümleleri zorla bölüp birleştirince de sayılar düzeldi ama okur metni daha kötü buldu: virgülle ve noktalı virgülle yapıştırılmış cümleler, yarıda kesilmiş yargılar, birbirini tutmayan kipler. İkisinden çıkan kural şu: Ritmi cümle sınırlarıyla oynayarak değil, kuruluşu düzelterek düzelt. Sahne kuran girişi, özet kapanışı, sıralama sözlerini, içi boş kalıpları atınca ve cümleyi Türkçenin düzeniyle kurunca cümle boyları çoğu zaman kendiliğinden değişir.
+
+Bunların üstüne cümle sınırına ancak şu durumlarda dokun:
+
+- Uzun cümleyi bölme. Kaynaktaki yirmi beş otuz kelimelik cümle derdini tek solukta anlatıyorsa kalsın. Yalnızca okurun yüklemi bulamadığı, iç içe üç yan cümleli cümleyi böl.
+- Blogda, denemede, öyküde ve şirket yazısında art arda dört beş cümle aynı boydaysa bir yerinden kır. Aynı şeyi anlatan iki cümleyi ulaçla ya da bağlaçla birleştir ("Veriyi çektik. Sonra temizledik." yerine "Veriyi çekip temizledik."). Ya da virgülle dizilmiş yargılardan birini ayır ("Kapı açıldı, içeri girdi, kimse yoktu" yerine "Kapı açıldı. İçeri girdi, kimse yoktu."). Bir paragrafta bir iki dokunuş yeter.
+- Ders kitabında, teknik belgede, akademik ve kurum yazısında ritim için cümle bölme ve birleştirme. Bu türlerde okur düzenli cümle bekler. Oradaki tekdüzeliği geçiş sözlerini ve kalıpları ayıklamak giderir.
+
+Her dokunuşu şöyle sına: Cümleyi sesli okuyan biri burada kendiliğinden durur muydu? Durmazdıysa geri al. İki bağımsız cümleyi virgülle ya da noktalı virgülle yapıştırma, bir cümleyi öznesiz ya da yüklemsiz bir parçaya ("Bu, ... içindir.") bölme. Kaynakta olmayan cümle ekleme: ritim için uydurulan "Mesele tam da bu." türü özdeyişler yeni bir yapaylıktır.
+
+### Tutarlılık
+
+Onarırken metnin kendi içinde tutarlı kalmasına bak, okurun ilk fark ettiği şey budur.
+
+- Kip. Metin hangi kiple gidiyorsa onunla gitsin. Kurum yazısı `-mektedir` ve `-mıştır` ile yazılmışsa birkaç cümleyi geniş zamana çevirme. Denemede şimdiki zamanla başladıysan ortasında geniş zamana geçme. Kipi ancak bütün metinde, türün gerektirdiği yönde değiştir (blogdaki `-mektedir`in hepsi gider).
+- Ek. Ad cümlelerinde `-dir`i düşürüyorsan aynı türden cümlelerin hepsinde düşür. Yarısı "önemlidir", yarısı "önemli" olan paragraf savruk durur.
+- Hitap ve terim. "Sen" dediysen "siz"e geçme, `cache` dediysen sonra "önbellek" yazma.
+
+### 2. Kuruluş
+
+Model yazıyı bir sunum gibi kurar. Şunlar onun izidir:
+
+- Konuya girmeden konuyu duyuran giriş: "Bu yazıda ... ele alacağız", "Günümüzün hızla değişen dünyasında".
+- Söyleneni tekrar eden ya da okura ders veren kapanış: "Sonuç olarak ...", "Unutmamak gerekir ki ...", "İşte asıl fark burada."
+- Sayarak ilerleyen paragraflar: "Birincisi ... İkincisi ... Son olarak ...". Cümleyi "Ayrıca", "Bununla birlikte", "Bu nedenle", "Öte yandan" ile açma alışkanlığı. Yazarlar cümleyi çoğunlukla "Ama", "Çünkü", "Ve", "Sonra" ile ya da hiçbir bağlaç olmadan açar.
+- Her paragrafın aynı iskelette olması: iddia, açıklama, özet cümlesi.
+- Düz yazı yerine kalın etiketli maddeler (`**Hız:** ...`) ve her şeyin başlıklara bölünmesi.
+- İki bağımsız cümlenin noktalı virgülle yapıştırılması. Denemede ve öyküde yazarların çoğu sayfasında hiç noktalı virgül yoktur, modelin her paragrafında bir tane vardır. Noktayla ayır.
+
+Onarırken girişi sil ve konunun kendisiyle başla. Kapanış yeni bir şey söylemiyorsa sil. Geçiş sözünü at, cümleler arasındaki bağı içerikle kur. Maddeleri, gerçekten liste değillerse, paragrafa çevir.
+
+### 3. Karşıtlık ve üçleme
+
+İki kalıp modelin elinden düşmez.
+
+Biri kimsenin savunmadığı bir şeyi reddedip asıl iddiayı öyle söylemektir: "Bu sadece bir araç değil, aynı zamanda bir felsefe", "Mesele hız değil, güven". Olumsuz yarıyı at, iddiayı düz söyle. Ama olumsuz yarı gerçekten yaygın bir kanıyı ya da okurun beklentisini düzeltiyorsa bir iş görüyordur, kalır: "Yalnızlık şehrin kusuru değil, bizim alışkanlığımız." Bu kalıbı silerken yerine kılık değiştirmiş bir başkasını kurma ("X ile değil, Y ile").
+
+Öteki her şeyi üçe tamamlamaktır: "hızlı, güvenilir ve ölçeklenebilir". Gerçekten kaç şey varsa o kadarını say. Kaynakta üç özellik yazıyorsa üçü de kalır, bilgi silinmez. Giden, üçüncüsü yalnızca kulağa iyi geldiği için eklenmiş olandır, onu da ancak yazarken kendin eklediysen atarsın.
+
+### 4. Cümlenin iskeleti
+
+İngilizce cümle yüklemi başa alır, ayrıntıyı arkaya dizer. Türkçe tersini yapar. Model iskeleti çevirmeden kelimeleri çevirir. En sık görülenler:
+
+- Niteleyen arkada kalır: "Bir sistem kurduk, bu sistem verileri tarıyor" yerine "Verileri tarayan bir sistem kurduk".
+- Eylemler `ve` ile dizilir: "Veriyi çektik ve işledik" yerine "Veriyi çekip işledik".
+- Vurgu dolguyla verilir: "Bunu mümkün kılan şey ekibin deneyimiydi" yerine "Bunu ekibin deneyimi mümkün kıldı".
+- Gereksiz zamir, gereksiz `bir`, içi boş fiil: "Biz büyük bir artış gerçekleştirdik" yerine "Çok büyüdük".
+- İki yükleme tek nesne bağlanır ve ek uymaz: "Geri bildirimleri inceliyor ve yer veriyoruz" yerine "Geri bildirimleri inceliyor, bunlara yer veriyoruz".
+
+Her birinin kuralı, sınırı ve örnekleri `references/cumle-kurulusu.md` dosyasında. Cümle onarırken o dosyayı oku.
+
+### 5. Sözler
+
+Modelin sevdiği sözlerin listesi `references/kaliplar.md` dosyasında, her birinin yazarlarda ve modellerde ne sıklıkla geçtiğiyle birlikte. Liste üçe ayrılır: yazarlarda neredeyse hiç geçmeyenler (gördüğün yerde değiştir), modellerde belirgin sık olanlar (çoğu zaman değiştir) ve tek tek olağan olup ancak yığılınca iz bırakanlar (yoğunsa seyrelt).
+
+Listede olmayan söz yasak değildir, listede olan da her yerde yanlış değildir. `Âdeta`, `söz konusu`, `kuşkusuz`, `bir şekilde` gibi sözleri uzun süre yapay zekâ izi saydık. Saydığımızda yazarların bunları modellerden sık kullandığı çıktı. Bir sözü silmeden önce sor: Bu cümle bir şey söylüyor mu, yoksa yalnızca önemli olduğunu mu söylüyor? "Kritik bir rol oynar" neyin değiştiğini söylemez. Onu at, neyin değiştiğini yaz. Kaynak da söylemiyorsa cümleyi sade bırak.
+
+Yazım ve noktalama en sonda gelir: uzun çizgi, `ve`den önce virgül, saat ve yüzde yazımı, yabancı terime gelen ek, bitişik ve ayrı yazılan sözler. Liste `references/yazim-ve-noktalama.md` dosyasında. Oradaki "kılavuz" maddeleri her türde geçerlidir, "tercih" maddeleri türe göre esner.
+
+## Nasıl çalışırsın
+
+1. Metnin tamamını oku ve türüne karar ver. Kullanıcının verdiği örnek yazı varsa cümle boyunu, hitabını, bağlaçlarını ondan al.
+2. Paragraf paragraf ilerle. Önce kuruluş, sonra cümle iskeleti, sonra sözler, en son yazım. Kusuru olmayan cümleye dokunma: onarım her cümleyi yeniden yazmak değildir, yapay duranı düzeltmektir. İyi bir editör metnin dörtte üçünü olduğu gibi bırakır.
+3. Denetle. Kod çalıştırabiliyorsan taslağı bir dosyaya yazıp denetçiyi çalıştır:
+
+   ```bash
+   python3 scripts/denetle.py taslak.md --tur deneme --kaynak kaynak.md
+   ```
+
+   Türler: `deneme`, `anlati`, `kurumsal`, `aciklayici`, `teknik`, `akademik`, `kamu`. Betik skill klasöründedir, çıktısı UTF-8'dir. Raporu şöyle kullan:
+
+   - "Kaynağa sadakat" en önemli bölümdür. Kaybolan ya da eklenen her sayıya, ada ve ihtiyat sözüne tek tek bak. Bilerek yaptıysan kalır, gözünden kaçtıysa geri koy.
+   - "Düzelt" başlığındaki bulguları düzelt. "Bir bak" başlığındakiler yazarlarda da geçen sözlerdir: yerindeyse bırak, aynı söz üç dört kez geçiyorsa seyrelt.
+   - "Kaynağa göre" satırı onarımın metni kaynaktan daha tekdüze yapıp yapmadığını söyler. Yaptıysa büyük olasılıkla uzun cümleleri böldün: geri birleştir.
+   - Ritim ve "Düz yer" satırları bilgidir, emir değildir. Blogda, denemede ve öyküde düz yer gösteriliyorsa o cümlelere bir daha bak ve yukarıdaki sınamadan geçen bir dokunuş varsa yap. Öteki türlerde bu satırlar için cümle bölüp birleştirme.
+
+   Düzelttiysen bir kez daha çalıştır, yeni bir şey bozmadığını gör, sonra dur. Skoru ve ritim sayısını kovalama: tek bir metinde ikisi de oynaktır, yazar metni de bazen yüksek çıkar. Sayı düzelsin diye metne soru, ünlem, kısa cümle ya da kaynakta olmayan bir şey ekleme. Temiz rapor metnin iyi olduğunu göstermez. Son kararı metni baştan sona bir okur gibi okuyarak ver.
+
+   Kod çalıştıramıyorsan aynı denetimi elle yap: her paragrafta cümle boylarını say, kaynaktaki her sayıyı ve adı çıktıda ara, ihtiyat sözlerinin yerinde olduğuna bak.
+4. Kendi eklediklerini sına. Metne koyduğun her `işte`, `zaten`, `aslında`, her devrik cümle, her soru için sor: Bunu çıkarırsam anlamdan ya da tondan bir şey eksilir mi? Eksilmiyorsa çıkar.
+5. Yalnızca metni ver. Başına "Elbette, işte metnin doğal hâli:" yazma, sonuna değişiklik özeti ekleme. Kullanıcı neyi değiştirdiğini sorarsa o zaman anlat. Yer tutucu bıraktıysan ya da kaynakta çelişki gördüysen bunu metnin altında bir iki cümleyle söyle.
+
+Denetimde çıktı farklıdır: Her bulguyu metinden alıntıyla ver, yanına nedenini ve nasıl düzeleceğini yaz. Yazım hatasıyla (kılavuza aykırı) üslup tercihini karıştırma, ikisini ayrı başlıkta topla.
+
+## Düzeltirken yenisini üretme
+
+Kötü onarımın çoğu eksik düzeltmeden değil, fazla düzeltmeden çıkar. Bir kuralı her cümleye uygularsan o kural yeni bir tik olur.
+
+- Her `bir`i, her `tarafından`ı, her `ki`yi hata sanma. Hepsi Türkçedir. Sorun yığılmalarıdır.
+- Her cümleyi kısaltma. Model zaten çoğu zaman yazarlardan kısa yazar. Arada uzun bir cümle kur.
+- Sildiğin kalıbın yerine başka bir dolgu koyma. "Kritik bir rol oynar" gidince her cümleye "aslında", "doğrudan", "ciddi ölçüde" eklenmesin. Çoğu zaman fiili yalnız bırakmak yeter.
+- Devrik cümleyi ve `işte`, `hani` gibi sözleri "insan gibi dursun" diye serpiştirme. Kullanıcının kendi örneği yoksa on cümlede birden fazla devrik kurma. Deneyde bir model bu izni görünce cümlelerinin üçte birini devrik yaptı.
+- Sahte samimiyet ekleme: "Kahvenizi alın", "Hepimiz oradaydık". Bunlar da çeviri blog klişesidir.
+- Her bilgiyi tek bir adın önüne yığma. Okur yükleme varana kadar iç içe iki yan cümleden fazlasını tutamaz, cümleyi böl.
+- Yabancı kökenli sözü Türkçeleştirmeye çalışma. `Performans`, `strateji`, `sistem`, `detay` yaşayan Türkçedir. Yazılımcının `endpoint` dediği şeye "uç nokta" deme.
+- Kaynakta soru, şaşkınlık ya da yarım kalan bir düşünce varsa onu kendi noktalamasıyla ver. Yoksa metne soru ve ünlem ekleme.
+
+## Dosyalar
+
+- `references/cumle-kurulusu.md`: Türkçe cümlenin düzeni, ulaçlar, `-mektedir` ve `-dir`, zamir ve `bir`, edilgen, devrik cümle, koşutluk. Cümle onarırken.
+- `references/kaliplar.md`: modelin sevdiği sözler, sıklıklarıyla. Kalıp ayıklarken ve denetimde.
+- `references/yazim-ve-noktalama.md`: noktalama, saat ve sayı, yabancı terime ek, bitişik ve ayrı yazım. Son okumada ve denetimde.
+- `references/metin-turleri.md`: yedi türün ayrıntısı, beş önce ve sonra örneği. Türden emin değilsen.
+- `references/olculer.md`: türlere göre ölçülmüş cümle boyu, ritim ve noktalama değerleri. Bir kuralın dayanağını merak ettiğinde ya da kullanıcı sorduğunda.
+- `scripts/denetle.py`: denetçi. Dosya yazmaz, internete bağlanmaz.
+
+
+<!-- references/cumle-kurulusu.md -->
+
+# Cümle kuruluşu
+
+Dil modelinin Türkçesinde kelimeler yerindedir, cümlenin iskeleti İngilizcedir. Bu dosya o iskeleti tanımayı ve Türkçenin kendi düzenine çevirmeyi anlatır. Cümle onarırken ya da bir cümlenin neden tuhaf durduğunu açıklarken buraya bak.
+
+Buradaki maddelerin bir kısmı kuraldır: uyulmazsa cümle bozulur ya da anlam kayar. Bir kısmı tercihtir: uyulmazsa cümle yanlış olmaz ama çeviri kokar. Hangisi olduğu her maddede yazıyor. Tercihler metnin türüne göre esner, kurallar esnemez.
+
+Ek gösteriminde büyük harf, ünlü uyumuna göre değişen sesi gösterir: `A` a ya da e, `I` ı, i, u ya da ü, `D` d ya da t. Dayanak: Göksel ve Kerslake, *Turkish: A Comprehensive Grammar* (2005); Erguvanlı-Taylan, *The Function of Word Order in Turkish Grammar* (1984).
+
+## 1. Türkçe cümlenin düzeni
+
+Türkçede belirleyen önce, belirlenen sonra gelir. Sıfat adın, tamlayan tamlananın, yan cümle ana cümlenin önündedir, yüklem en sonda durur. İngilizce çoğu yapıda bunun tersini yapar: yüklemi erkenden verir, ayrıntıyı arkasına ekler.
+
+| | Türkçe | İngilizce |
 | :--- | :--- | :--- |
-| Cümle başı | Konu: bilinen, üzerine konuşulan öge, zaman ve yer çerçevesi | ***Bu sürümde** iki hata düzelttik.* |
-| Yüklemin hemen önü | Odak: yeni ya da vurgulanan bilgi. Cümle vurgusu buraya düşer. | *Hatayı **Ayşe** buldu.* |
-| Yüklemden sonra | Arka plan: bağlamdan zaten bilinen, ikincil bilgi | *Okumuyor kimse **bu raporları**.* |
+| Cümle | Raporu gönderdim. | I sent the report. |
+| Tamlama | sunucunun belleği | the memory of the server |
+| Niteleme | dün kurduğumuz sunucu | the server that we set up yesterday |
+| Yan cümle | Gecikeceğini söyledi. | He said that he would be late. |
 
-- **Nötr sıra eğilimi:** özne, zaman, yer, dolaylı tümleç, nesne, yüklem (*Ekip dün toplantıda müşteriye yeni planı sundu.*).
-- **Belirtisiz nesne yüklemden ayrılmaz:** Eksiz (belirtisiz) nesne yüklemin hemen önünde durur. *"Ahmet'e rapor gönderdim"* doğal, *"Rapor Ahmet'e gönderdim"* bozuk. Belirtili nesne (`-(y)I` ekli) daha serbesttir: Hem *"Raporu Ahmet'e gönderdim"* hem de *"Ahmet'e raporu gönderdim"* doğrudur, yalnızca vurgu değişir.
-- **İngilizce yarık cümle (cleft) kopyası:** İngilizce vurguyu *"It was X that..."* ya da *"What made this possible was X"* ile verir. Türkçede odak yüklem önüne konur:
-  - **Makine:** *"Bunu mümkün kılan şey, ekibin deneyimiydi."*
-  - **İnsan:** *"Bunu ekibin deneyimi mümkün kıldı."*
+Türkçe cümlenin ağırlığı sondadır, anlam yüklemle kapanır. Aşağıdaki maddelerin hepsi bu farktan çıkar.
 
-### 0.2 Ağırlık: Uzun Öge Önce `[Üslup]`
+### Her konumun bir işi var (kural)
 
-Türkçede uzun ve ağır ögeler kısa ögelerden önce gelme eğilimindedir. Kısa öge yükleme yakın kalır:
+Öge sırası serbest görünür ama her yerin görevi bellidir.
 
-- **Ağır:** *"Ahmet'e geçen hafta müşterilerden gelen bütün şikâyet e-postalarını ilettim."*
-- **Dengeli:** *"Geçen hafta müşterilerden gelen bütün şikâyet e-postalarını Ahmet'e ilettim."*
+- Cümle başı konudur: bilinen şey, zaman ve yer çerçevesi. *Bu sürümde iki hata düzelttik.*
+- Yüklemin hemen önü odaktır: yeni ya da vurgulanan bilgi. *Hatayı Ayşe buldu.*
+- Yüklemin arkası arka plandır: zaten bilinen, ikincil bilgi. *Okumuyor kimse bu raporları.*
 
-İki cümle de dil bilgisi açısından doğrudur. İkincisinde uzun nesne önce okunup bitirilir, alıcı da yüklem önündeki vurgu konumuna oturur.
+Eksiz nesne yüklemden ayrılmaz. *Ahmet'e rapor gönderdim* doğaldır, *Rapor Ahmet'e gönderdim* bozuktur. Ek almış nesne serbesttir: *Raporu Ahmet'e gönderdim* de *Ahmet'e raporu gönderdim* de doğru, yalnızca vurgu değişir.
 
-### 0.3 Gömme Derinliği: Sola Dallanmanın Sınırı `[Üslup]`
+### Vurgu kelimeyle değil, yerle verilir (tercih)
 
-Sola dallanma Türkçenin doğal yönüdür ama sınırsız değildir. Bir adın önüne iç içe sıfat-fiil yan cümleleri yığılırsa okur yüklemi bulana kadar her şeyi aklında tutmak zorunda kalır. İngilizce iskeleti onarmaya çalışırken bu aşırılığa düşmek de yapay bir metin üretir.
+İngilizce vurguyu cümleyi yararak verir: *It was X that...*, *What made this possible was X*. Model bunu Türkçeye "... şey ... idi" kalıbıyla ya da "tam da bu noktada", "asıl önemli olan şu ki" gibi dolgularla taşır. Türkçede vurgulanacak ögeyi yüklemin önüne almak yeter.
 
-- **Aşırı yığılmış:** *"Geçen ay müşterinin şikâyet ettiği hatayı düzelttiğimiz sürümde ortaya çıkan yeni sorunu inceleyen ekip rapor yazdı."*
-- **Dengeli:** *"Geçen ay müşterinin şikâyet ettiği hatayı yeni sürümde düzelttik. Bu sürümde çıkan yeni sorunu inceleyen ekip rapor yazdı."*
-- **Kural:** Bir ad öbeğinin önünde en fazla bir sıfat-fiil yan cümlesi bulunsun, onun içinde de en fazla bir gömülü yan cümle. Daha fazlası varsa cümleyi böl ya da yan cümlelerden birini ulaçla ana yükleme bağla.
+- Yapay: *Bunu mümkün kılan şey, ekibin deneyimiydi.*
+- Doğal: *Bunu ekibin deneyimi mümkün kıldı.*
 
-## 1. Dallanma Yönü: Sağa Dallanmadan Sola Dallanmaya
+Aynı dört kelime, dört ayrı vurgu: *Raporu dün Ahmet'e gönderdim* (kime), *Raporu dün Ahmet'e ben gönderdim* (kim), *Raporu Ahmet'e dün gönderdim* (ne zaman), *Dün Ahmet'e raporu gönderdim* (neyi).
 
-İngilizce niteleyicileri ve yan cümleleri baş ismin sağına dizer (*We built a system that scans and reports data every night*). Dil modeli bu iskeleti Türkçeye iki yoldan taşır: Cümleyi bölüp işaret zamiriyle tekrarlar ya da `ki` ile bağlanan bir yan cümle kurar. Türkçe ise niteleyici yan cümleyi sıfat-fiille baş ismin önüne yerleştirir.
+### Uzun öge önce (tercih)
 
-| Kusur Türü | Makine Türkçesi (Sağa Dallanan / Calque) | İnsan Türkçesi (Sola Dallanan Doğal Yapı) |
+Uzun ve ağır öge başa, kısa öge yüklemin yanına gelir.
+
+- Ağır: *Ahmet'e geçen hafta müşterilerden gelen bütün şikâyet e-postalarını ilettim.*
+- Dengeli: *Geçen hafta müşterilerden gelen bütün şikâyet e-postalarını Ahmet'e ilettim.*
+
+## 2. Niteleyen öne gelir
+
+İngilizce niteleyen cümleyi adın arkasına dizer: *a system that scans the data every night*. Model bunu iki yoldan taşır: cümleyi bölüp işaret sözüyle tekrarlar ya da `ki` ile bağlar. Türkçe niteleyeni sıfat-fiille (`-(y)An`, `-DIk`, `-(y)AcAk`) adın önüne koyar.
+
+- Yapay: *Bir sistem kurduk, bu sistem her gece verileri tarayıp raporluyor.*
+- Doğal: *Her gece verileri tarayıp raporlayan bir sistem kurduk.*
+- Yapay: *Görüyoruz ki kullanıcılar bu özelliği kullanmıyor.*
+- Doğal: *Kullanıcıların bu özelliği kullanmadığını görüyoruz.*
+
+Sıfat-fiil seçimi kuraldır. Nitelenen ad yan cümlenin öznesiyse `-(y)An` gelir (*kodu yazan geliştirici*), nesnesi ya da başka bir ögesiyse `-DIk` ya da `-(y)AcAk` ile iyelik eki (*geliştiricinin yazdığı kod*, *yarın kuracağımız sunucu*). *Geliştiricinin yazan kod* yanlıştır.
+
+### `ki` suç değil
+
+`ki` bağlacını şüphe işareti sayma. Ölçtüğümüz yazarlar onu modellerden sık kullanıyor: *demek ki, öyle ki, kaldı ki, dedi ki, yazık ki*. *Öyle bir mimari kurduk ki yüksek trafikte bile gecikme olmuyor* yerleşik bir sonuç yapısıdır, sıfat-fiile çevrilince vurgusu kaybolur. Şüpheli olan yalnızca İngilizce *that* cümlesinin kopyasıdır: *Görüyoruz ki...*, *Belirtmek gerekir ki...*, *Araştırmalar göstermektedir ki...*
+
+### Öne yığmanın da sınırı var (tercih)
+
+İngilizce iskeleti onarırken her bilgiyi tek bir adın önüne doldurma. Okur yükleme varana kadar hepsini aklında tutmak zorunda kalır.
+
+- Yığılmış: *Geçen ay müşterinin şikâyet ettiği hatayı düzelttiğimiz sürümde ortaya çıkan yeni sorunu inceleyen ekip rapor yazdı.*
+- Dengeli: *Geçen ay müşterinin şikâyet ettiği hatayı yeni sürümde düzelttik. Bu sürümde çıkan yeni sorunu inceleyen ekip rapor yazdı.*
+
+Bir adın önünde bir yan cümle, onun içinde de en çok bir yan cümle daha bulunsun. Fazlası varsa cümleyi böl.
+
+### Ad zincirleri (tercih)
+
+İngilizce ad yığınlarını (*customer segmentation module performance optimization process*) eksiz adları art arda dizerek çevirme. Eksiz dizilen ad sayısı üçü geçmesin, fazlasını tamlama ekiyle çöz.
+
+- Yapay: *Müşteri segmentasyon modülü performans iyileştirme çalışması sonuç raporu*
+- Doğal: *Müşteri segmentasyon modülünün performansını iyileştirme çalışmasının sonuç raporu*
+
+Kaynakta çalışmayı kimin yaptığı yazmıyorsa "yaptığımız" gibi bir özne ekleme.
+
+## 3. `ve` yerine ulaç
+
+İngilizce art arda gelen eylemleri ve neden-sonuç bağını ayrı kelimelerle kurar: *and, and then, when, as*. Türkçe iki yüklemi ulaç ekleriyle tek akışta birleştirir.
+
+| İlişki | Yapay | Doğal |
 | :--- | :--- | :--- |
-| **Kuyruk Yan Cümle** | Bir sistem kurduk, bu sistem her gece verileri tarayıp raporluyor. | Her gece verileri tarayıp raporlayan bir sistem kurduk. |
-| **`ki` ile Kurulan Tümleç Yan Cümlesi** | Görüyoruz ki kullanıcılar bu özelliği kullanmıyor. | Kullanıcıların bu özelliği kullanmadığını görüyoruz. |
+| Sıra | Veriyi çektik ve sonra temizledik. | Veriyi çekip temizledik. |
+| Tetikleme | Cache doldu ve istekler yavaşlamaya başladı. | Cache dolunca istekler yavaşlamaya başladı. |
+| Orantı | Trafik arttı ve buna bağlı olarak hata oranı da yükseldi. | Trafik arttıkça hata oranı da yükseldi. |
+| Yöntem | Maliyetleri düşürdük ve bu sayede kârlılığı artırdık. | Maliyetleri düşürerek kârlılığı artırdık. |
+| Eş zamanlılık | Birinci grup hızlı ilerler ve ikinci grup geride kalır. | Birinci grup hızlı ilerlerken ikincisi geride kalır. |
 
-- **`öyle ... ki` bir hata değildir.** *"Öyle bir mimari tasarladık ki yüksek trafikte bile gecikme olmuyor."* yerleşik bir Türkçe sonuç yapısıdır ve sıfat-fiile çevrilince vurgu kaybolur. Sorun ancak metinde sık tekrar ederse ortaya çıkar.
-- **`ki` genel bir şüphe işareti değildir.** Derlemde Türk yazarlar `ki` bağlacını dil modellerinden daha sık kullanıyor (1000 kelimede 2,7-3,5, modellerde 0-1,3). En sık kalıplar *var ki, dedi ki, demek ki, öyle ki, kaldı ki, elbette ki, yazık ki*. Şüpheli olan yalnızca İngilizce *that*-tümlecini kopyalayan *"Görüyoruz ki ..."*, *"Belirtmek gerekir ki ..."* tipidir.
-- **Sıfat-fiil seçimi `[Dil bilgisi]`:** Nitelenen ad yan cümlenin öznesiyse `-(y)An` kullanılır (*kodu yazan geliştirici*). Nesnesi ya da başka bir ögesiyse `-DIk` veya `-(y)AcAk` ile iyelik eki kullanılır (*geliştiricinin yazdığı kod*, *yarın kuracağımız sunucu*). Bu ikisini karıştırmak cümleyi bozar: *"geliştiricinin yazan kod"* yanlıştır.
+Ulaç her `ve`nin yerine geçmez. Dört sınırı var, dördü de kuraldır.
 
-## 2. Bağlaç (`ve`) Yerine Ulaç (Zarf-Fiil) Sistemi
+- Nedensellik uydurma. Ulaç iki olay arasına zaman ya da neden bağı koyar. Kaynakta iki cümle yalnızca yan yana duruyorsa onları ulaçla bağlama, virgülle ya da ayrı cümle olarak bırak.
+- Gizli özne. Ulaçlı yan cümlenin öznesi söylenmemişse okur onu ana cümlenin öznesi sanar. *Veriyi çekip sistem çöktü* cümlesinde veriyi sistem çekmiş olur. Özneler farklıysa iki cümle kur: *Veriyi çektik, ardından sistem çöktü.*
+- Olumsuzluğun yayılması. *Raporu okuyup onaylamadı* hem "okudu ama onaylamadı" hem "ikisini de yapmadı" diye anlaşılır. Yalnızca ikinci eylem olumsuzsa açık yaz: *Raporu okudu ama onaylamadı.*
+- Zıtlık ulaçla kurulmaz. `-(y)Ip` sıralar, karşılaştırmaz. *Komşunun sesini duyuyoruz ama adını bilmiyoruz* cümlesini *duyup bilmiyoruz* yapma. Zıtlık için *ama*, *oysa* ya da `-(y)ken` kullan.
 
-İngilizce sıralı eylemleri ve neden-sonuç bağlarını `and`, `and then`, `when`, `as` gibi ayrı kelimelerle bağlar. Türkçe ise **ulaç (zarf-fiil)** ekleriyle (`-(y)Ip`, `-(y)IncA`, `-DIkçA`, `-(y)ArAk`, `-mAdAn`) ve ek eylemin ulacı `-(y)ken` ile iki yüklemi tek akışta birleştirir. `-(y)ken` fiil köküne doğrudan gelmez, zaman ekinden sonra gelir (`ilerle-r-ken`, `çalış-ıyor-ken`).
+Ulaçtan sonra virgül konmaz. Yalnızca art arda gelen ulaçlar virgülle ayrılır.
 
-| İlişki Türü | Makine Türkçesi (Mekanik Bağlaçlı) | İnsan Türkçesi (Ulaçlı Doğal Akış) | Kullanılan Ulaç Eki |
-| :--- | :--- | :--- | :--- |
-| **Ardışık Eylem** | Veriyi çektik ve sonra temizledik. | Veriyi çekip temizledik. | `-(y)Ip` |
-| **Zaman / Tetikleme** | Cache doldu ve istekler yavaşlamaya başladı. | Cache dolunca istekler yavaşlamaya başladı. | `-(y)IncA` |
-| **Orantı / Süreç** | Trafik arttı ve buna bağlı olarak hata oranı da yükseldi. | Trafik arttıkça hata oranı da yükseldi. | `-DIkçA` |
-| **Yöntem / Araç** | Maliyetleri düşürdük ve bu sayede kârlılığı artırdık. | Maliyetleri düşürerek kârlılığı artırdık. | `-(y)ArAk` |
-| **Zıtlık / Eş Zamanlılık** | Birinci grup hızlı ilerler ve ikinci grup geride kalır. | Birinci grup hızlı ilerlerken ikincisi geride kalır. | `-Ar` + `-ken` |
+## 4. `-mektedir` ve `-dir`
 
-- **Sadakat sınırı `[Dil bilgisi]`:** Ulaç iki olay arasında zaman ya da neden bağı kurar. Kaynakta iki cümle yalnızca yan yana duruyorsa ulaçla bağlayıp yeni bir nedensellik uydurma. Virgülle ya da ayrı cümle olarak bırak.
-- **Gizli özne `[Dil bilgisi]`:** Ulaçlı yan cümlenin öznesi söylenmemişse okur onu ana cümlenin öznesi sanar. *"Veriyi çekip sistem çöktü."* cümlesi, veriyi sistemin çektiğini söyler. Özne farklıysa ya açıkça yaz ya da iki cümle kur: *"Veriyi çektik, ardından sistem çöktü."*
-- **Olumsuzluk kapsamı `[Dil bilgisi]`:** Ana yüklemdeki olumsuzluk `-(y)Ip` ile bağlanan eyleme de yayılabilir. *"Raporu okuyup onaylamadı."* hem "okudu ama onaylamadı" hem de "ikisini de yapmadı" diye anlaşılabilir. Yalnızca ikinci eylem olumsuzsa açık yaz: *"Raporu okudu ama onaylamadı."*
-- **Zıtlık ulaçla kurulmaz `[Dil bilgisi]`:** `-(y)Ip` sıralama ve bağlama bildirir, zıtlık bildirmez. *"Komşunun sesini duyuyoruz ama adını bilmiyoruz."* cümlesi *"Komşunun sesini duyup adını bilmiyoruz."* olursa karşıtlık kaybolur. Zıtlık için *ama*, *oysa* ya da `-(y)ken` kullan (*"Sesini duyarken adını bilmiyoruz."*).
-- **Virgül `[TDK]`:** Ulaçtan sonra virgül konmaz. Yalnızca art arda gelen ulaçlar virgülle ayrılır.
+Bu ikisi sık karıştırılır ama ayrı şeylerdir.
 
-## 3. Ek Eylem (`-DIr`) ve `-mAktAdIr`: İki Ayrı Sorun
+`-mAktAdIr` bir fiil çekimidir (*artmaktadır, sağlamaktadır*) ve resmî üsluba aittir. Akademik, hukuki ve kurum yazısında yerindedir. Başka türlerde `-(I)yor` ya da `-Ar/-Ir` kullan.
 
-Bu iki yapı sık karıştırılır ama farklı yerlerde çalışır, onarımları da farklıdır.
+- Yapay (blog): *Bu yöntem geliştiricilere büyük kolaylık sağlamaktadır.*
+- Doğal: *Bu yöntem geliştiricilerin işini kolaylaştırıyor.*
 
-### A. `-mAktAdIr` (eylem çekimi)
+`-DIr` ad cümlesinin bildirme ekidir (*Bu yöntem etkilidir*). Fiile çevrilemez, ya kalır ya düşer. Tanım ve sınıflandırmada kalır: *Redis bir anahtar-değer veri tabanıdır.* Anlatı ve sohbet akışında seyreltilir, yoksa metin ders kitabına döner.
 
-`-mAktA` (`-mAk` + `-DA`) resmî üslupta süren eylemi bildirir, bildirme eki `-DIr` ile birleşince *artmaktadır, sağlamaktadır* olur. İngilizce şimdiki ve geniş zamanın resmî Türkçeye refleks çevirisidir.
+- Yapay (blog): *Bu yöntem oldukça etkilidir. Burası sistemin en kritik parçasıdır.*
+- Doğal: *Bu yöntem oldukça etkili. Burası da sistemin en kritik parçası.*
 
-- Akademik, hukuki ve resmî yazışma dışındaki register'larda `-(I)yor` ya da `-Ar/-Ir` kullan.
-- **Makine:** *"Bu yöntem geliştiricilere büyük kolaylık sağlamaktadır."*
-- **İnsan:** *"Bu yöntem geliştiricilerin işini kolaylaştırıyor."*
+Ek düşünce cümle eksik kalmaz, yüklem ad olsa da olur: *Bu, onun son çabasıdır* ile *Bu, onun son çabası* aynı şeyi söyler, ikincisi konuşur gibidir. Hepsini düşürme. Paragrafın son cümlesinde ya da bir tanımda ek kalsın.
 
-### B. Ad cümlesinde bildirme eki `-DIr`
+Konuşma dilinde `-DIr` tahmin de bildirir (*Şimdi evdedir*). Gündelik metne eklenen her `-DIr` cümleye ya resmîlik ya belirsizlik katar.
 
-Ad soylu yüklemde `-DIr` ek eylemin bildirme ekidir (*Bu yöntem etkilidir.*). Fiildeki `-mAktAdIr` gibi `-Ar/-Ir` ya da `-(I)yor` ile değiştirilemez. İki seçenek vardır: eki korumak ya da düşürmek.
+Aynı eki alan sıralı yüklemlerde ek yalnızca sonuncuya gelir (tercih): *Bu yöntem hızlıdır ve güvenilirdir* değil, *Bu yöntem hızlı ve güvenilirdir.*
 
-- **Tanım ve sınıflandırma cümlelerinde korunur:** *"Redis bir anahtar-değer veri tabanıdır."* Ek düşerse (*"Redis bir anahtar-değer veri tabanı."*) cümle yanlış olmaz ama konuşma diline kayar. Belge ve kılavuz metninde ek kalsın.
-- **Anlatı ve sohbet akışında seyreltilir:** Art arda her ad cümlesini `-DIr` ile bitirmek metni ders kitabına çevirir.
-  - **Makine:** *"Bu yöntem oldukça etkilidir. Burası sistemin en kritik parçasıdır."*
-  - **İnsan (blog):** *"Bu yöntem oldukça etkili. Burası da sistemin en kritik parçası."*
-- **Anlam farkı:** Konuşma dilinde `-DIr` tahmin de bildirir. Bu kullanım ad soylu yükleme de çekimli fiile de gelir (*"Şimdi evdedir."*, *"Yorulmuştur."*). Gündelik metne eklenen her `-DIr` cümleye ya resmîlik ya da belirsizlik katar.
+Akademik ve kurum yazısında art arda üç dört cümlenin aynı ekle bitmesi olağandır. Ölçtüğümüz 2016-2019 makalelerinin çoğunda üçlü `-mektedir` serisi var, faaliyet raporlarında on cümlelik `-mıştır` serileri görülüyor. Bu türlerde seriyi kırmaya çalışma. Sayılar `olculer.md` dosyasında.
 
-### C. Grup çekimi (ek eksiltme) `[Üslup]`
+## 5. Zamir, `bir`, `kendi`
 
-Aynı eki alan sıralı yüklemlerde Türkçe eki yalnızca sonuncuya getirir. Eki her yüklemde tekrarlamak İngilizce `is ... and is` dizilişinin kopyasıdır.
+Yüklemdeki kişi eki özneyi, iyelik eki sahibi zaten söyler. İngilizcenin zorunlu *I, we, it, this* zamirlerini her cümleye taşıma.
 
-- **Makine:** *"Bu yöntem hızlıdır ve güvenilirdir."*
-- **İnsan:** *"Bu yöntem hızlı ve güvenilirdir."*
+- Yapay: *Biz önce veri tabanını yedekledik, sonra biz migration script'ini çalıştırdık. O sorunsuz tamamlandı.*
+- Doğal: *Önce veri tabanını yedekledik, ardından migration script'ini çalıştırdık. İşlem sorunsuz tamamlandı.*
 
-### D. Doz
+Açık söylenen zamir Türkçede karşıtlık bildirir (kural). *Ben gittim* "başkası değil, ben" demektir. Gereksiz zamir cümleyi ağırlaştırmakla kalmaz, istenmeyen bir vurgu da ekler.
 
-Akademik register'da `-mAktAdIr` ve `-DIr` korunur. Ölçülen makalelerde 100 kelimede ortanca 1 `-mAktAdIr` var (2016-2019 ve 2026 DergiPark örneklemleri, çeyrekler 0,5-1,6), skill'in 0,5-2,5 aralığı bununla uyuşuyor. Art arda üç dört cümlenin aynı ekle (`-mektedir`, `-mıştır`, `-dır`) bitmesi insan akademik yazısında olağandır: ChatGPT öncesi 19 makalenin 14'ünde üçlü `-mAktAdIr` serisi var, en uzun seri ortanca 5. Yediyi geçen seriyi geniş zaman (`-Ar/-Ir`), `-DI` ya da ad cümlesiyle kır. Ayrıntı: `derlem-olcumleri.md`.
+`bir` Türkçenin kendi sözüdür: *güzel bir gün*, *derin bir iz bıraktı*. Sorun yoğunluktadır. Model her sıfat tamlamasına İngilizce *a/an* karşılığı bir `bir` koyar.
 
-## 4. Vurgu Yuvası (Yüklem Önü) ve Devrik Cümle
+- Yapay: *Bu güncelleme büyük bir önem taşıyor ve yüksek bir performans ile iyi bir kullanıcı deneyimi sunuyor.*
+- Doğal: *Bu güncelleme büyük önem taşıyor, yüksek performans ve iyi kullanıcı deneyimi sunuyor.*
 
-İngilizce sabit dizilimde vurguyu cümleyi yararak (*It is X that...*) ya da kelimeyi **kalın** yazarak verir. Dil modeli bunu Türkçeye *"İşte tam da bu noktada..."*, *"Asıl önemli olan şey şudur ki..."* gibi dolgu kalıplarıyla taşır.
+Önce kalıplaşmış eylemlerin içindekini at (*önem taşımak, artış göstermek*). Bir cümlede birden fazla "sıfat + bir + soyut ad" varsa seyrelt. Tek ve somut bir şeyi anlatan `bir`e dokunma.
 
-Türkçede vurgu yüklemin hemen önündeki ögeye düşer. Aynı ögeleri yeniden dizmek yeterlidir:
+*His own, its own* çevirisi olan `kendi`yi karşıtlık yoksa tekrarlama: *Her servis kendi veri tabanına bağlanır ve onun kendi yapılandırmasını okur* değil, *Her servis kendi veri tabanına bağlanıp yapılandırmasını okur.*
 
-- *"Raporu dün **Ahmet'e** gönderdim."* (Kime gönderildiği öne çıkıyor.)
-- *"Raporu dün Ahmet'e **ben** gönderdim."* (Gönderenin kim olduğu öne çıkıyor.)
-- *"Raporu Ahmet'e **dün** gönderdim."* (Ne zaman gönderildiği öne çıkıyor.)
-- *"Dün Ahmet'e **raporu** gönderdim."* (Neyin gönderildiği öne çıkıyor.)
+## 6. Edilgen, adlaştırma, kof fiil
 
-### Devrik Cümle
+`tarafından` Türkçedir. *Köprü Mimar Sinan tarafından yapıldı* kusursuz bir cümledir: konu köprü, yeni bilgi Mimar Sinan. Etkene çevirirsen konuyu değiştirirsin. Çeviri kokusu iki durumda çıkar: yapan yazarın kendisi ya da kurumuysa, ya da `tarafından` içi boş bir fiille gelmişse (*tarafından gerçekleştirilmiştir*).
 
-Yüklemden sonraki konum, bağlamdan bilinen ve ikinci planda kalan bilgiye ayrılmıştır. Gündelik, edebî ve blog Türkçesinde yüklemi öne almak metne konuşma sıcaklığı katar:
+- Yapay: *Yeni kimlik doğrulama modülü güvenlik ekibimiz tarafından test edilmiş ve onaylanmıştır.*
+- Doğal: *Güvenlik ekibimiz yeni kimlik doğrulama modülünü test edip onayladı.*
 
-- **Düz:** *"Kimse bu uzun hata raporlarını sonuna kadar okumuyor."*
-- **Devrik (blog):** *"Kimse sonuna kadar okumuyor bu uzun hata raporlarını."* (Raporlar bağlamda zaten geçtiği için yüklemden sonraya alınabilir.)
-- **Sınır `[Dil bilgisi]`:** Yeni bilgi ve belirtisiz nesne yüklemden sonraya alınmaz. *"Ahmet'e gönderdim rapor."* bozuk bir cümledir.
-- **Kota `[Üslup]`:** Teknik, kurumsal ve akademik register'larda devrik cümle kullanma. Blog/deneme ve anlatı register'ında devrik cümleyi seyrek tut, her cümleyi devrik yapmak yeni bir yapay tike dönüşür. 22 Türk yazarının 24 kitabından oluşan derlemde anlatı cümlelerinin yaklaşık %9,5'i, deneme cümlelerinin %7'si devrik, model metinlerinde %1-8 (sezgisel ölçüm, `derlem-olcumleri.md`). Yazarlarda yüklemden sonra gelen kısım %83 oranında 1-2 kelimedir: zamir (*beni, ona*), işaret sözü (*bu*), özel ad ya da *belki, zaten, hiç* gibi bir zarf.
+Model eylemi ada çevirip yardımcı fiille yeniden eyleme bağlar: *-mAsI gerekmektedir, -mAsI sağlanmalıdır, -mAsI önem arz etmektedir.* Çoğu zaman fiil doğrudan çekilebilir (tercih).
 
-## 5. Zamir Düşürme (Pro-Drop) ve `"Bir"` / `"Kendi"` Yoğunluğu
+- Yapay: *Verilerin düzenli olarak yedeklenmesinin sağlanması gerekmektedir.*
+- Doğal: *Veriler düzenli olarak yedeklenmeli.*
 
-### A. Kişi ve İşaret Zamiri Düşürme
+Kamu ve kurum yazışmasında bu yapılar beklenen biçimdir, orada dokunma.
 
-Türkçe özneyi yüklemdeki kişi ekiyle (`-(y)Im/-m`, `-sIn/-n`, `-(y)Iz/-k`, `-sInIz/-nIz`, `-lAr`), aitliği iyelik ekiyle zaten bildirir. İngilizcedeki zorunlu `I, we, they, it, this` zamirlerini her cümleye taşımak metni ağırlaştırır:
+Tek fiille söylenecek iş ad + yardımcı fiille şişer. Bu öbeklerin çoğu Türkçede yerleşiktir, sorun sıklıktadır.
 
-- **Makine:** *"Biz önce veri tabanını yedekledik, sonra biz migration script'ini çalıştırdık. O sorunsuz tamamlandı."*
-- **İnsan:** *"Önce veri tabanını yedekledik, ardından migration script'ini çalıştırdık. İşlem sorunsuz tamamlandı."*
-- **Anlam `[Dil bilgisi]`:** Türkçede açıkça söylenen özne zamiri karşıtlık ya da vurgu bildirir. *"Ben gittim."* cümlesi "başkası değil, ben" anlamına kayar. Bu yüzden gereksiz zamir yalnızca ağırlık değil, istenmeyen bir vurgu da ekler.
-
-### B. `"Bir"` Yoğunluğu
-
-Sıfat ile ad arasındaki `bir`, Türkçenin kendi belirsizlik işaretidir: *güzel bir gün*, *iyi bir insan*, *derin bir iz bıraktı* doğal Türkçedir. Sorun tek tek kullanımlar değil, **yoğunluktur**. Dil modeli her sıfat tamlamasına İngilizce `a/an` karşılığı olarak `bir` ekler:
-
-- **Makine:** *"Bu güncelleme **büyük bir önem** taşıyor ve **yüksek bir performans** ile **iyi bir kullanıcı deneyimi** sunuyor."*
-- **İnsan:** *"Bu güncelleme **büyük önem** taşıyor, **yüksek performans** ve **iyi kullanıcı deneyimi** sunuyor."* (Pazarlama dili kaynağın kendi içeriğidir. Bu örnekte onarılan yalnızca `bir` yoğunluğudur.)
-- **Kural `[Üslup]`:** Önce kalıplaşmış birleşik eylemlerin içindeki `bir`i at (*önem taşımak*, *artış göstermek*, *rol oynamak*). Bir cümlede birden fazla *sıfat + bir + soyut ad* varsa seyrelt. Tekil ve somut bir olayı anlatan `bir`e dokunma.
-
-### C. İngilizce `his/her/its own` Çevirisi Olan Gereksiz `"Kendi"`
-
-- **Makine:** *"Her servis **kendi veri tabanına** bağlanır ve **onun kendi** yapılandırmasını okur."*
-- **İnsan:** *"Her servis kendi veri tabanına bağlanıp yapılandırmasını okur."* (İyelik eki `-(s)I` zaten aitliği verir. Karşıtlık yoksa `kendi` tekrarlanmaz.)
-
-## 6. Edilgen Çatı (`tarafından`), Adlaştırma ve Kof Yardımcı Fiil
-
-### A. `"tarafından"`
-
-Edilgen çatı Türkçenin kendi yapısıdır ve bilgi yapısını taşır. *"Köprü Mimar Sinan tarafından yapıldı."* kusursuz bir cümledir: Konu köprüdür, yeni bilgi Mimar Sinan'dır. Etkene çevirmek konuyu değiştirir. Çeviri kokusu iki durumda ortaya çıkar:
-
-1. Eyleyen yazarın kendisi ya da kendi kurumu olduğunda:
-   - **Makine:** *"Yeni kimlik doğrulama modülü güvenlik ekibimiz tarafından test edilmiş ve onaylanmıştır."*
-   - **İnsan:** *"Güvenlik ekibimiz yeni kimlik doğrulama modülünü test edip onayladı."*
-2. `tarafından` kof bir eylemle birlikte geldiğinde (*tarafından gerçekleştirilmiştir*, *tarafından sağlanmaktadır*).
-
-### B. Adlaştırma Zincirleri `[Üslup]`
-
-Dil modeli eylemi ada çevirip ardından bir yardımcı eylemle yeniden eyleme bağlar: *"-mAsI gerekmektedir"*, *"-mAsI sağlanmalıdır"*, *"-mAsI önem arz etmektedir"*. Türkçede eylem çoğu zaman doğrudan çekimlenebilir:
-
-- **Makine:** *"Verilerin düzenli olarak yedeklenmesinin sağlanması gerekmektedir."*
-- **İnsan:** *"Veriler düzenli olarak yedeklenmeli."*
-
-### C. Kof Yardımcı Fiiller
-
-Tek eylemle söylenebilecek işler ad + yardımcı eylem öbekleriyle şişirilir. Bu öbeklerin çoğu Türkçede yerleşiktir, sorun **sıklık** ve `-mAktAdIr` ile birlikte kullanımdır:
-
-| Şişirilmiş Öbek | Doğal Seçenek | Örnek Dönüşüm |
-| :--- | :--- | :--- |
-| **gerçekleştirmek / icra etmek** | yapmak, düzenlemek, kurmak, tamamlamak | *"Toplantı gerçekleştirdik"* -> *"Toplantı yaptık"* / *"Analiz gerçekleştirdi"* -> *"Analiz etti"* |
-| **sağlamak** (aşırı kullanım) | vermek, kazandırmak, doğrudan oldurgan ya da ettirgen çatı (`-DIr`, `-t`) | *"Hız artışı sağlar"* -> *"Sistemi hızlandırır"* / *"Destek sağlar"* -> *"Destek verir"* |
-| **katkıda bulunmak** (aşırı kullanım) | desteklemek, yararı dokunmak | *"Büyümesine katkıda bulunmaktadır"* -> *"Büyümesini destekliyor"*. `Katkıda bulunmak` TDK Güncel Türkçe Sözlük'te yer alan yerleşik bir deyimdir. Onun yerine sözlükte yer almayan `katkı sunmak` önerme. |
-| **sahip olmak** (`have / has` çevirisi) | `-lI` eki, `var`, `içermek`, `taşımak` | *"Yüksek hıza sahiptir"* -> *"Çok hızlıdır"* / *"Üç katmana sahiptir"* -> *"Üç katmandan oluşur"* |
-| **ev sahipliği yapmak** (`host / feature`) | barındırmak, yer almak | *"Bölge birçok tarihî yapıya ev sahipliği yapmaktadır"* -> *"Bölgede pek çok tarihî yapı var"* |
-| **rol oynamak** (`play a role`) | belirlemek, etkilemek | *"Kritik bir rol oynamaktadır"* -> *"Sonucu belirler"* |
-| **yer almak / bulunmak** (`-mAktAdIr` ile) | `var`, bulunma eki `-DA` | *"Raporda üç bölüm yer almaktadır"* -> *"Raporda üç bölüm var"* |
-| **olan** (gereksiz sıfat-fiil) | `olan`ı düşür | *"Önemli olan bir adım"* -> *"Önemli bir adım"* |
-| **olarak** (zincirleme kullanım) | `-DA`, `-CA` veya doğrudan yüklem | *"İlk adım olarak veriyi sildik"* -> *"İlk adımda veriyi sildik"*. *"Sonuç olarak"* resmî metinde olağandır. Hedef, her paragrafın sonuna refleksle eklenen özet etiketidir. |
-
-## 7. Kanıtsallık (`-mIş`) ve Zaman Seçimi
-
-- **Görülen ve öğrenilen geçmiş (`-DI` ve `-mIş`):** Türkçe, olayı görüp görmediğini fiil çekiminde ayırır. İngilizce bunu yapmaz (*The server crashed at 3 AM*). Dil modeli bu yüzden neredeyse hiç `-mIş` kullanmaz. Olay sonradan öğrenilmiş ya da kayıttan çıkarılmışsa, özellikle gündelik ve blog register'ında `-mIş` doğaldır:
-  - **Düz anlatım:** *"Gece yarısı bellek sızıntısı oldu ve servis kapandı. Sabah log'lara baktığımızda fark ettik."*
-  - **Kanıtsal anlatım:** *"Gece yarısı bellek sızıntısı olmuş, servis de kapanmış. Sabah log'lara bakınca fark ettik."*
-  - **Sınır `[Üslup]`:** Olay sonrası raporlarında ve resmî tutanaklarda, kayıtla kesinleşmiş olgu için `-DI` olağandır. `-mIş` ekini zorla yayma.
-- **Geniş zaman (`-Ar/-Ir`) ve şimdiki zaman (`-(I)yor`):** Genel doğrular için ikisi de doğal Türkçedir (*"Dünya Güneş'in çevresinde dönüyor."*). Geniş zaman daha tanımsal ve resmî bir ton verir.
-  - **Teknik tanım ve şartnamede** geniş zamanı tercih et: *"Redis veriyi bellekte tutar, diske ise asenkron yazar."*
-  - **Kural `[Üslup]`:** Aynı paragrafta aynı türden bilgiyi anlatırken ikisini karıştırma.
-
-## 8. Ad Tamlaması Zincirlerini Kırma `[Üslup]`
-
-İngilizce teknik ve kurumsal ad öbeklerini (*customer segmentation module performance optimization process*) Türkçeye belirtisiz ad tamlamalarıyla üst üste zincirleyerek aktarmak okunabilirliği yok eder. Tamlayan eki almadan art arda dizilen adların sayısı üçü geçmesin, fazlasını sıfat-fiil ya da hâl ekleriyle çöz:
-
-- **Makine:** *"Müşteri segmentasyon modülü performans iyileştirme çalışması sonuç raporu"*
-- **İnsan:** *"Müşteri segmentasyon modülünün performansını iyileştirme çalışmasının sonuç raporu"* (Kaynakta çalışmayı kimin yaptığı yazmıyor, bu yüzden "yaptığımız" gibi bir özne eklenmez.)
-
-## 9. Cümleler Arası Bağlantı
-
-### A. `"Bu da ... anlamına gelir"` Kalıbı `[Üslup]`
-
-İngilizcedeki *which means* ve *this means that* yapıları Türkçeye cümle başında `Bu da` ile başlayan ikinci bir cümle olarak taşınır. Bağlantı çoğu zaman tek cümlede kurulabilir:
-
-- **Makine:** *"Cache süresi kısa tutuldu. Bu da veri tabanı yükünün artması anlamına geliyor."*
-- **İnsan:** *"Cache süresi kısa tutulduğu için veri tabanı yükü artıyor."*
-
-### B. Öz Düzeltme ve Söylem Parçacıkları
-
-Makine Türkçesi her şeyi baştan mutlak bir kesinlikle biliyormuş gibi yazar. İnsan yazar düşünürken cümleyi daraltır, çekince koyar ve Türkçenin söylem parçacıklarını (`ise`, `zaten`, `de`, `yani`, `bir de`, `tabii`, `daha doğrusu`) yerli yerinde kullanır:
-
-- **Makine:** *"Silme işlemi idempotenttir, bu nedenle dağıtık sistemlerde tercih edilir."*
-- **İnsan:** *"Silme işlemi idempotent. Dağıtık sistemlerde tercih edilmesinin nedeni de bu."* (Parçacık ve cümle bölme ritmi değiştirir ama kaynağa yeni bir iddia eklemez.)
-- **Makine:** *"Birinci yöntem hızlıdır, ikinci yöntem yavaştır."*
-- **İnsan:** *"Birinci yöntem hızlı, ikincisi ise yavaş."*
-- **Sınır `[Üslup]`:** Her parçacık silme testinden geçmeli. Kaldırıldığında anlamdan ya da tondan bir şey eksilmiyorsa o parçacık süstür, silinir.
-
-## 10. Koşutluk: Cümlenin Simetrisi
-
-`ve`, virgül ya da ikili bağlaçla (`hem ... hem`, `ne ... ne`) bağlanan ögeler aynı görevi taşıyorsa aynı biçimde kurulur. Birden fazla yükleme ortak bağlanan öge de her yüklemin istediği biçime uymalıdır. Türkçe dil bilgisi kitaplarında bu hatalar "anlatım bozukluğu" başlığı altında geçer.
-
-Dil modeli bu hataları sık yapar, çünkü İngilizcede ad hâl eki almaz. *"We review and include user feedback"* cümlesinde iki eylem tek nesneyi rahatça paylaşır. Türkçede ise her yüklem nesnesine kendi hâl ekini dayatır.
-
-### A. Ortak öge her yüklemin hâline uymalı `[Dil bilgisi]`
-
-Bir ögeyi iki yükleme ortak bağlamak ancak iki yüklem de aynı hâli istiyorsa mümkündür. Biri belirtme (`-(y)I`), öteki yönelme (`-(y)A`) istiyorsa ikinci yükleme ögeyi zamirle yeniden bağla:
-
-- **Bozuk:** *"Kullanıcı geri bildirimlerini inceliyor ve yol haritamızda yer veriyoruz."* (`incelemek` neyi, `yer vermek` neye ister.)
-- **Doğru:** *"Kullanıcı geri bildirimlerini inceliyor ve bunlara yol haritamızda yer veriyoruz."*
-- **Bozuk:** *"Açık kaynak kütüphanelere güveniyoruz ama güvenlik taramasından geçirmeden kullanmıyoruz."*
-- **Doğru:** *"Açık kaynak kütüphanelere güveniyoruz ama onları güvenlik taramasından geçirmeden kullanmıyoruz."*
-
-Hâl ekleri aynı olsa bile ortak öge ikinci yükleme anlamca uymayabilir:
-
-- **Anlam kayması:** *"Müşteri verilerinin gizliliğini önemsiyor ve üçüncü taraflarla paylaşmıyoruz."* (Paylaşılmayan şey gizlilik olur.)
-- **Doğru:** *"Müşteri verilerinin gizliliğini önemsiyor ve bu verileri üçüncü taraflarla paylaşmıyoruz."*
-
-### B. Ortak özne her yüklemin çatısına uymalı `[Dil bilgisi]`
-
-Aynı özne bir etken, bir edilgen yükleme birlikte bağlanamaz. Ulaçlı yan cümlede de durum aynıdır (bkz. Bölüm 2, gizli özne):
-
-- **Bozuk:** *"Sistem gelen istekleri doğruladıktan sonra veri tabanına kaydedilir."* (Kaydedilen sistem olur.)
-- **Doğru:** *"Sistem gelen istekleri doğruladıktan sonra veri tabanına kaydeder."*
-- **Bozuk:** *"Şirketimiz karbon ayak izini azaltarak sürdürülebilirlik hedeflerine katkı sağlandı."*
-- **Doğru:** *"Şirketimiz karbon ayak izini azaltarak sürdürülebilirlik hedeflerine katkıda bulundu."*
-- **Hata olmayan durum:** Öznesi ayrı iki cümle farklı çatıda olabilir. *"Ekip testleri tamamladı ve yeni sürüm yayına alındı."* doğrudur.
-
-### C. Ortak ek ancak her kanada uyuyorsa düşürülür `[Dil bilgisi]`
-
-Grup çekimi (Bölüm 3C) ekin bütün kanatlarda aynı olmasını gerektirir. Kişi eki ya da olumsuzluk farklıysa ek düşürülemez:
-
-- **Bozuk (kişi):** *"Pazarlama ekibi yeni kampanyalara, siz ise müşteri bağlılığına odaklanacak."*
-- **Doğru:** *"Pazarlama ekibi yeni kampanyalara odaklanacak, siz ise müşteri bağlılığına odaklanacaksınız."*
-- **Bozuk (olumsuzluk):** *"Model hızlı ve doğruluğu yeterli değildi."* (`değil` grup çekiminde bütün kanatlara yayılır, cümle modelin hızlı olmadığını da söyler.)
-- **Doğru:** *"Model hızlıydı ama doğruluğu yeterli değildi."*
-
-### D. Sıralanan ögeler aynı biçimde kurulmalı `[Dil bilgisi]`
-
-Eş görevli ögeler yalın ad-eylem (`-mAk`), iyelik eki almış ad-eylem (`-mAsI`, `-(y)IşI`) ve ad öbeği arasında karışırsa liste dağılır, ögelerden biri ya da birkaçı ortak yükleme bağlanamaz:
-
-- **Bozuk:** *"Bu güncellemenin amaçları arayüzü hızlandırmak, bellek sızıntılarının giderilmesi ve daha kolay bir kurulum."*
-- **Doğru:** *"Bu güncellemenin amaçları arayüzü hızlandırmak, bellek sızıntılarını gidermek ve kurulumu kolaylaştırmak."*
-- **Bozuk:** *"İyi bir uzaktan çalışma düzeni için düzenli iletişim kurmak, görev dağılımında şeffaflık ve çalışanların motivasyonunu korumamız gerekir."*
-- **Doğru:** *"İyi bir uzaktan çalışma düzeni için düzenli iletişim kurmak, görevleri şeffaf dağıtmak ve çalışanların motivasyonunu korumak gerekir."*
-
-### E. İkili bağlaçlarda kanatlar denk olmalı `[Dil bilgisi]`
-
-`hem ... hem`, `ne ... ne`, `ya ... ya`, `ister ... ister` bağlaçlarının iki kanadı aynı türden ögelerle kurulur:
-
-- **Bozuk:** *"Arayüz hem kullanıcı dostu bir deneyim sunuyor hem de erişilebilirlik standartlarına tam uyumluluk."* (İlk kanat yüklem, ikincisi ad öbeği.)
-- **Doğru:** *"Arayüz hem kullanıcı dostu bir deneyim sunuyor hem de erişilebilirlik standartlarına tam uyuyor."*
-- **Bozuk:** *"İster bulut sunucusu kiralayın ister kendi donanımınıza yatırım yaparak süreci yönetmek mümkün."*
-- **Doğru:** *"İster bulut sunucusu kiralayarak ister kendi donanımınıza yatırım yaparak süreci yönetebilirsiniz."*
-
-`ne ... ne` yargıyı kendisi olumsuz yapar, yüklem olumlu çekimlenir. Konuşmada olumsuz yüklemle de duyulur ama yazı dilinde anlatım bozukluğu sayılır:
-
-- **Bozuk:** *"Bu strateji ne sunucu maliyetini düşürmedi ne de yanıt süresini kısaltmadı."* (Biri olumlu biri olumsuz iki yüklem, *"ne ... düşürdü ne de ... kısaltmadı"*, daha da açık bir bozukluktur.)
-- **Doğru:** *"Bu strateji ne sunucu maliyetini düşürdü ne de yanıt süresini kısalttı."*
-
-### F. Yapay Simetri `[Üslup]`
-
-Dil modeli cümleleri anlamın gerektirmediği bir simetriyle kurar. En sık görülen üç biçim:
-
-- **Ayna karşıtlık:** *"Teknoloji insan için vardır, insan teknoloji için değil."*
-- **Zincirleme tekrar:** *"Veriyi anlamak geleceği anlamaktır, geleceği anlamak değişimi yönetmektir."*
-- **Aynı kalıba dökülmüş üçlü:** *"Bu platform hızıyla zamanı, güvenliğiyle veriyi, esnekliğiyle geleceği korur."*
-
-Bunlar slogan dilidir ve çoğu zaman somut bilgi taşımaz. Onarımda süsü at ve geriye kalan somut iddiayı söyle:
-
-- **Makine:** *"Bu platform hızıyla zamanı, güvenliğiyle veriyi, esnekliğiyle geleceği korur."*
-- **İnsan:** *"Bu platform hızlı, güvenli ve esnek."* (Kaynakta üç özellik var, üçü de kalır. Sorun üçlü liste değil, üç ögenin aynı kalıba dökülmesidir.)
-
-Kaynakta somut bir iddia yoksa onu uydurma. Cümleyi sil ya da `[somut veri: ...]` yer tutucusu bırak. Aynı tik paragraf düzeyinde de görülür: Her paragraf aynı iskeletle (iddia, açıklama, özet cümlesi) kurulur. Paragrafların biçimini içerik belirlesin.
-
-- **Sınır:** Simetri silme testinden geçiyorsa korunur. Gerçek bir karşıtlığı (*"Birinci yöntem hızlı, ikincisi ise yavaş."*) ya da gerçekten koşut iki olguyu anlatan simetri Türkçenin doğal bir aracıdır.
-
-
-<!-- KAYNAK: references/ai-turkcesi-sozlugu.md -->
-
-# "Yapay Zekâ Türkçesi" (AI Slop & Translationese) Sözlüğü
-
-Büyük Dil Modelleri (LLM), İngilizce eğitim verisinde aşırı temsil edilen klişeleri (`delve into`, `tapestry`, `testament to`, `pivotal`, `not only... but also`) Türkçeye birebir kalıp çevirisi (calque) olarak taşır. Bu sözlük, Türkçe metinlerdeki yapay zekâ izlerini önem derecesine göre (Tier 1, Tier 2, Tier 3) sınıflandırır ve doğal Türkçe karşılıklarını sunar.
-
-**Örnekleri okuma kuralı (Olgusal Sadakat Kilidi):** "Sonra" sütunundaki dönüşümler kaynakta olmayan hiçbir sayı, yer, kişi veya iddia eklemez. Bir klişe silinince yerine somut bilgi gerekiyorsa bu bilgi köşeli yer tutucuyla gösterilir (`[somut veri: ...]`). Onarım (`rewrite`) modunda yer tutucuyu kendin doldurma. Kaynakta karşılığı varsa onu kullan, yoksa yer tutucuyu bırakıp kullanıcıya sor ya da cümleyi sadeleştirmekle yetin.
-
-## 1. Tier-1: Kesin AI İfşaları (Tek Görülmede Silinmesi veya Değiştirilmesi Gerekenler)
-
-Bu kelime ve kalıplar, doğal Türkçe metinlere kıyasla LLM çıktılarında 10 ila 50 kat daha sık görülür. Metinde tek bir kez bile geçseler müdahale edilmelidir.
-
-| İngilizce Kaynak Kalıp | Yapay Zekâ Türkçesi (Yasaklı / Klişe) | Doğal ve İnsani Türkçe Alternatifi | Örnek Dönüşüm (Önce -> Sonra) |
-| :--- | :--- | :--- | :--- |
-| *undeniable / undeniably* | **yadsınamaz / yadsınamaz bir gerçek ki / inkar edilemez** | açık, ortada, belli, tartışmasız (veya tamamen silip doğrudan olguyu yaz) | *"Yapay zekânın etkisi yadsınamaz."* -> *"Yapay zekânın etkisi ortada."* / Kaynakta somut etki varsa: *"Yapay zekâ [somut etki] sağladı."* |
-| *virtually / almost like / veritable* | **âdeta** (yaygın yazımıyla `adeta`, her benzetmede kullanımı) | neredeyse, sanki, gibi (çoğu zaman tamamen silinmeli) | *"Sektörde âdeta bir devrim yarattı."* -> *"Sektörün kurallarını değiştirdi."* |
-| *delve into / dive deep into* | **derinlemesine inmek / derinlemesine incelemek / mercek altına almak** | ayrıntısına bakmak, yakından incelemek, deşmek, ele almak | *"Konunun derinlemesine inelim."* -> *"Konunun ayrıntılarına bakalım."* |
-| *tapestry / mosaic / kaleidoscope* | **zengin bir doku / mozaik / harman / yelpaze (geniş bir yelpazede)** | çeşitlilik, bir arada bulunmak, çok yönlü yapı, farklı alanlarda | *"Kültürel bir mozaik ve geniş bir yelpaze sunar."* -> *"Farklı kültürleri bir araya getirir."* |
-| *stands as a testament to* | **...nın bir kanıtıdır / en büyük göstergesidir / nişanesidir** | ...-dığını gösterir, ortaya koyar | *"Bu başarı ekibin azminin bir kanıtıdır."* -> *"Bu sonuç ekibin ne kadar sıkı çalıştığını gösteriyor."* |
-| *plays a pivotal / crucial role* | **kritik bir rol oynamaktadır / hayati öneme sahiptir / kilit rol üstlenir** | belirler, çok önemli, şart | *"Veri kalitesi model başarısında kritik bir rol oynamaktadır."* -> *"Modelin başarısı büyük ölçüde veri kalitesine bağlı."* |
-| *in today's fast-paced / digital world* | **günümüzün hızla değişen dünyasında / dijitalleşen çağımızda** | **Tamamen sil.** (Konuya doğrudan gir) | *"Günümüzün hızla değişen dünyasında hız önemlidir."* -> *"Hız önemli."* / Nedeni kaynakta varsa: *"Hız önemli çünkü [kaynaktaki gerekçe]."* |
-| *not only X, but also Y* | **sadece X değil, aynı zamanda Y / yalnızca X olmakla kalmayıp...** | hem X hem Y, X'in yanında Y de..., X yapıyor üstelik Y... | *"Sadece hızı artırmakla kalmaz, aynı zamanda maliyeti düşürür."* -> *"Hem hızı artırır hem de maliyeti düşürür."* |
-| *it is not X, it is Y* (Negatif Paralellik) | **bu bir X değil, bir Y'dir / mesele X değil, Y** | Olumsuz yarıyı atıp yalnızca Y olduğunu söyle (kimsenin iddia etmediği X'i reddetme) | *"Bu sadece bir güncelleme değil, yeni bir başlangıçtır."* -> *"Bu sürüm yeni bir başlangıç."* / Neyin değiştiği kaynakta varsa: *"Bu sürümde [kaynaktaki değişiklik]."* |
-| *unlock the potential / unleash* | **potansiyelini ortaya çıkarmak / tam potansiyeline ulaşmak / kilidini açmak** | verimli kullanmak, önünü açmak, kapasitesini artırmak | *"Ekibinizin potansiyelini ortaya çıkarın."* -> *"Ekibinizin elini güçlendirin / daha verimli çalışın."* |
-| *watershed moment / turning point* | **dönüm noktası / kilometre taşı / çığır açan (groundbreaking)** | önemli eşik, yeni aşama, ilk kez ... sağlayan | *"Sektör için çığır açan bir dönüm noktasıdır."* -> *"Sektör için önemli bir eşik."* / Neyi ilk kez sağladığı kaynakta varsa: *"Sektörde ilk kez [kaynaktaki yenilik] sağlıyor."* |
-| *seamlessly / effortless* | **kusursuz bir şekilde / pürüzsüzce / zahmetsizce** | kolayca, takılmadan, sorunsuz | *"Mevcut sisteminizle kusursuz bir şekilde entegre olur."* -> *"Mevcut sisteminize sorunsuz bağlanır."* |
-| *meticulously / painstakingly* | **titizlikle / özenle hazırlanmış** | dikkatle, tek tek kontrol edilerek (veya kaynaktaki somut kanıtı ver) | *"Titizlikle eğitilmiş modelimiz..."* -> *"Modelimiz..."* (sıfatı sil) / Kaynakta varsa: *"[kaynaktaki veri miktarı] belgeyle eğitilen modelimiz..."* |
-| *nestled in the heart of* | **...nın kalbinde yer alan** | ... merkezindeki, ...'da bulunan | *"İstanbul'un kalbinde yer alan ofisimiz..."* -> *"İstanbul'un merkezindeki ofisimiz..."* (semt adı kaynakta yoksa ekleme) |
-
-## 2. Tier-2: Bürokratik Bağlaçlar, Geçiş Dolguları ve Şişirilmiş Sıfatlar (Yoğunlukta Temizlenenler)
-
-Bu ifadeler tek başına yanlış değildir ancak LLM'ler her paragraf başında ve cümle geçişinde bunları mekanik olarak tekrarlar. Bir metinde birden fazla geçiyorsa silinmeli veya sadeleştirilmelidir.
-
-| Kategori | Yapay Zekâ / Çeviri Kalıbı | Doğal Türkçe Alternatifi veya Eylem |
-| :--- | :--- | :--- |
-| **Geçiş Bağlaçları (*Moreover / Furthermore / However*)** | **Bununla birlikte / Öte yandan / Buna ek olarak / Dahası / Üstelik** (her paragraf başında) | Bağlacı silip cümleye gir. Gerekiyorsa `Ayrıca`, `Ama` veya cümle içi `ise / de` kullan. Bu bağlaçlar tek tek yanlış değildir, sorun her paragraf başında refleksle tekrar edilmeleridir. Derlem ölçümü: Modeller denemede cümleleri *Oysa*, *Ancak*, *Sonuç olarak*, *Öte yandan* ile açar (1000 cümlede 20-60), Türk yazarlarda cümle başında en sık *Ama*, *Çünkü*, *Ve*, *Sonra* görülür. |
-| **Sahte Vurgu Girişleri (*It is worth noting / Importantly*)** | **Belirtmek gerekir ki / Şunu vurgulamak önemlidir ki / Unutulmamalıdır ki / Dikkat çekici bir şekilde** | **Tamamen sil.** Vurgulanacak bilgiyi giriş anonsu yapmadan yaz. |
-| **İşaret ve Gönderim Dolguları (*Said / Mentioned / In this context*)** | **Söz konusu / Bahsi geçen / Bu bağlamda / Bu doğrultuda / Bu çerçevede / Bu noktada** | İşaret sıfatı (`bu`, `o`) kullan veya ismi doğrudan tekrar et (*"Söz konusu algoritma"* -> *"Bu algoritma"*). |
-| **Yüzeysel Sonuç Kuyrukları (*...highlighting / underscoring / fostering*)** | **...olduğunu gözler önüne sermektedir / ...önemini bir kez daha vurgulamaktadır / ...zemini hazırlamaktadır** | Cümle sonundaki bu yorum kuyruklarını kesip olguyu vererek noktayı koy. |
-| **Şişirilmiş Kurumsal Jargon (*Holistic / Synergy / Paradigm / Ecosystem*)** | **Bütüncül (holistik) bir yaklaşım / Sinerji yaratmak / Paradigma değişimi / Ekosistem / Dinamik yapı / Proaktif** | Somut karşılık kullan: *"bütüncül yaklaşım"* -> *"tüm süreci kapsayan plan"*, *"ekosistem"* -> *"sektör / ortam / araç seti"*. |
-| **Yüzeysel Özet Kapanışları (*In conclusion / To sum up / Overall*)** | **Sonuç olarak / Özetlemek gerekirse / Son tahlilde / Genel bir değerlendirme yapıldığında** | Okur son paragrafta olduğunu zaten görür. Bu başlangıç etiketini silip son sözü söyle. |
-| **İhtiyat Yığılması (*Could potentially / Might possibly*)** | **Potansiyel olarak ...-ebilme ihtimali bulunmaktadır / ...söylenebilir ki** | Tek bir ihtiyat eki yeterlidir: *"...-ebilir"* veya *"görünüyor"*. |
-| **Belirsiz Otorite Atfı (*Experts argue / Research shows*)** | **Uzmanlar belirtiyor ki / Yapılan araştırmalar göstermektedir ki / Pek çok gözlemciye göre** | Kaynak metinde gerçek bir isim veya araştırma varsa adını yaz, yoksa bu sahte otorite cümlesini sil. |
-
-## 3. Tier-3: Ürün, SaaS, Pazarlama ve Lokalizasyon Klişeleri (Çeviri Kokan Kalıplar)
-
-Web sitelerinde, uygulama arayüzlerinde (UI), kurumsal bültenlerde ve SaaS metinlerinde İngilizceden birebir çevrilen yapay kalıplar:
-
-| İngilizce Kaynak | Çeviri Kokan / Yapay Türkçe | Doğal ve Yerleşik Türkçe |
-| :--- | :--- | :--- |
-| *Take X to the next level* | **X'i bir üst seviyeye taşıyın / bir sonraki aşamaya geçirin** | X'i geliştirin / hızlandırın / büyütün |
-| *Ready to get started?* | **Başlamaya hazır mısınız?** | Hemen başlayın / Denemeye başlayın |
-| *Empower your team to...* | **Ekibinizi ... yapmaları için güçlendirin** | Ekibinizin ... yapmasını kolaylaştırın / Ekibinizin elini güçlendirin |
-| *Save time and money* | **Zamandan ve paradan tasarruf edin** | Zaman kazanın, maliyetleri düşürün |
-| *Tailored to your needs* | **İhtiyaçlarınıza göre özel olarak tasarlanmış / terzi işi** | İhtiyacınıza uygun / İşinize göre uyarlanan |
-| *Game-changer* | **Oyun değiştirici / Oyunun kurallarını değiştiren** | Dengeleri değiştiren / İşleri kökten kolaylaştıran |
-| *One-stop shop / All-in-one hub* | **Tek durak noktası / Hepsi bir arada merkez** | Tüm araçlar tek ekranda / İhtiyacınız olan her şey tek yerde |
-| *Leverage / Utilize* | **Kaldıraç olarak kullanmak / İstifade etmek** | Kullanmak, yararlanmak, değerlendirmek |
-| *No credit card required* | **Kredi kartı istenmez / Kart istemiyoruz** | Kredi kartı gerekmez |
-| *Send on WhatsApp / Share on X* | **WhatsApp'ta gönder / X üzerinde paylaş** | WhatsApp'tan gönder / X'te paylaş (Hâl eki uyumuna dikkat) |
-| *See who opened and edited* | **Kim açtı, kim düzenledi gör** | Kimin açtığını, kimin düzenlediğini gör |
-| *Let's dive in! / Here's the thing:* | **Hadi başlayalım! / Mesele şu ki: / İşin sırrı şurada:** | **Tamamen sil.** |
-
-## 4. Sohbet ve Asistan Artıkları (Chat Residue - Anında Silinecekler)
-
-Metin çıktılarının başında veya sonunda asla yer almaması gereken ifadeler:
-
-- *"Elbette! İşte metninizin daha doğal ve insani Türkçeye uyarlanmış hâli:"*
-- *"Harika bir konu! Gelin bu konuyu birlikte inceleyelim."*
-- *"Umarım bu düzenleme işinize yarar! Başka bir değişiklik isterseniz lütfen belirtin."*
-- *"Değişiklik Özeti: 1. Uzun çizgiler kaldırıldı..."* (Kullanıcı özellikle `audit` veya açıklama istemediyse ekleme).
-
-
-<!-- KAYNAK: references/tdk-ve-noktalama.md -->
-
-# TDK Yazım Kılavuzu, Noktalama ve Yüzey Kuralları Referansı
-
-Bu referans dosyası, Büyük Dil Modellerinin (LLM) Türkçe metin üretirken yaptığı imla, noktalama ve fonetik ek hatalarını Türk Dil Kurumu (TDK) Yazım Kılavuzu ve doğal Türkçe tipografi standartlarına göre düzeltmek için kullanılır.
-
-## 1. Noktalama: İngilizce Tipografi Kopyaları
-
-LLM'ler İngilizce eğitim korpusundaki noktalama alışkanlıklarını Türkçe metinlere doğrudan taşır. Aşağıdaki kurallar iki türdür:
-
-- **`[TDK]`**: TDK Yazım Kılavuzu'nda açıkça yazan kural. Her register'da geçerlidir. Kaynak: [Noktalama İşaretleri](https://yazim.tdk.gov.tr/content/09-noktalama-isaretleri.html), [Büyük Harflerin Kullanıldığı Yerler](https://tdk.gov.tr/icerik/yazim-kurallari/buyuk-harflerin-kullanildigi-yerler/).
-- **`[Üslup]`**: Kılavuzda kuralı olmayan, çeviri kokusunu azaltan tercih. Register'a göre esnetilebilir ve "TDK hatası" diye raporlanmaz.
-
-| Kural | Makine Türkçesi (Yapay) | İnsan Türkçesi (Doğal) | Gerekçe ve Kaynak |
-| :--- | :--- | :--- | :--- |
-| **1. Uzun çizgi (em-dash)** `[TDK]` | Kurulum sihirbazı, ara söz uzun çizgiyle ayrılmış biçimde: *"Kurulum sihirbazı (uzun çizgi) birkaç dakika içinde (uzun çizgi) projelerinizi aktarır."* | Kurulum sihirbazı birkaç dakika içinde projelerinizi aktarır. / Kurulum sihirbazı -birkaç dakika içinde- projelerinizi aktarır. | TDK: uzun çizgi *"Yazıda satır başına alınan konuşmaları göstermek için kullanılır."* Ara söz için virgül ya da başına ve sonuna bitişik yazılan kısa çizgi kullanılır (*"Küçük bir sürü -dört inekle birkaç koyun- köye giren geniş yolun ağzında durmuştu."*). |
-| **2. Orta çizgi (en-dash)** `[TDK]` | Toplantı 14.00 ile 15.30 arasında, 2024 ile 2026 yıllarında yapıldı (orta çizgi ile). | Toplantı 14.00-15.30 arasında, 2024-2026 dönemini kapsıyor. | TDK aralıklarda kısa çizgi kullanır: *"Arasında, ve, ile, ila, …-den …-e anlamlarını vermek için kelimeler veya sayılar arasında kullanılır"* (`09.30-10.30`, `1914-1918`). |
-| **3a. `ve / veya` çevresinde virgül** `[TDK]` | Elma, armut, ve muz aldık. | Elma, armut ve muz aldık. | TDK: *"Metin içinde ve, veya, yahut, ya … ya bağlaçlarından önce de sonra da virgül konmaz."* Tekrarlı bağlaçlarda da konmaz: *"Hem gider hem ağlar."* |
-| **3b. `ama / fakat` öncesi virgül** `[Üslup]` | Sistem hızlı çalışıyor, ama bellek tüketimi yüksek. | Değiştirme. | TDK Yazım Kılavuzu'nda `ama, fakat, lakin, ancak` için virgül kuralı **yoktur**. Önceki sürümlerde İngilizce `..., but` alışkanlığı sayılıyordu, ama derlem bunu desteklemedi: Türk yazarlar `ama`ların %19-32'sinin önüne virgül koyuyor, modeller %18. Kaynakta varsa silme, yoksa ekleme. |
-| **4. Noktalı virgül köprüsü** `[Üslup]` | Model veriyi analiz eder; bu süreç yaklaşık iki saniye sürer. | Model veriyi analiz eder. Bu süreç yaklaşık iki saniye sürer. | AI, bağlaç seçmekten kaçınmak için iç virgülü olmayan iki cümleyi `;` ile yapıştırır. **Ancak noktalı virgülün TDK'da tanımlı kullanımları doğrudur** ve özellikle akademik/hukuki metinde korunur: virgülle ayrılmış tür veya takımları ayırmak (*"Erkek çocuklara Doğan, Tuğrul, Aslan, Orhan; kız çocuklara ise İnci, Çiçek, Gönül, Yonca adları verilir."*), *"Ögeleri arasında virgül bulunan sıralı cümleleri birbirinden ayırmak"* (*"Sevinçten, heyecandan içim içime sığmıyor; bağırmak, kahkahalar atmak, ağlamak istiyorum."*). |
-| **5. Başlıklarda bağlaçların büyük yazılması** `[TDK]` | `## Yapay Zekâ Ve Doğal Dil İşleme Sistemlerinde Yeni Yaklaşımlar` | `## Yapay Zekâ ve Doğal Dil İşleme Sistemlerinde Yeni Yaklaşımlar` (makale alt başlığı) / `## Yapay zekâ ve doğal dil işlemede yeni yaklaşımlar` (blog, teknik belge) | TDK: *"Kitap, bildiri, makale vb.nde ana başlıktaki kelimelerin tamamı, alt başlıktaki kelimelerin ise yalnızca ilk harfleri büyük olarak yazılır."* Kelimelerin ilk harfi büyük yazıldığında *"ve, ile, ya, veya, yahut, ki, da, de sözleriyle mı, mi, mu, mü soru eki küçük harfle yazılır"* (`Suç ve Ceza`, `Leyla ile Mecnun`). Yani akademik başlıkta her kelimenin büyük harfle başlaması doğru, bağlacı büyük yazmak yanlış. `[Üslup]` Blog, teknik belge ve kurumsal metinde tümce düzeni (yalnızca ilk harf büyük) daha doğal durur. |
-
-## 2. Saat, Sayı ve Yüzde Yazımı `[TDK]`
-
-Kaynak: [Sayıların Yazılışı](https://yazim.tdk.gov.tr/content/04-sayilarin-yazilisi.html), [Noktalama İşaretleri](https://yazim.tdk.gov.tr/content/09-noktalama-isaretleri.html).
-
-- **Saat ve Dakika Ayracı:** TDK saat ve dakikayı iki nokta (`14:30`) ile değil, **tek nokta (`14.30`)** ile ayırır: *"Tren 09.15'te kalktı. Toplantı 13.00'te başladı."*
-- **Saate Gelen Ek:** Ek, saatin **okunuşunun son sesine** uyar. Dakika sıfırsa saat okunur, dakika varsa dakika okunur. TDK örnekleri: `13.00'te` (on üçte), `11.00'de` (on birde), `17.30'da` (otuzda), `09.15'te` (on beşte). Buna göre `10.00'da` (onda), `09.00'da` (dokuzda), `16.00'da` (on altıda) **doğru**, `13.00'da` (on üç sıfır sıfırda okunmaz) ve `15.00'de` (on beşte olmalı) **yanlış** olur.
-- **Ondalık Ayraç ve Binlik Basamaklar:** İngilizce sayılardaki ondalık nokta (`3.14` veya `%42.5`) Türkçede **virgül (`3,14` veya `%42,5`)** olarak yazılır: *"Sayılarda kesirler virgülle ayrılır."* Dört veya daha çok basamaklı sayılar sondan üçlü gruplara ayrılır ve aralarına nokta konur (`10.000`, `1.250.000`).
-- **Yüzde İşareti:** Yüzde işareti sayıdan önce ve boşluksuz yazılır: *"Yüzde ve binde işaretleri yazılırken sayılarla işaret arasında boşluk bırakılmaz: %25"*.
-
-## 3. Yabancı Teknik Terimler ve Türkçe Fonetiğe (Okunuşa) Göre Ek Uyumu
-
-Teknik metinlerde yapılan en belirgin iki AI hatası şunlardır: (1) mühendislerin Türkçede hiç kullanmadığı zorlama çeviriler üretmek ve (2) İngilizce kalan terimlere yazılışına göre ek getirmektir.
-
-### A. Zorla Çevrilmeyecek ve Çevrilecek Terimler
-
-| Kategori | Terim Örnekleri | Doğru Uygulama |
-| :--- | :--- | :--- |
-| **Zorla Çevrilmeyecekler (Olduğu Gibi Bırak)** | `endpoint`, `deploy`, `middleware`, `queue`, `webhook`, `idempotent`, `payload`, `migration`, `script`, `commit`, `merge`, `rebase`, `token`, `prompt`, `fine-tuning`, `RAG`, `pipeline` | Asla *"uç nokta"*, *"göç betiği"*, *"olay güdümlü"*, *"ara katman"*, *"yük"*, *"çekme isteği"* diye çevirme, terimi olduğu gibi koru. |
-| **Yerleşik Türkçesi Olanlar (Türkçesini Kullan)** | `developer` -> geliştirici, `user` -> kullanıcı, `database` -> veri tabanı (TDK yazımı, teknik metinlerde bitişik `veritabanı` da yaygın, metin boyunca birini seç), `validation` -> doğrulama, `production` -> canlı ortam, `search` -> arama, `folder` -> klasör | Sektörde doğal olarak kullanılan Türkçe karşılığını tercih et. |
-| **Her İkisi de Doğal Olanlar (Tutarlılık Kuralı)** | `cache / önbellek`, `server / sunucu`, `request / istek`, `response / yanıt`, `interface / arayüz`, `file / dosya` | Metnin başında birini seç ve metin bitene kadar aynı tercihi koru (bir cümlede `server`, sonrakinde `sunucu` yazma). |
-
-### B. Türkçe Okunuşa Göre Kesme İşareti ve Ek Tablosu
-
-- `[TDK]` Kısaltmalara ve özel adlara gelen ekler kesmeyle ayrılır ve kısaltmanın okunuşuna uyar: *"TBMM'nin, TDK'nin, BM'de, ABD'de, TV'ye"* ([Kesme İşareti](https://tdk.gov.tr/icerik/yazim-kurallari/kesme-isareti/)). Kurum adlarına gelen ekler ise kesmeyle ayrılmaz: *"Türkiye Büyük Millet Meclisine, Türk Dil Kurumundan"*.
-- `[Üslup]` `cache`, `queue`, `endpoint` gibi yabancı **cins isimlere** kesmeyle ek getirmek TDK'da düzenlenmemiştir ama teknik Türkçede yerleşik bir yazım geleneğidir. Bu durumda da ek, kelimenin **Türkçe okunuşuna (son sesine)** ve ünlü/ünsüz uyumuna göre gelir.
-- Okunuşu iki türlü yaygın olan kısaltmalarda (`API`, `SQL`, `URL`) metin boyunca tek okunuş seç ve ekleri ona göre getir. İki okunuştan birine uyan eki hata sayma.
-
-| Yabancı Terim / Kısaltma | Türkçe Okunuşu | Yanlış (AI Yazılış Tahmini) | Doğru (Okunuşa Göre Çekim) |
-| :--- | :--- | :--- | :--- |
-| `cache` | keş (ince ünlü, sert ünsüz) | `cache'ı`, `cache'de`, `cache'dan` | `cache'i`, `cache'te`, `cache'ten` |
-| `queue` | kü (ince-yuvarlak ünlü) | `queue'ya`, `queue'da`, `queue'yı` | `queue'yu`, `queue'de`, `queue'ye`, `queue'den` |
-| `SQL` | es-kü-el (ince ünlü) | `SQL'ı`, `SQL'da`, `SQL'dan` | `SQL'i`, `SQL'de`, `SQL'den` |
-| `JSON` | ceyson (kalın ünlü) | `JSON'i`, `JSON'de` | `JSON'ı`, `JSON'da`, `JSON'dan` |
-| `API` | api (kelime gibi, ince ünlü) veya ey-pi-ay (kalın ünlü) | `API'ye` + `API'da` gibi iki okunuşu karıştırmak | api okunuşunda `API'yi`, `API'de`, `API'den`. ey-pi-ay okunuşunda `API'ı`, `API'da`, `API'dan`. Seçilen okunuş metin boyunca korunur. |
-| `URL` | u-re-le (TDK harf okunuşu) | `URL'ı`, `URL'da` | `URL'yi`, `URL'de` |
-| `CPU` | si-pi-yu | `CPU'ı` | `CPU'yu`, `CPU'da` |
-| `GitHub` | git-hab | `GitHub'de`, `GitHub'i` | `GitHub'da`, `GitHub'ı`, `GitHub'a` |
-| `Google` | gugıl | `Google'de`, `Google'i` | `Google'da`, `Google'ı`, `Google'ın` |
-| `Docker` | dakır | `Docker'de`, `Docker'i` | `Docker'da`, `Docker'ı` |
-| `React` | ri-ekt | `React'ı`, `React'da` | `React'i`, `React'te` |
-| `Node.js` | nod-cey-es | `Node.js'ı`, `Node.js'da` | `Node.js'i`, `Node.js'te` |
-
-## 4. TDK Bağlaç ve Birleşik/Ayrı Kelime Denetim Tablosu
-
-LLM'lerin ve insan yazarların en sık karıştırdığı, TDK Yazım Kılavuzu'na göre kesin kurala bağlanmış yazımlar:
-
-| Doğru Yazım (TDK) | Sık Yapılan Yanlış | Kural / Açıklama |
-| :--- | :--- | :--- |
-| **birçok, birkaç, biraz** | bir çok, bir kaç, bir az | Belirsizlik sıfat ve zamirleri geleneksel olarak bitişik yazılır. |
-| **pek çok, pek az** | pekçok, pekaz | `pek` zarfıyla kurulan öbekler her zaman ayrı yazılır. |
-| **hiçbir, herhangi bir** | hiç bir, her hangi bir, herhangibir | `hiçbir` ve `herhangi` bitişik, `herhangi bir`deki `bir` ayrı yazılır. |
-| **bir şey, her şey, hiçbir şey** | birşey, herşey, hiçbirşey | `şey` sözcüğü her durumda ayrı yazılır. |
-| **art arda, yan yana, baş başa, iç içe** | ard arda, artarda, yanyana, içiçe | İkilemeler ayrı yazılır. Kök `art`tır: Türkçede sözcük sonunda tonlu `d` bulunmaz, bu yüzden yalın biçim `art` olur. Ünlüyle başlayan ek alınca ünsüz yumuşar (`art` + `-a` → `arda`). |
-| **yanı sıra, ardı sıra, peşi sıra** | yanısıra, ardısıra | `sıra` ile kurulan sözler her zaman ayrı yazılır. |
-| **ön söz, ön yargı, öngörü, önsezi** | önsöz, önyargı, ön görü | TDK'ya göre `ön söz` ve `ön yargı` ayrı, `öngörmek / öngörü` ve `önsezi` bitişik yazılır. |
-| **iş birliği, güç birliği, dil birliği** | işbirliği, güçbirliği | `birlik` kelimesiyle kurulan tamlamalar ayrı yazılır. |
-| **veri tabanı, ağ geçidi, iş akışı** | işakışı | TDK Güncel Türkçe Sözlük'te `veri tabanı` ayrı yazılır. Resmî/akademik metinlerde TDK yazımı (`veri tabanı`, `iş akışı`) korunur. |
-| **fark etmek, ayırt etmek, terk etmek** | farketmek, ayırtetmek, terketmek | Ses düşmesi veya türemesi olmayan yardımcı fiiller ayrı yazılır. |
-| **kaydetmek, sabretmek, keşfetmek, reddetmek** | kayıt etmek, keşif etmek, red etmek | Ünlü düşmesi veya ünsüz türemesi olan yardımcı fiiller bitişik yazılır. |
-| **hâlbuki, oysaki, çünkü, mademki, belki, sanki, meğerki** | halbu ki, oysa ki, madem ki | TDK: *"Bağlaç olan ki ayrı yazılır"*, ancak *"Birkaç örnekte ki bağlacı kalıplaşmış olduğu için bitişik yazılır: belki, çünkü, hâlbuki, mademki, meğerki, oysaki, sanki."* (`SOMBAHÇEM` kodlaması). Diğer bağlaç `ki`'ler ayrı yazılır (`demek ki`, `kaldı ki`, `öyle ki`, `iyi ki`). |
-| **ya da** | yada | Her zaman ayrı yazılır. |
-| **hem ... hem (de)** | hem X, hem de Y | Tekrarlı bağlaçların (`hem... hem`, `ne... ne`, `ya... ya`, `gerek... gerek`) arasına virgül konmaz. |
-| **zarf-fiil ekinden sonra virgül konmaz** | Veriyi çekip, işledik. / Sistemi kurarak, hızlandırdık. | TDK kuralına göre `-Ip, -ArAk, -IncA, -mAdAn, -dIkçA` gibi zarf-fiil eklerinden sonra (art arda sıralanan zarf-fiiller hariç) virgül konmaz. |
-
-
-<!-- KAYNAK: references/register-ve-ornekler.md -->
-
-# Register (Bağlam) Profilleri ve Uçtan Uca Dönüşüm Örnekleri
-
-Doğal Türkçe tek bir kalıptan oluşmaz. Bir sözleşmedeki devrik cümle özensizlik, bir blog yazısındaki `-mAktAdIr` eki ise robotluk üretir. Bu dosya, metin türlerine göre 9 üslup boyutunun nasıl kalibre edileceğini ve uçtan uca (Before / After) dönüşüm örneklerini içerir.
-
-## 1. Dokuz Boyutlu Register ve Üslup Matrisi
-
-Kullanıcı özel bir yazar örneği (few-shot) vermediğinde aşağıdaki 6 profilden uygun olanı seç. Altıncı profil (kamu ve kurum içi yazışma) tablonun altında ayrıca anlatılır:
-
-| Boyut | 1. Blog / Deneme / Sosyal Medya | 2. Teknik / Mühendislik | 3. Kurumsal / SaaS / İş İletişimi | 4. Akademik / Resmî / Hukuki | 5. Edebî / Anlatı |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Anlatıcı Kimliği** | Masanın karşısından anlatan deneyimli dost | Gece 2'de o hatayı çözmüş kıdemli mühendis | Müşteriye bizzat yazan net ve dürüst kurucu | Konuya hâkim, soğukkanlı araştırmacı/uzman | Düşüncesini yazarken inşa eden usta yazar |
-| **Hitap** | Sen veya Siz (tutarlı) | Sen veya nötr 2. çoğul | Siz | 3. şahıs / nötr | Bağlama göre 1. veya 3. şahıs |
-| **Cümle Uzunluğu & Burstiness** | Yüksek dalgalanma (4 kelime ile 28 kelime bir arada) | Orta-Yüksek (Kısa net yargılar + ulaçlı açıklamalar) | Orta (10-20 kelime, net ve taranabilir) | Orta-Uzun (15-30 kelime, sola dallanan yan cümleler) | Çok yüksek dalgalanma (nefes ritmine odaklı) |
-| **Cümlecik Bağlama** | Ulaçlar (`-Ip, -IncA`) + nokta/virgül | Ulaçlar (`-Ip, -dIkçA, -ArAk`) + iki nokta | Ulaçlar + net sebep-sonuç bağlaçları | Sıfat-fiiller (`-An, -DIk`) + ulaçlar | Ulaçlar + ritmik tekrarlar ve virgül |
-| **Kip Dağılımı** | `-yor`, `-DI`, `-mIş` (delil), geniş zaman | Geniş zaman (`-Ir/-Ar` kurallar için), `-DI`, `-mIş` | Geniş zaman, `-yor`, `-DI` | Geniş zaman, `-mAktAdIr` (100 kelimede yaklaşık 0,5-2,5), `-DIr` | Tüm kipler serbest |
-| **Söylem Parçacıkları** | `işte, zaten, ise, hani, tabii, daha doğrusu` | `ise, aslında, daha doğrusu, örneğin` | `ise, özellikle, doğrudan` | Yalnızca `ise, nitekim, dolayısıyla` | Doğal akışa göre serbest |
-| **Devrik Cümle Oranı** | 400 kelimede 2-3 adet | Sıfır (0) | Sıfır (0) | Sıfır (0) | Anlatı ritmine göre doğal |
-| **Terim Tercihi** | Günlük karşılıklar veya okunuşa göre çekimli terim | Yerleşik İngilizce terim olduğu gibi (`endpoint'e`) | Sektör standardı, jargonsuz sade Türkçe | TDK ve alan terimleri (`veri tabanı, alan yazını`) | Türkçe duygu ve imge değeri yüksek sözcükler |
-| **Açılış Hamlesi** | Sahne, somut gözlem veya doğrudan soru | Doğrudan problem veya mimari karar | Temel değer önermesi veya ana mesaj | Araştırma problemi veya olgusal çerçeve | Atmosfer, detay veya iç ses |
-
-### 6. Kamu / Kurum İçi Yazışma
-
-Kamu kurumunun iç notları, resmî yazıları, faaliyet raporları ve sunum açıklamaları bu profile girer. Bu register'da dil modeli izleriyle kurum dilinin birçok özelliği örtüşür, çünkü modeller büyük ölçüde bu tür metinlerden öğrenmiştir. Adlaştırma (*"uyku düzeninin bozulması"*), edilgen çatı, `-mAktAdIr` ve kurum terimleri (*süreç, müdahale, farkındalık, danışmanlık hizmeti*) burada çeviri kokusu değil, beklenen biçimdir. Bunları temizlemek metni resmiyetten çıkarır.
-
-| Boyut | Kamu / Kurum İçi Yazışma |
+| Şişkin | Yalın |
 | :--- | :--- |
-| **Anlatıcı Kimliği** | Kurum adına yazan, nesnel uzman |
-| **Hitap** | 3. kişi ya da kurumsal "biz" (*Belediyemiz ... olarak*). İç yazışmada okura doğrudan seslenilmez |
-| **Cümle Uzunluğu & Burstiness** | Uzun (kamu belgelerinde ortanca 20 kelime, cümlelerin %35'i 28 kelimeden uzun). Ritim kuralı uygulanmaz |
-| **Cümlecik Bağlama** | Ad-eylem, sıfat-fiil ve edat öbekleri (*nedeniyle, amacıyla, kapsamında*) |
-| **Kip Dağılımı** | `-mAktAdIr`, `-DIr`, `-mIştIr`, geniş zaman ve edilgen. Faaliyet ve denetim raporlarında art arda `-mIştIr` ile biten cümleler olağandır (7 kamu belgesinde cümlelerin %34'ü `-mIştIr` ile bitiyor) |
-| **Söylem Parçacıkları** | Yok |
-| **Devrik Cümle Oranı** | Sıfır (0) |
-| **Terim Tercihi** | Kurum ve mevzuat terimleri korunur |
-| **Açılış Hamlesi** | Konu ve gerekçe |
+| toplantı gerçekleştirdik | toplantı yaptık |
+| hız artışı sağlar | hızlandırır |
+| yüksek hıza sahiptir | çok hızlıdır |
+| üç katmana sahiptir | üç katmandan oluşur |
+| birçok yapıya ev sahipliği yapmaktadır | bölgede birçok yapı var |
+| kritik bir rol oynamaktadır | sonucu belirler |
+| raporda üç bölüm yer almaktadır | raporda üç bölüm var |
+| önemli olan bir adım | önemli bir adım |
+| ilk adım olarak veriyi sildik | ilk adımda veriyi sildik |
 
-**Onarımın kapsamı:** Yalnızca gerçek kusurlar düzeltilir: koşutluk ve ortak öge hataları, yanlış noktalama ve TDK yazım hataları, slogan biçimli başlıklar, sahneleme girişleri (*"... günümüzde"*), dolgu kalıpları (*"İşte bu noktada"*), şişirmeler (*"hayati bir önem"*) ve kapanış klişeleri (*"bu yolculukta ilk adımı"*). Adlaştırma, edilgen çatı ve `-mAktAdIr` temizlenmez.
+*Katkıda bulunmak* yerleşik bir deyimdir. Yerine sözlükte olmayan *katkı sunmak* yazma.
 
-## 2. Aynı İddianın 4 Farklı Register'daki Doğal Yazımı
+## 7. Görülen ve duyulan geçmiş
 
-- **Ham AI Çıktısı (Makine Türkçesi):**
-  > *"Cache stratejisinin doğru bir şekilde belirlenmesi, sistem performansı açısından kritik bir öneme sahiptir ve gecikme sürelerinin azaltılmasında yadsınamaz bir rol oynamaktadır."*
-- **Akademik / Resmî Register:**
-  > *"Önbellekleme stratejisinin doğru belirlenmesi, sistem performansını ve yanıt sürelerini belirlemektedir."*
-- **Teknik / Mühendislik Register:**
-  > *"Cache stratejisini doğru kurmak performansı artırır ve gecikmeyi düşürür."*
-- **Kurumsal / Ürün Register:**
-  > *"Doğru önbellek stratejisi, sisteminizi hızlandırırken yanıt sürelerini kısaltır."*
-- **Blog / Deneme Register:**
-  > *"Performansı belirleyen şeylerden biri cache stratejisi. Doğru kurarsanız gecikme de azalıyor."*
-  >
-  > (Kaynak "yarı yarıya", "%40" gibi bir miktar vermediği için çıktı da vermez.)
+Türkçe olayı görüp görmediğini fiilde ayırır, İngilizce ayırmaz. Model bu yüzden `-mIş`ı neredeyse hiç kullanmaz. Olay sonradan öğrenilmiş ya da kayıttan çıkarılmışsa gündelik yazıda `-mIş` doğaldır.
 
-## 3. Uçtan Uca (Before / After) Dönüşüm Örnekleri
+- Düz: *Gece yarısı bellek sızıntısı oldu ve servis kapandı. Sabah log'lara baktığımızda fark ettik.*
+- Doğal: *Gece yarısı bellek sızıntısı olmuş, servis de kapanmış. Sabah log'lara bakınca fark ettik.*
 
-### Örnek 1: Kurumsal / LinkedIn / Blog Yazısı
+Resmî raporda ve tutanakta kayıtla kesinleşmiş olgu için `-DI` olağandır, `-mIş`ı zorla yayma.
 
-**Önce (Tipik AI Türkçesi):**
+Genel doğrular için `-Ar/-Ir` de `-(I)yor` da doğaldır. Geniş zaman daha tanımsal durur, teknik tanımda onu seç: *Redis veriyi bellekte tutar.* Aynı paragrafta aynı türden bilgiyi anlatırken ikisini karıştırma.
+
+## 8. Cümleler arası bağ
+
+*Which means* ve *this means that* Türkçeye "Bu da ... anlamına gelir" diye ikinci bir cümle olarak geçer. Bağ çoğu zaman tek cümlede kurulur.
+
+- Yapay: *Cache süresi kısa tutuldu. Bu da veri tabanı yükünün artması anlamına geliyor.*
+- Doğal: *Cache süresi kısa tutulduğu için veri tabanı yükü artıyor.*
+
+Model her cümleyi baştan kesin bilgi gibi yazar. Yazar düşünürken daraltır, çekince koyar, bunu da küçük sözlerle yapar: *ise, de, zaten, yani, bir de, daha doğrusu.*
+
+- Yapay: *Birinci yöntem hızlıdır, ikinci yöntem yavaştır.*
+- Doğal: *Birinci yöntem hızlı, ikincisi ise yavaş.*
+
+Bu sözlerin her biri silme sınavından geçmeli: çıkarınca anlamdan ya da tondan bir şey eksilmiyorsa süstür.
+
+## 9. Devrik cümle
+
+Yüklemin arkası bilinen bilginin yeridir. Gündelik ve edebî yazıda bilinen ögeyi oraya atmak cümleye konuşma sıcaklığı verir.
+
+- Düz: *Kimse bu uzun hata raporlarını sonuna kadar okumuyor.*
+- Devrik: *Kimse sonuna kadar okumuyor bu uzun hata raporlarını.*
+
+Yeni bilgi ve eksiz nesne yüklemin arkasına geçmez (kural): *Ahmet'e gönderdim rapor* bozuktur.
+
+Yazarlarda yüklemden sonra kalan kısım çoğunlukla bir iki kelimedir: bir zamir (*beni, ona*), *bu*, bir ad ya da *belki, zaten, hiç* gibi bir söz. Ne sıklıkla devrik kurulacağını yazar belirler, ölçtüğümüz kitaplarda oran %2 ile %37 arasında. Kullanıcının kendi örneği yoksa on cümlede biri geçme. Teknik, kurumsal, akademik ve kurum yazısında devrik kurma.
+
+## 10. Koşutluk
+
+`ve`, virgül ya da ikili bağlaçla bağlanan ögeler aynı görevdeyse aynı biçimde kurulur. İki yükleme birden bağlanan öge de ikisinin istediği biçime uymalıdır. Model bu hataları sık yapar, çünkü İngilizcede ad hâl eki almaz: *We review and include user feedback* cümlesinde iki fiil tek nesneyi rahatça paylaşır. Türkçede her yüklem nesnesine kendi ekini dayatır. Bu bölümdekilerin hepsi kuraldır. Okul kitaplarında "anlatım bozukluğu" diye geçer.
+
+**Ortak öge iki yüklemin de ekine uymalı.** Biri *neyi*, öteki *neye* soruyorsa ögeyi ikinci yükleme zamirle yeniden bağla.
+
+- Bozuk: *Kullanıcı geri bildirimlerini inceliyor ve yol haritamızda yer veriyoruz.*
+- Doğru: *Kullanıcı geri bildirimlerini inceliyor ve bunlara yol haritamızda yer veriyoruz.*
+
+Ek aynı olsa bile anlam uymayabilir: *Müşteri verilerinin gizliliğini önemsiyor ve üçüncü taraflarla paylaşmıyoruz* cümlesinde paylaşılmayan şey gizlilik olur. Doğrusu: *... önemsiyor ve bu verileri üçüncü taraflarla paylaşmıyoruz.*
+
+**Ortak özne iki yüklemin de çatısına uymalı.** Aynı özne bir etken, bir edilgen yükleme birlikte bağlanamaz.
+
+- Bozuk: *Sistem gelen istekleri doğruladıktan sonra veri tabanına kaydedilir.* (Kaydedilen sistem olur.)
+- Doğru: *Sistem gelen istekleri doğruladıktan sonra veri tabanına kaydeder.*
+
+Özneleri ayrı iki cümle farklı çatıda olabilir: *Ekip testleri tamamladı ve yeni sürüm yayına alındı* doğrudur.
+
+**Ortak ek ancak her kanada uyuyorsa düşer.** Kişi ya da olumsuzluk farklıysa düşürülemez.
+
+- Bozuk: *Pazarlama ekibi yeni kampanyalara, siz ise müşteri bağlılığına odaklanacak.*
+- Doğru: *Pazarlama ekibi yeni kampanyalara odaklanacak, siz ise müşteri bağlılığına odaklanacaksınız.*
+- Bozuk: *Model hızlı ve doğruluğu yeterli değildi.* (Modelin hızlı olmadığını da söyler.)
+- Doğru: *Model hızlıydı ama doğruluğu yeterli değildi.*
+
+**Liste ögeleri aynı biçimde kurulur.** `-mAk`, `-mAsI` ve yalın ad aynı listede karışmaz.
+
+- Bozuk: *Bu güncellemenin amaçları arayüzü hızlandırmak, bellek sızıntılarının giderilmesi ve daha kolay bir kurulum.*
+- Doğru: *Bu güncellemenin amaçları arayüzü hızlandırmak, bellek sızıntılarını gidermek ve kurulumu kolaylaştırmak.*
+
+**İkili bağlacın iki kanadı denk olur.** *Hem ... hem, ne ... ne, ya ... ya, ister ... ister.*
+
+- Bozuk: *Arayüz hem kullanıcı dostu bir deneyim sunuyor hem de erişilebilirlik standartlarına tam uyumluluk.*
+- Doğru: *Arayüz hem kullanıcı dostu bir deneyim sunuyor hem de erişilebilirlik standartlarına tam uyuyor.*
+
+*Ne ... ne* yargıyı kendisi olumsuz yapar, yüklem olumlu çekilir: *Bu strateji ne maliyeti düşürdü ne de yanıt süresini kısalttı.* Olumsuz yüklem (*düşürmedi ... kısaltmadı*) konuşmada duyulur ama yazıda bozukluk sayılır.
+
+### Yapay simetri (tercih)
+
+Koşutluğun tersi de bir kusurdur: anlamın gerektirmediği simetri. Model üç biçimini sever.
+
+- Ayna karşıtlık: *Teknoloji insan için vardır, insan teknoloji için değil.*
+- Zincirleme tekrar: *Veriyi anlamak geleceği anlamaktır, geleceği anlamak değişimi yönetmektir.*
+- Aynı kalıba dökülmüş üçlü: *Bu platform hızıyla zamanı, güvenliğiyle veriyi, esnekliğiyle geleceği korur.*
+
+Bunlar slogan dilidir ve çoğu zaman bilgi taşımaz. Süsü at, geriye kalan iddiayı söyle: *Bu platform hızlı, güvenli ve esnek.* Kaynakta üç özellik varsa üçü de kalır, sorun sayıda değil kalıptadır. Geriye somut bir iddia kalmıyorsa uydurma, cümleyi sil ya da kullanıcıya sor.
+
+Gerçek bir karşıtlığı ya da gerçekten koşut iki olguyu anlatan simetri kalır: *Birinci yöntem hızlı, ikincisi ise yavaş.*
+
+
+<!-- references/kaliplar.md -->
+
+# Kalıplar
+
+Dil modelinin Türkçe yazarken sarıldığı sözler. Kalıp ayıklarken ve denetimde buraya bak.
+
+Bu liste tahminle değil sayarak kuruldu. Her sözün yanındaki iki sayı, on bin kelimede kaç kez geçtiğini gösterir: önce Türkçe yazan yazarlarda (119 metin, 1,1 milyon kelime), sonra dil modellerinde (altı model, 200 metin, 83 bin kelime). Model derlemi küçük olduğu için sayılar kesin oran değil, yön gösterir.
+
+Üç şeyi akılda tut. Birincisi, bir sözün listede olması onu yasak yapmaz: aşağıdaki üçüncü grup yazarlarda da geçer. İkincisi, sözü silmek yetmez, çünkü sorun çoğu zaman sözün kendisi değil, cümlenin bir şey söylememesidir. "Kritik bir rol oynar" neyin değiştiğini söylemez. Neyin değiştiği kaynakta yazıyorsa onu yaz, yazmıyorsa cümleyi sade bırak. Uydurma. Üçüncüsü, sildiğin kalıbın yerine eş anlamlısını koyma: "yadsınamaz" yerine "tartışılmaz" yazmak hiçbir şeyi düzeltmez.
+
+## 1. Yazarlarda neredeyse hiç yok
+
+Gördüğün yerde değiştir. Bunlar yazarlarda on bin kelimede 0,1'in altında, modellerde beş ila on kat sık.
+
+| Kalıp | Yazar | Model | Ne yapılır |
+| :--- | :--- | :--- | :--- |
+| sadece X değil, aynı zamanda Y | 0,08 | 1,3 | Olumsuz yarıyı at. *Kitap sadece eğlenceli değil, aynı zamanda öğretici* → *Kitap hem eğlenceli hem öğretici.* |
+| bir X değil, bir Y | 0,08 | 0,9 | Asıl iddiayı düz söyle. *Bu bir güncelleme değil, bir devrim* → neyin değiştiğini yaz. |
+| değer katmak, fark yaratmak, ivme kazanmak, güç katmak | 0,04 | 1,0 | Ne değiştiğini yaz. |
+| tam da bu noktada, işte bu noktada | 0,03 | 0,7 | Sil. |
+| zemin hazırlamak | 0,04 | 0,7 | *yol açmak* ya da doğrudan sonuç. |
+| çığır açan, dönüm noktası, kilometre taşı, devrim niteliğinde | 0,06 | 0,7 | Abartıyı at, olguyu söyle. |
+| günümüzün hızla değişen dünyasında, günümüz dünyasında, dijital çağda | 0,01 | 0,6 | Sil, konuya gir. |
+| yadsınamaz, inkâr edilemez | 0,05 | 0,4 | Sil ya da önemi gösteren bilgiyi yaz. |
+| göz ardı edilmemeli | 0,03 | 0,4 | Uyarıyı at, nedeni söyle. |
+| geniş bir yelpaze, zengin bir mozaik | 0,02 | 0,2 | Kaç çeşit, ne çeşit. |
+
+## 2. Modellerde belirgin sık
+
+Çoğu zaman değiştir. Yazarlarda da geçer ama modellerde üç ila yedi kat sık.
+
+| Kalıp | Yazar | Model | Ne yapılır |
+| :--- | :--- | :--- | :--- |
+| bir diğer (önemli nokta, etken, konu) | 0,4 | 2,5 | *bir başka, öteki* ya da hiçbir şey demeden yeni konuya geç. |
+| olanak tanımak, imkân sağlamak, fırsat sunmak | 0,4 | 1,7 | Fiili doğrudan çek: *görmenize olanak tanır* → *görebilirsiniz.* |
+| sonuç olarak, kısacası, özetle, özetlemek gerekirse | 0,3 | 1,6 | Kapanış yeni bir şey söylemiyorsa paragrafı sil. Akademik metinde olağandır. |
+| derinlemesine, mercek altına almak | 0,1 | 1,2 | Sil. |
+| büyük önem taşımak, önem arz etmek | 0,2 | 1,1 | Neden önemli olduğunu yaz. |
+| her geçen gün | 0,1 | 0,6 | *giderek* ya da sayı. |
+| köprü kurmak, kapı aralamak | 0,05 | 0,4 | Benzetmeyi at, bağı söyle. |
+| bütüncül yaklaşım, sinerji, proaktif, paradigma değişimi | 0,1 | 0,5 | Yapılacak işi düz yaz. |
+| kritik öneme sahip | 0,04 | 0,1 | *çok önemli* ya da neden. |
+| deneyim sunmak, çözüm sunmak | 0,02 | 0,1 | Okurun ne yapabileceğini yaz. |
+
+## 3. Yığılınca iz bırakanlar
+
+Tek tek olağandır. Aynı metinde birkaç kez geçiyorsa seyrelt.
+
+| Kalıp | Yazar | Model | Not |
+| :--- | :--- | :--- | :--- |
+| yalnızca X değil, Y de | 0,9 | 4,6 | Yazarlar da kullanır. Olumsuz yarı bir kanıyı düzeltiyorsa kalır. |
+| ... anlamına gelir | 0,7 | 2,2 | Sözcük açıklıyorsa yerinde. "Bu da ... anlamına gelir" diye sonuç bağlıyorsa tek cümle kur. |
+| -nın ötesinde | 0,6 | 1,7 | |
+| bununla birlikte, öte yandan, dahası | 1,0 | 1,5 | Akademik metinde olağan. Gündelik yazıda *ama, bir de* yeter. |
+| bu yolculuk, bir yolculuk | 0,5 | 1,0 | Gerçek yolculuksa dokunma. |
+| unutmamak gerekir, unutulmamalıdır | 0,2 | 0,7 | |
+| önemli bir rol oynamak | 0,3 | 0,6 | Ne yaptığını yaz. |
+| bu noktada | 0,2 | 0,5 | |
+
+## Kalıp sandığımız ama olmayanlar
+
+Bu sözleri uzun süre yapay zekâ izi saydık. Saydığımızda yazarların bunları modellerden sık ya da onlar kadar kullandığı çıktı. Gördüğün yerde silme. Yalnızca aynı metinde göze batacak kadar tekrar ediyorsa azalt.
+
+| Söz | Yazar | Model |
+| :--- | :--- | :--- |
+| âdeta | 1,6 | 0,8 |
+| ... bir şekilde, ... bir biçimde | 3,7 | 1,8 |
+| kuşkusuz, şüphesiz | 1,0 | 0,6 |
+| söz konusu, bu bağlamda, bu doğrultuda | 0,9 | 0,4 |
+| -e sahip olmak | 1,7 | 1,9 |
+| rol oynamak (sıfatsız) | 0,3 | 0,3 |
+| eşsiz, benzersiz, unutulmaz | 0,6 | 0,3 |
+| belirtmek gerekir ki | 0,1 | 0,1 |
+
+`ki` bağlacı, `tarafından` ve `ama`dan önceki virgül de bu gruptadır: hepsi Türkçenin kendi malı. Ayrıntıları `cumle-kurulusu.md` ve `yazim-ve-noktalama.md` dosyalarında.
+
+## Bugünkü modellerde ölçemediklerimiz
+
+Şu kalıplar ölçtüğümüz altı modelin metinlerinde hiç çıkmadı. Eski modellerin, İngilizceden çevrilmiş tanıtım metinlerinin ve makine çevirisinin izi olarak bilinirler. Görürsen düzelt, ama sıklıkları hakkında bir şey söyleyemiyoruz.
+
+- İçi boş fiille `tarafından`: *ekibimiz tarafından gerçekleştirilmiştir* → *ekibimiz yaptı.*
+- *Araştırmalar göstermektedir ki ...* → *Araştırmalara göre ...*
+- *kusursuz bir şekilde, pürüzsüzce, zahmetsizce* → *sorunsuz, kolayca* ya da hiç.
+- *potansiyelini ortaya çıkarmak, bir üst seviyeye taşımak* → okurun ne kazanacağı.
+- *-nın kalbinde yer alan* → *merkezindeki.*
+- *en büyük kanıtıdır, canlı bir göstergesidir* → kanıtın kendisi.
+- Çeviri reklam sözleri: *oyun değiştirici, tek durak noktası, hepsi bir arada, başlamaya hazır mısınız, zamandan ve paradan tasarruf edin, ihtiyaçlarınıza özel tasarlanmış.*
+- Blog ve gündelik yazıda `-mektedir`.
+- Cümle ortasında uzun çizgi. Yazım hatasıdır, `yazim-ve-noktalama.md` dosyasına bak.
+
+## Cümle başları
+
+Modeller cümleyi bir geçiş sözüyle açmayı sever. Bin cümlede sayınca en ayırt edici açılışlar şunlar (yazarlarda hepsi sıfıra yakın, modellerde bin cümlede iki ila beş):
+
+*Sonuç olarak, Son olarak, İlk olarak, İkinci olarak, Üçüncü olarak, Birincisi, İkincisi, Öncelikle, Bu doğrultuda, Bu çerçevede, Bu sayede, Bu yazıda, Bu bölümde, Bir diğer, Önemli olan, Şimdi ise, Bugün ise, Bunun yerine, Buna karşın, Aynı şekilde.*
+
+Yazarlarda da geçen ama modellerde iki üç kat sık olanlar: *Ancak, Bu nedenle, Bu durum, Yine de, Böylece, Oysa, Ayrıca, Bununla birlikte.*
+
+Bunları tek tek yasaklama. Paragrafa bak: art arda üç cümle bir geçiş sözüyle başlıyorsa ikisini at, bağı cümlenin içeriğiyle kur.
+
+## Sohbetten kalanlar
+
+Metnin başında ya da sonunda duran, yazıya değil konuşmaya ait cümleler. Görürsen sil, yazarken de üretme.
+
+- *Elbette! İşte metninizin daha doğal hâli:*
+- *Harika bir konu! Gelin birlikte inceleyelim.*
+- *Umarım bu düzenleme işinize yarar. Başka bir değişiklik isterseniz belirtin.*
+- Kullanıcı istemediği hâlde eklenen değişiklik özeti.
+
+
+<!-- references/yazim-ve-noktalama.md -->
+
+# Yazım ve noktalama
+
+Dil modeli İngilizce noktalama alışkanlıklarını Türkçeye taşır, yabancı terime yanlış ek getirir, bitişik ve ayrı yazılan sözleri karıştırır. Bu dosya o hataların listesidir. Yazım denetlerken ya da bir işaretin doğru olup olmadığından emin olmadığında buraya bak.
+
+İki tür madde var. **Kılavuz** diye işaretlenenler TDK Yazım Kılavuzu'nda açıkça yazar, her metin türünde geçerlidir ve "yazım hatası" diye bildirilebilir. **Tercih** diye işaretlenenlerin kılavuzda kuralı yoktur, çeviri kokusunu azaltan alışkanlıklardır, hata diye bildirilmez. Kaynak: [yazim.tdk.gov.tr](https://yazim.tdk.gov.tr/content/09-noktalama-isaretleri.html).
+
+## Noktalama
+
+**Uzun çizgi (kılavuz).** Uzun çizgi (—) yalnızca satır başında konuşmayı gösterir. İngilizcedeki gibi cümle ortasında ara söz ayırmaz. Ara söz için virgül ya da iki yanına bitişik kısa çizgi kullanılır: *Küçük bir sürü -dört inekle birkaç koyun- yolun ağzında durmuştu.* Çoğu zaman en doğal çözüm cümleyi ikiye bölmektir.
+
+**Aralıkta kısa çizgi (kılavuz).** Sayı ve tarih aralığında orta çizgi (–) değil kısa çizgi kullanılır: `09.30-10.30`, `2024-2026`.
+
+**`ve`, `veya`, `ya da` yanında virgül (kılavuz).** Bu bağlaçlardan önce de sonra da virgül konmaz: *Elma, armut ve muz aldık.* Tekrarlı bağlaçların arasına da konmaz: *Hem gider hem ağlar.*
+
+**`ama` öncesinde virgül (tercih).** Kılavuzda `ama, fakat, ancak` için virgül kuralı yoktur. Ölçtüğümüz yazarlar `ama`ların dörtte birinin önüne virgül koyuyor. Kaynakta varsa silme, yoksa ekleme.
+
+**Noktalı virgül (tercih ve kılavuz).** İç virgülü olmayan iki bağımsız cümleyi noktalı virgülle yapıştırmak İngilizce alışkanlığıdır, noktayla ayır: *Model veriyi analiz eder; bu süreç iki saniye sürer* değil, *Model veriyi analiz eder. Bu süreç iki saniye sürer.* Kılavuzdaki kullanımları ise doğrudur ve korunur: virgülle ayrılmış takımları ayırmak (*Erkek çocuklara Doğan, Tuğrul, Orhan; kız çocuklara İnci, Çiçek, Yonca adları verilir*) ve içinde virgül bulunan sıralı cümleleri ayırmak. Blogda, denemede ve öyküde bu yapıştırmayı gördüğün yerde düzelt: yazarların deneme parçalarının çoğunda hiç noktalı virgül yok, modellerinkinde bin kelimede beş. Açıklayıcı, akademik ve kurum metninde yazarlar da kullanır, orada yalnızca yapıştırma olanı ayır, kılavuzdaki kullanımına dokunma.
+
+**Ulaçtan sonra virgül (kılavuz).** `-Ip, -ArAk, -IncA, -mAdAn, -DIkçA` eklerinden sonra virgül konmaz: *Veriyi çekip, işledik* değil, *Veriyi çekip işledik.* Art arda sıralanan ulaçlar virgülle ayrılır.
+
+**Başlıkta büyük harf (kılavuz ve tercih).** Kitap, makale ve bildiride ana başlık tümüyle büyük, alt başlıklar her kelimenin ilk harfi büyük yazılır. Bu düzende `ve, ile, ya, veya, yahut, ki, da, de` ve soru eki küçük kalır: *Suç ve Ceza*. Hata, bunları büyük yazmaktır: *Yapay Zekâ Ve Gelecek*. Blog, teknik belge ve şirket yazısında başlığı düz cümle gibi, yalnızca ilk harfi büyük yazmak daha doğal durur (tercih).
+
+## Saat, sayı, yüzde (kılavuz)
+
+- Saat ile dakika arasına nokta konur: `14.30`. İki nokta (`14:30`) İngilizce yazımdır.
+- Saate gelen ek okunuşun son sesine uyar. Dakika sıfırsa saat, değilse dakika okunur: `13.00'te` (on üçte), `11.00'de` (on birde), `17.30'da` (otuzda), `09.15'te` (on beşte), `10.00'da` (onda).
+- Kesir virgülle ayrılır: `3,14`, `%42,5`. Nokta binleri ayırır: `10.000`, `1.250.000`.
+- Yüzde işareti sayıdan önce ve bitişik yazılır: `%25`.
+
+## Yabancı terimler
+
+**Zorla çevirme (tercih).** Yazılımcıların Türkçe konuşurken de İngilizcesini kullandığı terimleri çevirme: `endpoint, deploy, middleware, webhook, payload, commit, merge, token, prompt, pipeline`. *Uç nokta, ara katman, olay güdümlü, çekme isteği* gibi karşılıkları meslekten kimse kullanmaz. Yerleşik Türkçesi olanları Türkçe yaz: geliştirici, kullanıcı, veri tabanı, doğrulama, canlı ortam, klasör. İkisi de yaşayanlarda (*cache / önbellek, server / sunucu, request / istek*) başta birini seç ve metin boyunca onu kullan.
+
+**Ek okunuşa uyar.** Kısaltmalara ve özel adlara gelen ek kesmeyle ayrılır ve okunuşa göre gelir (kılavuz): *TDK'nin, ABD'de, TV'ye.* Kurum adlarına gelen ek kesmeyle ayrılmaz: *Türk Dil Kurumundan.* `cache`, `endpoint` gibi yabancı cins adlara kesmeyle ek getirmek kılavuzda düzenlenmemiştir ama teknik Türkçede yerleşik gelenektir (tercih). Orada da ek yazılışa değil, kelimenin Türkçe ağızdaki son sesine uyar.
+
+| Terim | Okunuş | Yanlış | Doğru |
+| :--- | :--- | :--- | :--- |
+| `cache` | keş | cache'ı, cache'de, cache'dan | cache'i, cache'te, cache'ten |
+| `SQL` | es-kü-el | SQL'ı, SQL'da | SQL'i, SQL'de |
+| `JSON` | ceyson | JSON'i, JSON'de | JSON'ı, JSON'da |
+| `URL` | u-re-le | URL'ı, URL'da | URL'yi, URL'de |
+| `CPU` | si-pi-yu | CPU'ı | CPU'yu, CPU'da |
+| `GitHub` | githab | GitHub'de, GitHub'i | GitHub'da, GitHub'ı |
+| `Google` | gugıl | Google'de, Google'i | Google'da, Google'ı |
+| `Docker` | dakır | Docker'de, Docker'i | Docker'da, Docker'ı |
+| `React` | riekt | React'ı, React'da | React'i, React'te |
+| `Node.js` | nod-cey-es | Node.js'ı, Node.js'da | Node.js'i, Node.js'te |
+
+Okunuşu kişiden kişiye değişen terimlerde (`API`: api ya da ey-pi-ay, `queue`: kyu ya da kuyruk diye okunur) iki okunuştan birine uyan eki hata sayma. Yalnızca aynı metinde iki okunuşun karışmasını düzelt: `API'yi` ile `API'dan` yan yana durmaz.
+
+## Bitişik ve ayrı yazılanlar (kılavuz)
+
+| Doğru | Yanlış | Not |
+| :--- | :--- | :--- |
+| birçok, birkaç, biraz | bir çok, bir kaç | |
+| pek çok, pek az | pekçok | `pek` hep ayrı |
+| hiçbir, herhangi bir | hiç bir, herhangibir | |
+| bir şey, her şey, hiçbir şey | birşey, herşey | `şey` hep ayrı |
+| art arda, yan yana, iç içe | ard arda, artarda, yanyana | ikilemeler ayrı |
+| yanı sıra, ardı sıra | yanısıra | |
+| ön söz, ön yargı | önsöz, önyargı | ama `öngörü`, `önsezi` bitişik |
+| iş birliği, güç birliği | işbirliği | |
+| veri tabanı, iş akışı | | teknik metinde `veritabanı` da yaygın, birini seç |
+| fark etmek, terk etmek | farketmek, terketmek | ses değişmiyorsa ayrı |
+| kaydetmek, reddetmek, keşfetmek | kayıt etmek, red etmek | ses düşüyor ya da türüyorsa bitişik |
+| ya da | yada | |
+| şu an, her zaman, bir arada | şuan, herzaman, birarada | |
+| tabii ki | tabiki, tabi ki | |
+| yalnız, yanlış, herkes | yanlız, yalnış, herkez | |
+| orijinal, sürpriz, kılavuz, doküman | orjinal, süpriz, klavuz, döküman | |
+
+Bağlaç olan `ki` ayrı yazılır: *demek ki, kaldı ki, öyle ki.* Yedi sözde kalıplaşıp bitişmiştir: *belki, çünkü, hâlbuki, mademki, meğerki, oysaki, sanki.*
+
+Bağlaç olan `da / de` ayrı yazılır ve hiçbir zaman `ta / te` olmaz: *Ben de geldim. Kitap da aldım.* Ek olan `-da / -de` bitişiktir: *evde, kitapta.* Ayırmak için sözü cümleden çıkar: anlam bozulmuyorsa bağlaçtır, ayrı yazılır.
+
+
+<!-- references/metin-turleri.md -->
+
+# Metin türleri ve örnekler
+
+Doğal Türkçe tek bir ses değildir. Sözleşmede devrik cümle özensizliktir, blog yazısında `-mektedir` robotluktur. Aynı düzeltme bir türde metni iyileştirir, ötekinde bozar. Bu dosya yedi türün her birinde neye dokunulacağını, neyin o türün kendi sesi olduğu için yerinde bırakılacağını anlatır, sonra da baştan sona örnekler verir. Metnin türünden emin olmadığında ya da bir türde ilk kez çalışırken buraya bak.
+
+Kullanıcı kendi yazısından örnek verdiyse o örnek buradaki her şeyin üstündedir: cümle boyunu, bağlaçlarını, hitabını ondan al.
+
+## Yedi tür
+
+**Blog, deneme, köşe yazısı, sosyal medya.** Masanın karşısından anlatan biri konuşur. Okura "sen" ya da "siz" der ve bunu yol boyunca değiştirmez. Cümle boyu en çok burada oynar: dört kelimelik bir cümle yirmi sekiz kelimelik bir cümlenin yanında durabilir. Soru sorulur, iki nokta kullanılır, düşünce yarım bırakılabilir. `-mektedir` silinir, ad cümlesindeki `-dir` seyrelir. *İşte, zaten, hani, tabii, daha doğrusu* gibi sözler yerindeyse kalır. Devrik cümle olur ama seyrek. Yazı bir sahneyle, somut bir gözlemle ya da doğrudan soruyla açılır, konuyu duyurarak değil.
+
+**Öykü, roman, anlatı.** Ritim ve imge öndedir, bütün kipler serbesttir. Soru, ünlem ve üç nokta anlatının olağan parçasıdır. Model anlatıda düz bildirme cümlesine sıkışır ve çoğu zaman yazarlardan da kısa yazar. Sorun kısalık değil, cümlelerin hep aynı boyda olmasıdır. Onarırken imge ekleme, olay ekleme. Son cümle olayın ya da mekânın parçasıysa kalır. Gidecek olan okura ders veren kapanıştır.
+
+**Şirket yazısı: tanıtım, bülten, duyuru, ürün metni.** Müşteriye kendi adına yazan, açık sözlü biri konuşur. Hitap "siz"dir. Tez ilk cümlededir. Şirketin kendi yaptığı iş etken söylenir: "tarafımızca gerçekleştirilmiştir" değil, "yaptık". Vaat sözleri (*bir üst seviyeye taşıyın, potansiyelinizi ortaya çıkarın*) yerine okurun ne kazanacağı yazılır, kaynakta yazıyorsa. Devrik cümle ve samimiyet numarası yok.
+
+**Ders kitabı, popüler bilim, açıklayıcı yazı.** Konuyu bilen biri bilmeyene anlatır. Bu türde yazarların cümleleri romandakinden daha düzenlidir, noktalı virgül ve iki nokta sıktır, `-dir` ile biten tanım cümleleri olağandır. Edebî ritmi burada zorlama. Belirgin bir tekdüzelik yoksa cümle sınırlarına dokunma.
+
+**Teknik belge.** Sorunu çözmüş biri, çözecek olana yazar. Doğrudan soruna ve karara girer. Kural ve tanım geniş zamanla söylenir (*Redis veriyi bellekte tutar*), tanım cümlesinde `-dir` kalır, `-mektedir` gitmelidir. Yerleşik İngilizce terim olduğu gibi durur, ek okunuşuna göre gelir. Devrik cümle yok. Kod, komut ve çıktı bloklarına dokunma.
+
+**Akademik ve hukuki yazı.** Belgenin iskeleti korunur: bölüm sırası, atıflar, terimler. `-mektedir` ve `-dir` burada yerindedir, art arda üç dört cümlenin aynı ekle bitmesi de olağandır. *Söz konusu, bu bağlamda, öte yandan* bu türde insan yazısında da geçer, tek tek ayıklama. Uzun cümle bu türün hakkıdır: yazarların her dört beş cümlesinden biri yirmi sekiz kelimeyi geçer. Model burada bütün cümleleri aynı uzunlukta kurar, kısa cümleye hiç yer vermez ve her beş cümleden birini "Ayrıca", "Bu doğrultuda", "Sonuç olarak" gibi bir sözle açar. Onarımda cümleleri bölüp birleştirmeye değil, bu dizilişi bozmaya bak: geçiş sözlerini at, kalıpları ayıkla. Ritim için cümle sınırlarıyla oynama ve kısa özdeyiş cümleleri ekleme, iki ayrı deneyde okur bunları mekanik buldu. Kipi koru. Devrik cümle yok.
+
+**Kamu ve kurum içi yazışma.** İç notlar, resmî yazılar, faaliyet raporları, sunum açıklamaları. Kurum adına yazan nesnel bir ses konuşur. Okura doğrudan seslenilmez. Bu türde model izleriyle kurum dilinin özellikleri örtüşür, çünkü modeller bu dili de öğrenmiştir. Adlaştırma (*uyku düzeninin bozulması*), edilgen çatı, `-mektedir`, art arda `-mıştır` ile biten cümleler ve kurum terimleri (*süreç, müdahale, farkındalık*) burada çeviri kokusu değil, beklenen biçimdir. Bunları temizlersen metni resmiyetten çıkarırsın. Cümle sınırlarına ve kipe dokunma: metin `-mektedir` ile yazılmışsa birkaç cümleyi geniş zamana çevirmek onu yamalı gösterir. Yalnızca gerçek kusurları onar: koşutluk ve ortak öge hataları, yazım ve noktalama, slogan gibi başlıklar, sahne kuran girişler (*"... günümüzde"*), dolgular (*"İşte bu noktada"*), şişirmeler (*"hayati bir önem"*), kapanış klişeleri.
+
+## Aynı cümle, dört türde
+
+Modelin yazdığı:
+
+> Cache stratejisinin doğru bir şekilde belirlenmesi, sistem performansı açısından kritik bir öneme sahiptir ve gecikme sürelerinin azaltılmasında yadsınamaz bir rol oynamaktadır.
+
+- Akademik: *Önbellekleme stratejisinin doğru belirlenmesi, sistem performansını ve yanıt sürelerini belirlemektedir.*
+- Teknik: *Cache stratejisini doğru kurmak performansı artırır ve gecikmeyi düşürür.*
+- Şirket yazısı: *Doğru önbellek stratejisi sisteminizi hızlandırır, yanıt sürelerini kısaltır.*
+- Blog: *Performansı belirleyen şeylerden biri cache stratejisi. Doğru kurarsanız gecikme de azalıyor.*
+
+Dört cümlenin hiçbiri "yarı yarıya" ya da "%40" demiyor, çünkü kaynak bir miktar vermiyor.
+
+## Örnek 1: Blog
+
+Önce:
+
 > Günümüzün hızla değişen iş dünyasında, uzaktan çalışma modeli sadece geçici bir trend değil, aynı zamanda kurumsal kültürün temel bir yapı taşı haline gelmiştir ve bu durumun önemi yadsınamaz. Şirketler tarafından gerçekleştirilen araştırmalar göstermektedir ki, çalışanlara esneklik sağlamak verimlilik üzerinde kritik bir rol oynamaktadır. Bununla birlikte, iletişim kopukluklarını önlemek adına bütüncül bir yaklaşım benimsenmelidir. Sonuç olarak, geleceğin çalışma dünyasında başarılı olmak isteyen kurumlar bu dönüşüme ayak uydurmak zorundadır.
 
-**Yakalanan AI Sinyalleri:**
-1. *"Günümüzün hızla değişen iş dünyasında"* (Sahneleme / Boş giriş - P0)
-2. *"sadece X değil, aynı zamanda Y"* (Negatif paralellik - P0)
-3. *"önemi yadsınamaz"* (Tier-1 klişe - P0)
-4. *"Şirketler tarafından gerçekleştirilen araştırmalar göstermektedir ki"* (Edilgen çatı + kof fiil + belirsiz otorite + Hint-Avrupa `ki` - P1)
-5. *"esneklik sağlamak ... kritik bir rol oynamaktadır"* (Kof fiil + Tier-1 klişe + `-mAktAdIr` şişmesi - P1)
-6. *"Bununla birlikte ... bütüncül bir yaklaşım"* (Mekanik bağlaç + kurumsal jargon - P2)
-7. *"Sonuç olarak ... ayak uydurmak zorundadır"* (Vaaz veren özet kapanış - P0)
+Sonra:
 
-**Sonra (Doğal İnsan Türkçesi - Blog/Deneme Register):**
-> Uzaktan çalışma artık şirket kültürünün kalıcı bir parçası. Araştırmalar da aynı şeyi söylüyor: Çalışanlara esneklik tanıdığınızda verimlilik artıyor. İşin zor kısmı, ekip aynı ofisi paylaşmazken iletişimi koparmamak. Kalıcı çözüm ise çalışma düzenini baştan sona bu yeni ritme göre kurmak.
+> Uzaktan çalışma artık şirket kültürünün kalıcı bir parçası. Şirketlerin yaptığı araştırmalar da aynı şeyi söylüyor: Çalışanlara esneklik tanıdığınızda verimlilik artıyor. İşin zor kısmı iletişimi koparmamak, bunun için işin bütününe bakmak gerekiyor. Bundan sonra başarılı olmak isteyen kurumlar bu değişime ayak uydurmak zorunda.
 
-### Örnek 2: Teknik / Yazılım Mühendisliği Dokümanı
+Gidenler: sahne kuran giriş, "sadece ... değil, aynı zamanda", "yadsınamaz", "tarafından gerçekleştirilen", "göstermektedir ki", "kritik bir rol oynamaktadır", "Bununla birlikte", "bütüncül bir yaklaşım", "Sonuç olarak". Kalanlar: dört iddianın dördü. Kaynak araştırmaların adını vermiyor, çıktı da vermiyor. Kaynak "zorundadır" diyor, çıktı bunu "iyi olur"a yumuşatmıyor.
 
-**Önce (Tipik AI Türkçesi):**
+## Örnek 2: Teknik
+
+Önce:
+
 > ## Cache Stampede Problemi Ve Çözüm Yöntemleri
 > Bir önbellek (cache) anahtarının süresi dolduğunda, aynı anda gelen birçok istek veritabanına yönlendirilir ve bu durum sistemde adeta bir darboğaz yaratmaktadır. Bu sorun özellikle yüksek bir trafiğe sahip olan uç noktalarda (endpoints) kritik bir öneme sahiptir. Bu problemi çözmek için dağıtık kilit (distributed lock) mekanizması kullanılabilir, ama bu yöntem gecikme süresini artırabilir.
 
-**Yakalanan AI Sinyalleri:**
-1. Başlıkta `Ve` bağlacının büyük yazılması ve klasik *"X Nedir ve Çözüm Yöntemleri"* şablonu (P2)
-2. *"yönlendirilir ve bu durum ... yaratmaktadır"* (Ulaç yerine `ve bu durum` + `-mAktAdIr` - P1)
-3. *"adeta bir darboğaz"*, *"yüksek bir trafiğe sahip olan"*, *"uç noktalarda"*, *"kritik bir öneme sahiptir"* (Tier-1 klişeler + gereksiz `"bir"` + zorlama teknik çeviri `"uç nokta"` - P0/P1)
+Sonra:
 
-**Sonra (Doğal İnsan Türkçesi - Teknik Register):**
 > ## Cache stampede sorunu ve çözümü
-> Bir `cache` anahtarının süresi dolduğu anda gelen istekler hep birlikte veritabanına yönelip darboğaz oluşturur. Bu sorun özellikle yüksek trafikli `endpoint`'lerde önem kazanır. Dağıtık kilit (`distributed lock`) kullanabilirsiniz, ama bu yöntem gecikmeyi artırabilir.
+> Bir `cache` anahtarının süresi dolduğu anda gelen istekler hep birlikte veritabanına yönelip darboğaz oluşturur. Bu sorun özellikle yüksek trafikli `endpoint`'lerde önem kazanır. Dağıtık kilit (`distributed lock`) kullanılabilir, ama bu yöntem gecikmeyi artırabilir.
 
-**Sadakat notu:** Kaynak "birçok istek" diyor, çıktı "yüzlerce" demez. Kaynak "artırabilir" diyor, çıktı ihtiyatı silip "artırır" demez. Kaynakta "kesinti" veya "kilitlenme" yok, çıktı bunları eklemez. Terim tutarlılığı için başlıkta ve gövdede aynı terim (`cache`) kullanılır.
+Kaynak "birçok istek" diyor, çıktı "yüzlerce" demiyor. Kaynak "artırabilir" diyor, çıktı "artırır" demiyor. Kaynakta "kesinti" yok, çıktıya da girmiyor. Başlıkta ve gövdede aynı terim (`cache`) kullanılıyor.
 
-### Örnek 3: Akademik / Analitik Metin (Olgusal Sadakat ve Dozaj Korunarak)
+## Örnek 3: Akademik
 
-**Önce (Tipik AI Türkçesi):**
+Önce:
+
 > Türkiye'de 2020-2024 yılları arasında yenilenebilir enerji yatırımları sadece artış göstermekle kalmamış, aynı zamanda enerji arz güvenliğinde de çığır açan bir dönüm noktası olmuştur. Enerji Bakanlığı tarafından paylaşılan verilere göre, güneş enerjisi kurulu gücü %112 oranında bir büyüme gerçekleştirmiştir ki bu durum sektörün dinamik yapısının en büyük kanıtıdır.
 
-**Sonra (Doğal İnsan Türkçesi - Akademik Register):**
-> Türkiye'de 2020-2024 döneminde hız kazanan yenilenebilir enerji yatırımları, enerji arz güvenliğinin yapısını da dönüştürmüştür. Enerji Bakanlığının verilerine göre güneş enerjisi kurulu gücü bu dönemde %112 büyümüştür.
+Sonra:
 
-### Örnek 5: Ritim Onarımı (Cümle Boyları Gösterilerek)
+> Türkiye'de 2020-2024 yılları arasında yenilenebilir enerji yatırımları artmış, bu artış enerji arz güvenliğini de etkilemiştir. Enerji Bakanlığının verilerine göre güneş enerjisi kurulu gücü bu dönemde %112 büyümüştür.
 
-Dil modelinin ritim kusuru tek tek cümlelerde değil, paragrafın bütününde görünür. Kural okumak yetmez, cümle boylarını gerçekten saymak gerekir.
+`-mıştır` kaldı, çünkü tür akademik. Giden, olguya bir şey katmayan abartı: "çığır açan bir dönüm noktası", "en büyük kanıtıdır".
 
-**Önce (deneme, cümle boyları: 18, 19, 18, 23 kelime, paragraf içi CoV yaklaşık 0,10):**
-> Modern insanın en büyük paradoksu, sınırsız özgürlük ve seçenek bolluğu içinde derin bir yersiz yurtsuzluk hissiyle kuşatılmış olmasıdır. Her şeyin hızla tüketildiği, kimliklerin bile anlık tercihlere indirgendiği bu sıvılaşmış çağda birey, varoluşsal bir ağırlık merkezine ihtiyaç duyar. İşte gelenek, tam da bu noktada bir sığınak veya kaçış alanı olarak değil, bir "zemin" olarak devreye girer. İnsana dünyaya fırlatılmış yalnız bir atom olmadığını, kendisinden önce başlayan ve kendisinden sonra da devam edecek olan büyük bir anlatının parçası olduğunu hatırlatır.
+## Örnek 4: Kamu ve kurum içi yazışma
 
-**Sonra (cümle boyları: 13, 5, 16, 7, 20 kelime, paragraf içi CoV yaklaşık 0,46):**
-> Modern insan sınırsız özgürlüğün ve seçenek bolluğunun ortasında derin bir yersiz yurtsuzluk duyuyor. En büyük paradoksu da bu. Her şeyin hızla tüketildiği, kimliklerin bile anlık tercihlere indirgendiği bu çağda birey bir ağırlık merkezi arar. Gelenek burada bir zemin olarak devreye girer. İnsana dünyaya fırlatılmış yalnız bir atom olmadığını, kendisinden önce başlayıp kendisinden sonra da sürecek büyük bir anlatının parçası olduğunu hatırlatır.
+Önce:
 
-**Yöntem:**
-1. Paragraftaki cümlelerin kelime sayısını yaz.
-2. Art arda iki ya da üç cümle birbirine yakın uzunluktaysa birinin yargısını kısa bir cümleye ayır (*"En büyük paradoksu da bu."*) ya da iki cümleyi ulaçla birleştir.
-3. Süsü at, yargıyı bırak: *"İşte ... tam da bu noktada"* dolgusu ve *"sığınak değil, zemin"* negatif paralelliği silindi, *"zemin"* yargısı kaldı.
-4. Kaynakta olmayan cümle ekleme. Kısa cümle kaynaktaki bir yargıdan (*"en büyük paradoksu"*) çıkarıldı.
-
-### Örnek 4: Kamu / Kurum İçi Yazışma (Kurum Dili Korunarak)
-
-**Önce (Tipik AI Türkçesi):**
 > Dijital Dünyada Kaybolmadan: Gençlerde Ekran Bağımlılığında Erken Farkındalık ve Aile Desteği
 >
 > Teknolojinin günlük yaşamın merkezinde yer aldığı günümüzde, gençlerin ekran karşısında geçirdiği süre giderek artıyor. [...] İşte bu noktada, sorunu henüz derinleşmeden fark etmek hayati bir önem taşıyor. Uyku düzeninin bozulması, ders başarısında düşüş, yüz yüze iletişimden kaçınma ve ekran süresine müdahale edildiğinde aşırı öfkelenme gibi belirtiler, erken uyarı sinyalleridir. [...] Yasaklayıcı ve suçlayıcı yaklaşımlar yerine; anlayışlı, kapsayıcı ve ailece yürütülen bir değişim süreci çok daha kalıcı sonuçlar verir. Ailenin sürece dahil olması [...]
 
-**Sonra (Kamu / Kurum İçi Register):**
+Sonra:
+
 > Gençlerde Ekran Bağımlılığında Erken Farkındalık ve Aile Desteği
 >
 > Gençlerin ekran karşısında geçirdiği süre giderek artmaktadır. [...] Bu nedenle sorunun henüz derinleşmeden fark edilmesi büyük önem taşır. Gencin uyku düzeninin bozulması, ders başarısının düşmesi, yüz yüze iletişimden kaçınması ve ekran süresine müdahale edildiğinde aşırı öfkelenmesi gibi belirtiler erken uyarı işaretleridir. [...] Yasaklayıcı ve suçlayıcı yaklaşımlar yerine anlayışlı, kapsayıcı ve ailece yürütülen bir değişim süreci çok daha kalıcı sonuçlar verir. Ailenin sürece dâhil olması [...]
 
-**Ne korundu, ne değişti:** Adlaştırmalar, `-mAktAdIr`, "süreç" ve "müdahale" gibi kurum terimleri olduğu gibi kaldı. Değişenler slogan başlık, sahneleme girişi, *"İşte bu noktada"* dolgusu, *"hayati"* şişirmesi, belirtiler listesinin biçim birliği (ad-eylem ile isim karışıktı), *"yerine;"* noktalı virgülü ve *"dahil"* yazımı. *"gibi belirtiler"* ifadesi korundu. Listeyi kapalı bir sayıma çevirmek kaynakta olmayan bir kesinlik eklerdi.
+Adlaştırmalar, `-mektedir`, "süreç" ve "müdahale" yerinde kaldı. Değişenler: slogan başlık, sahne kuran giriş, "İşte bu noktada", "hayati", belirtiler listesinin biçimi (ad-eylemle yalın ad karışıktı), "yerine;" noktalı virgülü, "dahil" yazımı. "Gibi belirtiler" korundu: listeyi kapalı bir sayıma çevirmek kaynakta olmayan bir kesinlik eklerdi.
+
+## Örnek 5: Denemede ritim
+
+Bu örnek yalnızca blog, deneme ve öykü içindir. Öteki türlerde ritim için cümle sınırına dokunulmaz. Modelin ritim kusuru tek tek cümlelerde görünmez, paragrafın bütününde görünür. Burada dört cümlenin dördü de aynı boydaydı ve paragrafın kuruluşu zaten değişiyordu (dolgu ve karşıtlık kalıbı gidiyordu), cümle sınırları o sırada yeniden çizildi.
+
+Önce (cümle boyları 18, 19, 18, 23 kelime):
+
+> Modern insanın en büyük paradoksu, sınırsız özgürlük ve seçenek bolluğu içinde derin bir yersiz yurtsuzluk hissiyle kuşatılmış olmasıdır. Her şeyin hızla tüketildiği, kimliklerin bile anlık tercihlere indirgendiği bu sıvılaşmış çağda birey, varoluşsal bir ağırlık merkezine ihtiyaç duyar. İşte gelenek, tam da bu noktada bir sığınak veya kaçış alanı olarak değil, bir "zemin" olarak devreye girer. İnsana dünyaya fırlatılmış yalnız bir atom olmadığını, kendisinden önce başlayan ve kendisinden sonra da devam edecek olan büyük bir anlatının parçası olduğunu hatırlatır.
+
+Sonra (cümle boyları 13, 5, 18, 7, 20 kelime):
+
+> Modern insan sınırsız özgürlüğün ve seçenek bolluğunun ortasında derin bir yersiz yurtsuzluk duyuyor. En büyük paradoksu da bu. Her şeyin hızla tüketildiği, kimliklerin bile anlık tercihlere indirgendiği bu sıvılaşmış çağda birey varoluşsal bir ağırlık merkezi arar. Gelenek burada bir zemin olarak devreye girer. İnsana dünyaya fırlatılmış yalnız bir atom olmadığını, kendisinden önce başlayıp kendisinden sonra da sürecek büyük bir anlatının parçası olduğunu hatırlatır.
+
+Nasıl yapıldı:
+
+1. Cümlelerin kelime sayısı yazıldı. Dördü de birbirine yakındı.
+2. İlk cümlenin yargısı kısa bir cümleye ayrıldı ("En büyük paradoksu da bu."). Bu cümle uydurulmadı, kaynaktaki "en büyük paradoksu" sözünden çıktı.
+3. Süs atıldı, yargı kaldı: "İşte ... tam da bu noktada" dolgusu ve "sığınak değil, zemin" karşıtlığı gitti, "zemin" kaldı.
+4. Kaynakta olmayan cümle eklenmedi.
 
 
-<!-- KAYNAK: references/derlem-olcumleri.md -->
+<!-- references/olculer.md -->
 
-# Derlem Ölçümleri: İnsan Türkçesi ve Dil Modeli Türkçesi
+# Ölçüler
 
-Skill'in ritim, noktalama ve devrik kurallarındaki sayılar bu dosyadan gelir. Ölçümleri Kasım 2026'da yaptık. Derlem birkaç turda büyüdü: Önce 24 roman ve deneme kitabıyla beş modelin metinleri ölçüldü, sonra akademik kitaplar, DergiPark makaleleri, kurum belgeleri, teknik metinler, çağdaş romanlar, psikoloji kitapları, köşe yazıları ve mektuplar eklendi. İnsan tarafı 145 metin, yaklaşık 2,7 milyon kelime. Kitapların metni telif yüzünden depoda yok, burada yalnızca toplu sayılar var.
+Skill'deki "yazarlar şöyle yazar, modeller böyle" cümlelerinin dayandığı sayılar. Bir kuralın nereden geldiğini merak ettiğinde ya da kullanıcı sorduğunda buraya bak. Yazarken bu sayıları tutturmaya çalışma: bunlar tanı ölçüsüdür, hedef değildir.
 
-| Parça | Metin | Kelime (yaklaşık) |
-| :--- | :--- | :--- |
-| Roman, öykü ve deneme (ilk derlem) | 22 yazarın 24 kitabı | 215.000 (örneklem) |
-| Akademik kitap | 8 | 75.000 (örneklem) |
-| DergiPark makalesi (2016-2019 ve 2026) | 44 | 253.000 |
-| Kurum belgesi ve faaliyet raporu | 7 belge, 5 İBB raporu | 36.000 + rapor başına 8.000 |
-| Teknik metin | 19 | 38.500 |
-| Çağdaş roman ve öykü | 17 | 1.000.000 |
-| Psikoloji (açıklayıcı metin) | 5 | 415.000 |
-| Köşe yazısı | 5 yazar | 285.000 |
-| Mektup, günlük, anı | 5 | 260.000 |
-| Dil modeli metni | 5 modelden 40 | 17.000 |
+Yazar tarafı doğrudan Türkçe yazılmış kitap, makale ve belgelerden gelir: roman ve öykü, deneme ve köşe yazısı, mektup ve günlük, psikoloji kitapları, akademik kitap ve makaleler, teknik belgeler, kamu raporları. 119 metinden örneklenmiş 1,1 milyon kelime. Çeviri kitap yoktur. Model tarafı altı dil modelinin (Gemini 4, Gemini Flash, GPT-OSS, Claude Haiku, Sonnet ve Opus) aynı türlerde, üslup yönlendirmesi verilmeden yazdığı 200 metindir. Metinler dört yüz kelimelik parçalara bölünüp parça parça ölçüldü. Yöntemin tamamı, sınırları ve deneyler depodaki `docs/olcumler.md` dosyasında.
 
-## Yöntem
+## Türlere göre
 
-İlk derlem Türkçe yazmış 22 yazarın 24 kitabından oluşur: 17 kurmaca, 7 deneme, anı ya da inceleme. Çeviri kitapları bilerek almadık, çünkü çeviri Türkçesi skill'in temizlemeye çalıştığı izleri taşır. Kitapların tamamını değil, %20, %50 ve %80 noktalarındaki sekizer sayfayı ölçtük. Sayfası olmayan .txt ve .epub dosyalarında aynı noktalardan 4.000'er kelime aldık. Örneklem diyalog dâhil yaklaşık 215.000 kelime. Yazarlardan bazıları: Adalet Ağaoğlu, İhsan Oktay Anar, Oğuz Atay, Fakir Baykurt, Halide Edib Adıvar, Memduh Şevket Esendal, Sait Faik Abasıyanık, Cemil Meriç, Murathan Mungan, Aziz Nesin, Ömer Seyfettin, Orhan Pamuk (iki kitap), Peyami Safa (iki kitap), Sabahattin Ali, Kemal Tahir, Ahmet Hamdi Tanpınar, Hasan Ali Toptaş, Ayfer Tunç, Ahmet Ümit, Çetin Altan, Attila İlhan.
+Her hücrede önce yazarların, sonra modellerin değeri var.
 
-Akademik derlem aynı yöntemle ölçülen 8 kitaptır. Tarih, felsefe, siyaset bilimi, iktisat ve bilim tartışması alanlarından Bahriye Üçok, Ahmet Cevizci, Tarık Zafer Tunaya, Doğan Avcıoğlu, Asaf Savaş Akat, İsmail Cem, Ahmet Yüksel Özemre ve Aydın Topaloğlu'nun kitapları. Örneklem yaklaşık 75.000 kelime. Kitaplar 1960'lardan 2000'lere uzanıyor, çoğu 2000 öncesi. Bugünkü dergi makalesinin dilini tam temsil etmedikleri için makaleleri ayrıca ölçtük (aşağıda).
+| | Öykü, roman | Deneme, köşe | Açıklayıcı | Teknik | Akademik | Kamu |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Ritim | 0,48 / 0,40 | 0,48 / 0,33 | 0,41 / 0,32 | 0,46 / 0,33 | 0,46 / 0,27 | 0,46 / 0,27 |
+| Ortanca cümle (kelime) | 8 / 11 | 10 / 14 | 14 / 12 | 12 / 15 | 18 / 22 | 22 / 20 |
+| Altı kelime ve altı cümle | %37 / %26 | %29 / %11 | %14 / %8 | %17 / %7 | %11 / %2 | %4 / %2 |
+| 28 kelime ve üstü cümle | %7 / %2 | %11 / %3 | %10 / %2 | %11 / %8 | %25 / %20 | %38 / %24 |
+| Geçiş sözüyle başlayan cümle | %1 / %2 | %2 / %7 | %6 / %12 | %5 / %12 | %7 / %20 | %6 / %13 |
+| Soru (bin kelimede) | 8 / 3 | 8 / 1,4 | 2,3 / 1,4 | 3 / 0,6 | 0,8 / 0 | 0 / 0 |
+| Ünlem (bin kelimede) | 6 / 0,1 | 6 / 0,3 | 0,3 / 0 | 0,6 / 0 | 0,4 / 0 | 0 / 0 |
+| Üç nokta (bin kelimede) | 6 / 0,5 | 10 / 0,5 | 1,9 / 0 | 2 / 0 | 0,4 / 0 | 0 / 0 |
+| İki nokta (bin kelimede) | 4,6 / 1,9 | 6,4 / 1,7 | 6,3 / 1,8 | 17 / 2,9 | 5 / 0,3 | 2,8 / 0,4 |
+| "… değil, …" (bin kelimede) | 0,7 / 1,1 | 1,1 / 3,8 | 0,9 / 3,4 | 0,1 / 0,6 | 0,4 / 1,8 | 0,1 / 1 |
+| "A, B ve C" (bin kelimede) | 3,7 / 2,7 | 4,8 / 8,2 | 6,8 / 9,5 | 3,5 / 7,9 | 6,5 / 14,8 | 12,5 / 16,1 |
+| `-mektedir` (yüz kelimede) | 0 / 0 | 0,1 / 0,1 | 0,3 / 0,1 | 0,3 / 0 | 0,8 / 1,5 | 1,1 / 1,7 |
 
-Model derlemi için beş modele aynı 8 isteği verdik: 4 kurmaca, 4 deneme, her biri 400-500 kelime civarı. Modeller Gemini 4 Argon, Gemini 3.8 Flash, GPT-OSS 120B, Claude Sonnet 5.5 ve Claude Opus 5.5. İsteklerde "doğal yaz" ya da "yapay yaz" gibi bir yönlendirme yoktu.
+Ritim, art arda gelen beş cümlenin boyunun ne kadar değiştiğini gösterir (değişim katsayısı, parçadaki ortanca). Hep on iki on dört kelimelik cümleler 0,06 verir, dört ile yirmi beş arasında gidip gelen cümleler 0,62. Geçiş sözü: *Ancak, Ayrıca, Bu nedenle, Sonuç olarak, Öte yandan, Birincisi, Son olarak* ve benzerleri. Şirket yazısı için yazar derlemimiz yok. Modellerin şirket yazısında ritmi 0,29, geçiş sözüyle başlayan cümle oranı %10.
 
-Ölçümde diyalog paragraflarını çıkarıp yalnızca anlatı cümlelerini saydık. Ritmi, metin boyunca art arda gelen her beş cümlelik pencerede cümle uzunluğunun değişim katsayısıyla (CoV) ölçtük. Kitaplardan çıkarılan metinde paragraf sınırları güvenilir olmadığı için paragrafa dayalı ölçüm kullanmadık. Bazı dosyalarda satırlar sabit genişlikte kırılmıştı. Cümleler ortadan bölünmesin diye noktalamayla bitmeyen satırları ölçümden önce bir sonrakiyle birleştirdik. İlk ölçümde bu adım yoktu. Eklenince kurmaca değerleri neredeyse hiç değişmedi, deneme değerleri değişti: Ortanca cümle 10 kelimeden 12'ye, 15-22 kelime bandı %17'den %23'e çıktı.
+## Tablodan çıkanlar
 
-Ölçümler düzenli ifadeye dayanan sezgisel sayımlardır, biçim bilgisi (morfoloji) çözümleyicisi kullanmadık. Devrik cümle sayacının ne kadar yanıldığını 400 cümleyle denetledik. Önce Gemini, sayacın ne dediğini görmeden bütün cümleleri işaretledi ve ikisinin anlaşamadığı 59 cümleyi Claude tek tek okudu. Son olarak bir insan okur 60 cümle işaretledi. Kararlarının %97'si Claude'unkiyle aynıydı.
+Ritim her türde ayırıyor. Resmî türlerde bile: kamu raporunun cümleleri uzundur ama boyları değişir, modelin yazdığı raporda hepsi aynı boydadır. Altı modelin ortancaları 0,27 ile 0,38 arasında, yazarların çoğu 0,45'in üstünde.
 
-Sonucu yüz cümlelik bir roman sayfasıyla anlatmak kolay. Böyle bir sayfada aslında 13 kadar devrik cümle var. Sayaç 14 cümleye devrik diyor. Bunların 10'u gerçekten devrik, 4'ü değil: Sayaç *"Bu koltuklar da üç kişilik."* gibi yüklemi olmayan cümleleri ya da taramada bozulmuş kelimeleri devrik sanıyor. Gerçek 13 devrikten 3'ünü de kaçırıyor, bunlar çoğunlukla *"Güzel bir şey bu."* türünden cümleler. Fazla saydığıyla eksik saydığı birbirine yakın olduğu için toplam neredeyse doğru çıkıyor. Bu yüzden derlemin geneli için verdiğimiz devrik oranlarına güvenilebilir, ama tek bir kitabın oranı birkaç puan oynayabilir. Devrik oranlarını kesin değer olarak değil, metinleri birbiriyle karşılaştırmak için kullanıyoruz.
+Model iki uçtan da kaçıyor. Serbest türlerde uzun cümle kurmuyor (deneme: yazarlarda yüz cümlenin on biri, modelde üçü yirmi sekiz kelimeyi geçiyor), bilgi veren türlerde kısa cümle kurmuyor (akademik: yazarlarda yüz cümlenin on biri, modelde ikisi altı kelimenin altında).
 
-## Sonuçlar (ortanca değerler)
+Model cümleyi geçiş sözüyle açıyor. Akademik metinde her beş cümleden biri böyle başlıyor, yazarlarda on dört cümleden biri. Bin cümlede sayınca en ayırt edici açılışlar: *Sonuç olarak, Son olarak, Üçüncü olarak, Bu doğrultuda, Bu sayede, Bir diğer, Önemli olan, Bunun yerine.* Yazarlarda bunlar yok denecek kadar az. Yazarların sık açılışları: *Ve, Ama, Çünkü, Hem, Hatta, Zaten, Evet, Hiç.*
 
-| Ölçüm | İnsan kurmaca | İnsan deneme | İnsan akademik | Uzun ve tekdüze modeller (Gemini 4 Argon, Gemini 3.8 Flash, GPT-OSS) | Kısa ve tekdüze modeller (Claude Sonnet, Claude Opus) |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Ortanca cümle uzunluğu (kelime) | 8 | 12 | 14,5 | 12,5-18 | kurmaca 6,5-7, deneme 10,5 |
-| 15-22 kelime bandındaki cümle oranı | %14 | %23 | %25 | %29-49 | %3-13 |
-| 6 kelime ve altı cümle oranı | %37 | %17 | %16 | %0-13 | %18-50 |
-| 5 cümlelik pencerede CoV (cümle uzunluğu değişim katsayısı) | 0,49 | 0,46 | 0,47 | 0,28-0,41 | 0,35-0,40 |
-| CoV'si 0,40'ın altında kalan pencere oranı | %33 | %36 | %33 | %47-90 | %51-76 |
-| Devrik cümle oranı (sezgisel) | %9,5 | %7 | ölçülemedi (bkz. 7. not) | %1-8 | %3-7 |
-| Soru işareti (1000 kelimede) | 13,0 | 3,3 | 1,1 | 0-2,3 | 0-1,5 |
-| Ünlem (1000 kelimede) | 6,7 | 0,6 | 0,2 | 0 | 0 |
-| Üç nokta (1000 kelimede) | 9,0 | 0,8 | 0,3 | 0-1,2 | 0 |
-| İki nokta (1000 kelimede) | 7,1 | 5,6 | 4,9 | 0-6,7 | 1,2-4,0 |
-| Noktalı virgül (1000 kelimede) | 2,5 | 2,0 | 5,6 | 6,7-17,9 | 0-5,1 |
-| `ki` bağlacı (1000 kelimede) | 2,7 | 3,5 | 1,6 | 0-1,2 | 1,2-1,3 |
-| `olarak` (1000 kelimede, deneme ve akademik) | - | 3,2 | 3,4 | 2,6-8,2 | 3,8 |
-| Cümle sonu `-DIr` oranı (deneme ve akademik) | - | %12 | %25 | %15-24 | %16 |
-| `-mAktAdIr` (100 kelimede) | 0 | 0,02 | 0,35 | 0 | 0 |
+Model soru sormuyor, ünlem ve üç nokta kullanmıyor. Deneme ve anlatıda yazarların bin kelimesinde sekiz soru var, modelde bir ile üç arası.
 
-## Notlar
+Karşıtlık ve üçleme model işi. "… değil, …" kalıbı denemede üç buçuk kat, "A, B ve C" sıralaması akademik metinde iki kat sık. Kamu dilinde üçlü sıralama yazarlarda da sıktır, orada iz sayılmaz.
 
-1. Modelleri yazarlardan ayıran ortak iz cümle uzunluğunda görünmüyor, ritimde görünüyor. Bütün modellerde art arda gelen cümlelerin boyu yazarlarınkinden daha az değişiyor. Yazarlara en yakın olanlar Claude Opus ile Gemini Flash (kurmacada 0,40-0,41), en uzak olanlar GPT-OSS ile Gemini 4'ün denemeleri (0,29-0,31). Modellerin bir kısmı uzun cümlelere, bir kısmı kısa cümlelere yığılıyor. Skill'in ritim kuralı bu yüzden kısa cümle eklemeyi değil, ardışık cümlelerin boyunu çeşitlendirmeyi istiyor.
-2. Cümlelerin 15-22 kelime bandına yığılması Gemini ve GPT tipi modellerde görülüyor. Claude tipi modeller kurmacada yazarlardan da kısa cümle kuruyor.
-3. Modeller anlatıda soru, ünlem ve üç noktayı neredeyse hiç kullanmıyor. Türk yazarların anlatısında üçü de olağan.
-4. Noktalı virgülü tek başına yapay zekâ işareti saymak yanlış olur. Bazı yazarlar onu sık kullanıyor, birinde 1000 kelimede 14'e çıkıyor. Yine de Gemini ve GPT tipi modellerde sıklık yazarlarınkinin 2-6 katı.
-5. `ki` bağlacı da şüphe işareti sayılmamalı. Yazarlar onu modellerden sık kullanıyor, çoğunlukla kalıplaşmış biçimlerde: *demek ki, öyle ki, kaldı ki, dedi ki*.
-6. Sözlükteki klişelerin ayırt ediciliği modelden modele değişiyor. *Söz konusu* ve *dönüm noktası* hiçbir modelde sık değil. *Öte yandan* ve *Bununla birlikte* GPT-OSS ile Claude Sonnet'te cümle başında sık, Gemini'de seyrek. Modelleri en tutarlı ayıran iki şey ritim ve cümleye geçiş sözüyle başlama alışkanlığı (*Oysa, Ancak, Sonuç olarak*).
-7. Akademik kitaplar cümle boyunda modellere yaklaşıyor, ritimde yaklaşmıyor. 15-22 bandı %25 (en yüksek kitapta %30), noktalı virgül 1000 kelimede 5,6 (kitaplar arasında 0,8-8,5). Akademik metinde bu iki ölçüt tek başına yapay zekâ işareti sayılmamalı. Pencere CoV'si ise kurmaca ve denemeyle aynı düzeyde: ortanca 0,47, kitaplar arasında 0,42-0,55. Akademik metinde de en güvenilir ölçüt ritim. Devrik sezgiseli bu kitaplarda %5-8 verdi, ama elle baktığımız 25 örneğin neredeyse hepsi yanlıştı. Dipnot numaraları, kaynak gösterimleri ve yüklemi düşmüş ad cümleleri devrik sayılmıştı. Gerçek devrikler yalnızca alıntılanan şiir çevirilerindeydi. "Akademik metinde devrik kullanılmaz" kuralını bu yüzden koruduk. `-mAktAdIr` bu kitaplarda beklediğimizden seyrek çıktı: 100 kelimede ortanca 0,35, en yüksek 1,4. Kitapların çoğu eski olduğu için bu sayıyı bugünkü makale dili için alt sınır saymak gerekir.
+`-mektedir` resmî türlerin malı. Akademik makalelerde yüz kelimede bir civarındadır, kamu raporunda biraz üstünde. Model bu türlerde yazarlardan da sık kullanıyor. Öteki türlerde yazarlarda da modelde de sıfıra yakın: bugünkü modeller blog yazısına `-mektedir` koymuyor, ama eski modellerin ve çeviri metinlerin izidir.
 
-## Akademik Makale Ölçümü (DergiPark)
+## Yazara göre değişenler
 
-Akademik kitapların çoğu eski olduğundan güncel makaleleri de ölçtük. DergiPark'ın açık arşivinden iki örneklem aldık, her dergiden bir makale. Alanları karışık tuttuk: hukuk, tarih, eğitim, tıp, ziraat, iktisat, matematik, sosyoloji, ilahiyat. İlk örneklem ChatGPT'den önce, 2016-2019 arasında yayımlanmış 19 makale (yaklaşık 106.000 kelime). İkincisi 2026'da yayımlanmış 25 makale (yaklaşık 147.000 kelime). Yalnızca "Giriş" ile "Kaynakça" arasındaki gövdeyi ölçtük, İngilizce özet satırlarını, tabloları ve parantez içi atıfları çıkardık.
+Devrik cümle. Anlatıda cümlelerin onda biri kadarı devriktir, ama oran kitaptan kitaba %2 ile %37 arasında oynar. Dönem değil yazar belirliyor: aynı yazarın iki kitabında bile yön tutmuyor. Yüklemden sonra kalan kısım yazarlarda beş devriğin dördünde bir iki kelimedir.
 
-| Ölçüm | Makale 2016-2019 | Makale 2026 | Akademik kitap |
-| :--- | :--- | :--- | :--- |
-| `-mAktAdIr` (100 kelimede) | 1,0 (çeyrekler 0,5-1,2) | 1,0 (çeyrekler 0,6-1,6) | 0,35 |
-| Ortanca cümle uzunluğu (kelime) | 18 | 19 | 14,5 |
-| 15-22 kelime bandı | %26 | %30 | %25 |
-| 5 cümlelik pencerede CoV | 0,46 | 0,42 | 0,47 |
-| Cümle sonu `-DIr` oranı | %23 | %13 | %25 |
-| Cümle sonu `-mIştIr` oranı | %17 | %22 | %15 |
-| Art arda aynı ekle biten en uzun cümle serisi | 5 (çeyrekler 5-6) | 8 (çeyrekler 5-12) | - |
-| Art arda üç `-mAktAdIr` serisi bulunan makale | 19'da 14 | 25'te 19 | 8'de 5 |
-| Noktalı virgül (1000 kelimede) | 3,7 | 3,6 | 5,6 |
+Noktalı virgül. Ortalamaya bakınca fark görünmüyor, çünkü birkaç yazar onu çok seviyor. Ortancaya bakınca görünüyor: deneme ve köşe yazısı parçalarının yarısından çoğunda hiç noktalı virgül yok, öyküde bin kelimede iki. Modellerin deneme ve öyküsünde ortanca beş. Model noktalı virgülü iki bağımsız cümleyi yapıştırmak için kullanıyor. Açıklayıcı, akademik ve kamu metninde yazarlar da kullanır (ortanca üç ile beş arası), orada iz sayılmaz.
 
-Skill'in akademik metin için verdiği `-mAktAdIr` aralığı (100 kelimede 0,5-2,5) makalelerle uyuşuyor, iki örneklemde de ortanca 1,0. Kitaplardaki düşük değer (0,35) türden geliyor, makale dili kitap dilinden daha resmî.
+`ama` öncesinde virgül. Yazarlar `ama`ların dörtte birinin önüne virgül koyuyor (%19-32). Kural değil, alışkanlık.
 
-Art arda üç cümlenin aynı ekle bitmesi akademik yazıda olağan. ChatGPT öncesi makalelerin çoğunda üçlü `-mAktAdIr`, `-mIştIr` ya da `-DIr` serisi var. "Art arda üç cümle aynı ekle bitmez" kuralını bu yüzden akademik metin için kaldırdık. Dedektör akademik metinde yedi ve üstü seriyi işaretliyor. Bu sınırla 2016-2019 makalelerinin 19'undan 3'ü, 2026 makalelerinin 25'inden 19'u uyarı aldı.
+`ki` bağlacı. Yazarlar bin kelimede iki üç kez kullanıyor, modeller bir ya da hiç. Şüphe işareti değildir.
 
-2026 makaleleri ChatGPT öncesi makalelerden farklı yazılmış. Cümle sonunda `-DIr` oranı yarıya inmiş (permütasyon testinde p<0,001), aynı ekle biten seriler uzamış (p≈0,02), pencere CoV'si düşmüş (p≈0,07). Bu, yapay zekâ destekli yazımın izi olabilir. Ama örneklemler küçük ve alan dağılımları birebir eşleşmiyor, o yüzden bunu kanıt değil gözlem olarak kaydediyoruz. Akademik metinde insan ölçütü olarak 2026 makalelerini değil, 2016-2019 makalelerini kullanıyoruz.
+## Skor
 
-## Skill Uygulanınca Ne Değişiyor?
+`scripts/denetle.py` bu ölçülerden 0-100 arası bir yapay zekâ izi skoru hesaplar. Skor üç metin ailesi için ayrı kurulmuş birer lojistik regresyondur ve şöyle okunur: yazar ve model metni eşit sıklıkta gelseydi bu parçanın model yazısı olma olasılığı. Hiç görmediği kitap ve metinlerde sınandığında:
 
-Aynı ölçümleri skill'le yazılmış ve onarılmış metinlere de uyguladık. Model her denemede skill'in tam metnini istemde gördü.
+| | Yazar metni 50 ve üstü | Yazar metni 80 ve üstü | Model metni 50 ve üstü | Model metni 80 ve üstü |
+| :--- | :--- | :--- | :--- | :--- |
+| Öykü, roman, deneme | %13-23 | %3-10 | %84 | %66 |
+| Açıklayıcı, teknik | %3-22 | %1-7 | %78 | %59 |
+| Akademik, kamu | %6-8 | %3-5 | %91 | %81 |
 
-### Sıfırdan yazma (Gemini 4, 8 istek)
-
-| Ölçüm | İnsan (kurmaca ve deneme, 24 kitap) | Gemini, skill'siz | Gemini, skill ile |
-| :--- | :--- | :--- | :--- |
-| 5 cümlelik pencerede CoV | 0,48 | 0,33 | 0,45 |
-| CoV'si 0,40'ın altında kalan pencere | %33 | %80 | %30 |
-| 15-22 kelime bandı | %17 | %37 | %32 |
-| 6 kelime ve altı cümle | %33 | %6 | %23 |
-| Soru işareti (1000 kelimede) | 8,2 | 0 | 4,7 |
-| `ki` (1000 kelimede) | 2,7 | 0 | 2,4 |
-| Noktalı virgül (1000 kelimede) | 2,3 | 7,6 | 6,8 |
-
-Skill sıfırdan yazarken ritmi ve noktalama çeşitliliğini insan düzeyine yaklaştırıyor. Tekrarlarda da sonuç değişmedi. Gemini 4'le ikinci çalıştırmada pencere CoV'si 0,44, 15-22 bandı %19 çıktı. Gemini Flash'ta pencere CoV'si 0,31'den 0,44'e çıktı, 15-22 bandı %41'den %17'ye indi. Claude Sonnet'te pencere CoV'si 0,36'dan 0,45'e yükseldi, CoV'si 0,40'ın altında kalan pencereler %62'den %36'ya düştü (yazarlarda %33), soru işareti 1000 kelimede 1,2'den 5,8'e çıktı.
-
-İki yan etki gördük. Flash devrik cümleyi abarttı: Cümlelerin %29'u devrikti, yazarlarda bu oran %8-9. Noktalı virgül ise skill açıkça sınır koymasına rağmen azalmadı (1000 kelimede 6,8-10), bazı modellerde bu alışkanlık kuraldan güçlü çıkıyor. Skill'in derlem sayılarını ve ritim örneğini içeren sonraki sürümüyle Gemini 4 iki kez daha yazdı. Noktalı virgül 1000 kelimede 8,7'den 3,9'a ve 5,7'ye indi, pencere CoV'si 0,45-0,49 oldu, ama devrik oranı %14-15'e çıktı (yazarlarda %9,5). Modele devrik cümlelerini saydırıp sınırı aşanları düzelttiren bir talimat denedik. Oran değişmedi, talimatı eklemedik.
-
-Skill'le yazan modellerin devrikleri biçim olarak yazarlarınkine benziyor. Yüklemden sonraki kuyruk devriklerin %76-93'ünde bir iki kelime, yazarlarda %83. Fark sıklıkta: Gemini 4'te %11-14, Flash'ta %29, Claude Sonnet'te %8, yazarlarda %9. Körlemesine okur skill'in iki sürümünü 4-4 berabere sıraladı, skill'siz metin 8 isteğin 8'inde sonuncu oldu.
-
-### Akademik yazma (Gemini 4, 4 istek: tarih, felsefe, sosyoloji, iktisat)
-
-Skill'siz Gemini akademik metni çok düz yazdı. Pencere CoV'si 0,23 çıktı, pencerelerin hepsi 0,40'ın altındaydı. Ortanca cümle 24 kelime, cümlelerin %74'ü `-mIştIr` ile bitiyor (yazarlarda %14), cümle başlarında sık sık *Sonuç olarak* ve *Öte yandan* var. Skill'le iki çalıştırmada pencere CoV'si 0,35-0,36'ya çıktı, ama model bu kez bütün uzun cümleleri orta boya indirdi. 28 kelimeyi aşan cümleler %35'ten %3-4'e düştü (yazarlarda %17), 15-22 bandı %38-44'te kaldı.
-
-Bunun üzerine skill'e "akademik metinde uzun cümleyi koru, yanına kısa cümle koy" notunu ekleyip denedik. Üç çalıştırmada pencere CoV'si 0,39-0,42, uzun cümle oranı %6-12 oldu. Sayılar düzeldi ama okur metni daha doğal bulmadı. Körlemesine okur (akademik editör gözüyle okuyan Gemini) üç sıralamada notsuz skill metnini 12 karşılaştırmanın 9'unda birinci seçti. Notun son sürümü girdiği 8 karşılaştırmanın hiçbirinde birinci olmadı. Okur, ritim için eklenen kısa cümleleri ("Öğrenme süreci böyle işler.") mekanik buldu, tarih anlatısının geniş zamana kaymasını da kusur saydı. Notu skill'e eklemedik: Akademik metinde ritim değişkenliğini zorlamak kaliteyi artırmıyor. Skill'siz metin ise 8 karşılaştırmanın 7'sinde sonuncu oldu, yani skill akademik metinde de işe yarıyor.
-
-### Onarım (Gemini 4 onarıcı, 8 metin)
-
-Kaynak metinlerde pencere CoV'si 0,34'tü. Skill'in eski sürümüyle onarınca 0,38, ritim örneği eklenmiş sürümle iki ayrı çalıştırmada 0,39 ve 0,44 oldu. Onarımda etki yazmaya göre küçük ve çalıştırmadan çalıştırmaya değişiyor, çünkü onarıcı kaynağın cümlelerine bağlı kalıyor. Etki kaynağa göre de değişiyor: Claude Opus metinlerinde pencere CoV'si 0,38'den 0,43'e, GPT-OSS metinlerinde 0,31'den 0,33'e çıktı.
-
-Onarıcı model de sonucu belirliyor. Aynı 8 metni Claude Sonnet onardığında pencere CoV'si yerinden oynamadı (0,34'ten 0,33'e), Gemini onardığında 0,38-0,44'e çıktı. Sonnet onarırken kaynak cümlelere çok sadık kalıyor. Bu sadakat için iyi, ritim için değil. Ritmin de düzelmesi isteniyorsa kullanıcının açıkça "cümle boylarını da düzelt" demesi gerekebilir. Onarıcının kendi alışkanlıkları da metne sızıyor: Gemini, hiç noktalı virgül içermeyen Opus metinlerine noktalı virgül ekledi.
-
-### Kalite ve sadakat
-
-Sıfırdan yazmada aynı isteğe skill'siz ve skill'le yazılmış Gemini metinlerini bağımsız bir model okura (yine Gemini) etiketsiz verdik. Okur 8 isteğin 8'inde skill'le yazılmış metni daha doğal buldu. Onarımda aynı okur kaynakla onarılmış sürümü körlemesine sıraladı, onarılmış sürüm 8 metnin 7'sinde öne geçti.
-
-Skill'e "ritim kontrolü onarımda da geçerli" talimatını ekledikten sonra aynı 8 metni Gemini'ye yeniden onarttık ve eski onarımla birlikte körlemesine sıralattık. İki sürüm 4-4 berabere kaldı, kaynak metin hiçbir sıralamada birinci olmadı. Ritim aynı düzeyde kaldı (pencere CoV'si 0,44 ve 0,43). Yeni sürümde noktalı virgül yarıya indi (1000 kelimede 5,3'ten 2,8'e), devrik oranı %12'den %7'ye geriledi. Ritmi zorlayan sürüm her zaman daha doğal bulunmadı, çünkü ritim için yeniden kurulan cümlelerde yeni hatalar çıktı. Skill'deki "ritim için yeni ifade icat etme" uyarısı bu yüzden var.
-
-Sadakat denetiminde 8 onarımın 5'i temiz çıktı, 3'ünde küçük bilgi kaybı vardı. Kayıpların ikisi kuralların yan etkisiydi (negatif paralellik ve kapanış kuralları). İki kurala da sınır ekledik.
-
-## Çağdaş Roman Ölçümü
-
-İlk derlemin çoğu 20. yüzyıl yazarı olduğu için 17 roman ve öykü kitabını ayrıca ölçtük (EPUB, yaklaşık bir milyon kelime). 13'ü 2000 sonrası: Hakan Günday, Sema Kaygusuz, Ayfer Tunç, Barış Bıçakçı, Emrah Serbes, Ahmet Ümit, Zülfü Livaneli, İhsan Oktay Anar, Burhan Sönmez, Ayşe Kulin, Elif Şafak (*Mahrem*), Murathan Mungan (*Çador*), Hasan Ali Toptaş (*Heba*). Karşılaştırmak için aynı yazarların eski kitaplarını da ölçtük (Orhan Pamuk, Mungan, Toptaş). Bundan önce de iki çağdaş romandan (Alev Alatlı, Ayla Kutlu) örnek almıştık. İkisinde de pencere CoV'si 0,50, soru işareti 1000 kelimede 8-15 çıkmıştı.
-
-2000 sonrası kitaplarda ortanca cümle 8 kelime (eski derlemde 10,5), 1-6 kelimelik cümleler %40 (eskide %25). Pencere CoV'si 0,45, eskiyle aynı. Cümleler kısalmış ama ritim değişmemiş.
-
-Devrik oranının ortancası %13 (eskide %8), ama kitaptan kitaba çok oynuyor: Sönmez'de %4, Toptaş'ın *Heba*'sında %37. Aynı yazarın eski ve yeni kitabını karşılaştırınca yön tutarsız çıkıyor. Pamuk *Cevdet Bey ve Oğulları*'nda (1982) %4, *Kafamda Bir Tuhaflık*'ta (2014) %12. Toptaş %17'den %37'ye çıkıyor, Mungan %26'dan %13'e iniyor. Devrik oranını dönem değil yazar ve kitap belirliyor. Skill'deki "kullanıcının örneği yoksa on cümlede birden fazla devrik kurma" varsayılanını bu yüzden değiştirmedik.
-
-## Açıklayıcı Metin Ölçümü (Psikoloji)
-
-Ders kitabıyla popüler bilim arasındaki türü ölçmek için Türkçe yazılmış beş psikoloji kitabı aldık (yaklaşık 415.000 kelime): Doğan Cüceloğlu, Üstün Dökmen, Engin Geçtan, Çiğdem Kağıtçıbaşı ile Zeynep Cemalcılar, Serol Teber. Ortanca cümle 12 kelime. 15-22 bandı %25, öbür türlerden yüksek. 28 kelimeden uzun cümleler %6,5. Pencere CoV'si 0,435 (kitaplar arasında 0,38-0,48), edebî metinden daha tekdüze. `-mAktAdIr` 100 kelimede 0,39, edebî metin (yaklaşık 0) ile akademik makale (yaklaşık 1,0) arasında. Cümlelerin %16'sı `-DIr`, %7'si `-mIştIr` ile bitiyor. Devrik %4. Noktalı virgül 1000 kelimede 3,9 (2,9-10,7), iki nokta 7,6. Skill'in ritim ve noktalı virgül kurallarına açıklayıcı metin için bu aralıkları ekledik.
-
-## Köşe Yazısı ve Mektup Ölçümü
-
-Blog ve sosyal medya yazısına en yakın yerli tür köşe yazısı. Beş yazarın köşe yazısı derlemesini ölçtük (yaklaşık 285.000 kelime): Murat Menteş, Attila İlhan, Çetin Altan, Cemal Süreya'nın *Günler*'i ve 2000'lerden bir magazin köşesi. Ortanca cümle 8 kelime, 1-6 kelimelik cümleler %39, pencere CoV'si 0,46, devrik %12. 1000 kelimede yaklaşık 11 soru, 9 üç nokta, 7 iki nokta ve 4 ünlem var. Denemeye göre soru üç kat, üç nokta üç dört kat fazla.
-
-Mektup, günlük ve anı için beş kitap ölçtük (yaklaşık 260.000 kelime): Oğuz Atay'ın *Günlük*'ü, Tezer Özlü'nün *Kalanlar*'ı, Sabahattin Ali'nin mektupları, Refik Halit'in *Minelbab İlelmihrab*'ı ve Orhan Pamuk'un *İstanbul*'u. Değerler edebî anlatıya yakın: ortanca cümle 9 kelime, pencere CoV'si 0,48, devrik %13, 1000 kelimede yaklaşık 4,5 soru ve 4 iki nokta.
-
-Bu derlemlerde `ama`dan önceki virgüle de baktık. Türk yazarlar `ama`ların %19-32'sinin önüne virgül koyuyor (çağdaş romanda %30, mektupta %32, köşe yazısında %19). Beş modelin metinlerinde bu oran %18, skill'in eski kuralıyla yazılmış metinlerde %8. Eski kural insan yazısında olağan bir özelliği siliyordu, kaldırdık.
-
-## Kurum Dili Ölçümü
-
-Kurum dili için 7 kamu belgesi ölçtük: iki belediye faaliyet raporu, iki Sayıştay denetim raporu, bir yönerge, bir mevzuat metni ve bir RAM raporu, toplam yaklaşık 36.000 kelime. Ortanca cümle 20 kelime, cümlelerin %35'i 28 kelimeden uzun, devrik %2. Cümlelerin %34'ü `-mIştIr` ile bitiyor, aynı ekle biten en uzun seri ortanca 9 cümle. Skill kurum yazışmasında ritim kuralını ve "art arda aynı ek" sınırını bu yüzden uygulamıyor.
-
-Bu özelliklerin yapay zekâdan önce de var olup olmadığına bakmak için İstanbul Büyükşehir Belediyesinin 2018, 2019 ve 2020 faaliyet raporlarını 2024 raporlarıyla (Kayseri, Kozan) aynı yöntemle örnekledik, her rapordan yaklaşık 8.000 kelime düz yazı. Eski raporlarda ortanca cümle 21-24 kelime, cümlelerin %34-40'ı 28 kelimeden uzun, %31-44'ü `-mIştIr` ile bitiyor. Aynı ekle biten en uzun seri 8-13 cümle, `-mAktAdIr` 100 kelimede 1,1-1,3. 2024 raporları da aynı aralıkta: ortanca cümle 19-20, `-mIştIr` %18-37, seri 10-15, `-mAktAdIr` 0,7-1,1. Kurum farkını ayırmak için İBB'nin 2023 ve 2024 raporlarına da baktık, sonuç değişmedi: ortanca cümle 22-23, `-mIştIr` %35-42, `-mAktAdIr` 1,2-1,3. Model metinlerinde sık görülen kalıplar (*bu bağlamda*, *kritik*, *öte yandan*) iki dönemde de 1000 kelimede 0,2'nin altında. Kurum dilinin bu özellikleri yapay zekâdan önce de vardı. Faaliyet raporlarındaki noktalı virgül (1000 kelimede 3-12) liste ve sıralama ayıracı olarak kullanılıyor.
-
-## Teknik Metin Ölçümü
-
-Doğrudan Türkçe yazılmış 19 teknik belge ölçtük (yaklaşık 38.500 kelime): dört MEB mesleki eğitim modülü, Fırat Özgül'ün Python kitabından iki bölüm, sekiz yerli geliştirici blog yazısı, iki kurum kılavuzu (KVKK, ODTÜ), üç Pardus ve Ubuntu Türkiye belgesi. Belge ortancaları şöyle: cümle 10 kelime, 15-22 bandı %16, 28 kelimeden uzun cümle %3. `-mAktAdIr` 100 kelimede 0,29, en yüksek KVKK'da 0,97, hiçbir belge 1,0'ı geçmiyor, kitap bölümlerinde hiç yok. Cümlelerin %15'i `-DIr` ile bitiyor (kurum kılavuzlarında %31), `-mIştIr` %2, noktalı virgül yok.
-
-Bu sayılar skill'in teknik metin kuralını (`-mAktAdIr` yerine `-Ar/-Ir`, tanımda `-DIr` kalır) ve dedektördeki 0-1,0 aralığını destekliyor. Kısa ortanca cümlenin bir kısmı başlıklardan ve liste maddelerinden geliyor. Devrik sezgiseli bu metinlerde işe yaramadı: Devrik sayılan cümlelerin hepsi tablo artığı ya da PDF'in böldüğü kelimelerdi.
-
-## Sınırlamalar
-
-Model tarafı küçük: beş modelden 40 metin, yaklaşık 17.000 kelime. Modellerle ilgili sayılar yön gösterir, kesin değildir.
-
-Ölçümler sezgisel. Cümle ve devrik tespiti düzenli ifadeyle yapıldı, biçim bilgisi çözümleyicisi kullanılmadı. Devrik sayacı edebî metinde gerçek devriklerin dörtte üçünü buluyor, devrik dediklerinin de üçte ikisi gerçekten devrik (ayrıntısı yukarıda). Akademik ve teknik metinde güvenilmez.
-
-OCR ve PDF çıkarımından gelen hataları temizledik ama hepsini gideremedik. Çıkarımı bozuk olan dört kitabı ilk derlemden çıkardık. Sonraki turlarda da editör notu karışmış ya da OCR'ı çok bozuk kitapları almadık.
+Yani skor tek başına "bunu yapay zekâ yazdı" demeye yetmez: deneme yazarlarının her dört beş parçasından biri "orta" çıkıyor. Skoru hüküm vermek için değil, onarımın işe yarayıp yaramadığını görmek için kullan. Sekiz cümleden kısa metinde skor üretilmez.
